@@ -12,7 +12,7 @@ To build pCloud Console Client you'll need the following requirements:
   - [Clang](https://clang.llvm.org) >= 3.6
   - [Apple Xcode](https://apps.apple.com/us/app/xcode/id497799835) >= 5.0
   - [Visual Studio](https://visualstudio.microsoft.com/) >= 2019 (16.8)
-- [Zlib](http://zlib.net/): A Massively Spiffy Yet Delicately Unobtrusive Compression Library
+- [Zlib](http://zlib.net/) >= 1.1.4: A Massively Spiffy Yet Delicately Unobtrusive Compression Library
 - [Boost](http://www.boost.org/): Boost system and boost program options libraries used
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
