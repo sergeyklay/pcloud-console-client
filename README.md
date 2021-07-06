@@ -25,7 +25,7 @@ Also, you'll need the following build tools:
 
 On Debian-based distros you can install the required packages this way:
 
-```shell script
+```shell
 $ sudo apt install \
     build-essential \
     cmake \
@@ -40,7 +40,7 @@ $ sudo apt install \
 ```
 On macOS, you most likely have a compiler as well as pthread, so you'll need only CMake:
 
-```shell script
+```shell
 $ brew install \
     cmake \
     macfuse \
