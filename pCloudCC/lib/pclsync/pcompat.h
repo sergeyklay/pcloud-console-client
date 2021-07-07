@@ -32,45 +32,45 @@
 
 #if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && !defined(P_OS_BSD) && !defined(P_OS_POSIX)
 #if defined(__ANDROID__)
-#define P_OS_LINUX
-#define P_OS_POSIX
+# define P_OS_LINUX
+# define P_OS_POSIX
 #elif defined(__APPLE__)
-#define P_OS_MACOSX
-#define P_OS_BSD
-#define P_OS_POSIX
+# define P_OS_MACOSX
+# define P_OS_BSD
+# define P_OS_POSIX
 #elif defined(__CYGWIN__)
-#define P_OS_POSIX
+# define P_OS_POSIX
 #elif defined(__linux__)
-#define P_OS_LINUX
-#define P_OS_POSIX
+# define P_OS_LINUX
+# define P_OS_POSIX
 #elif defined(__sun)
-#define P_OS_POSIX
+# define P_OS_POSIX
 #elif defined(__FreeBSD__)
-#define P_OS_POSIX
-#define P_OS_BSD
+# define P_OS_POSIX
+# define P_OS_BSD
 #elif defined(__DragonFly__)
-#define P_OS_POSIX
-#define P_OS_BSD
+# define P_OS_POSIX
+# define P_OS_BSD
 #elif defined(__NetBSD__)
-#define P_OS_POSIX
-#define P_OS_BSD
+# define P_OS_POSIX
+# define P_OS_BSD
 #elif defined(__OpenBSD__)
-#define P_OS_POSIX
-#define P_OS_BSD
+# define P_OS_POSIX
+# define P_OS_BSD
 #elif defined(__unix__)
-#define P_OS_POSIX
+# define P_OS_POSIX
 #elif defined(_WIN32) || defined(WIN32) || defined(Q_OS_WIN)
-#define P_OS_WINDOWS
+# define P_OS_WINDOWS
 #endif
 #endif
 
 #if (defined(P_OS_LINUX) || defined(P_OS_MACOSX) || defined(P_OS_BSD)) && !defined(P_OS_POSIX)
-#define P_OS_POSIX
+# define P_OS_POSIX
 #endif
 
 #if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && !defined(P_OS_POSIX)
-#warning "You OS may not be supported, trying to build POSIX compatible source"
-#define P_OS_POSIX
+# warning "You OS may not be supported, trying to build POSIX compatible source"
+# define P_OS_POSIX
 #endif
 
 #if defined(P_OS_WINDOWS)
@@ -78,21 +78,24 @@
 #define P_OS_ID 5
 
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
+# define _WIN32_WINNT 0x0501
 #endif
-
 
 #elif defined(P_OS_MACOSX)
 
 #define P_OS_ID 6
 
-#define _DARWIN_USE_64_BIT_INODE
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
 
 #elif defined(P_OS_LINUX)
 
 #define P_OS_ID 7
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
 
 #else
 
@@ -101,8 +104,8 @@
 #endif
 
 #ifdef P_ELECTRON
-#undef P_OS_ID
-#define P_OS_ID 9
+# undef P_OS_ID
+# define P_OS_ID 9
 #endif
 
 #define _FILE_OFFSET_BITS 64
@@ -121,7 +124,7 @@ typedef unsigned long psync_uint_t;
 #define P_PRI_U "lu"
 
 #ifndef PRIu64
-#define PRIu64 "I64u"
+# define PRIu64 "I64u"
 #endif
 
 
@@ -150,33 +153,33 @@ typedef unsigned long psync_uint_t;
 #define psync_stat_isfolder(s) S_ISDIR((s)->st_mode)
 #define psync_stat_size(s) ((s)->st_size)
 #ifdef _DARWIN_FEATURE_64_BIT_INODE
-#define psync_stat_birthtime(s) ((s)->st_birthtime)
-#define PSYNC_HAS_BIRTHTIME
+# define psync_stat_birthtime(s) ((s)->st_birthtime)
+# define PSYNC_HAS_BIRTHTIME
 #else
-#define psync_stat_birthtime(s) ((s)->st_mtime)
+# define psync_stat_birthtime(s) ((s)->st_mtime)
 #endif
 #define psync_stat_ctime(s) ((s)->st_ctime)
 #define psync_stat_mtime(s) ((s)->st_mtime)
 
 #if defined(st_mtime)
 #if defined(st_mtimensec)
-#define psync_stat_mtime_native(s) ((s)->st_mtime*1000000ULL+(s)->st_mtimensec/1000)
+# define psync_stat_mtime_native(s) ((s)->st_mtime*1000000ULL+(s)->st_mtimensec/1000)
 #else
-#define psync_stat_mtime_native(s) \
+# define psync_stat_mtime_native(s) \
   ((s)->st_mtime*1000000ULL+\
   ((struct timespec *)(&(s)->st_mtime))->tv_nsec/1000)
 #endif
-#define psync_mtime_native_to_mtime(n) ((n)/1000000ULL)
+# define psync_mtime_native_to_mtime(n) ((n)/1000000ULL)
 #else
-#define psync_stat_mtime_native(s) ((s)->st_mtime)
-#define psync_mtime_native_to_mtime(n) (n)
+# define psync_stat_mtime_native(s) ((s)->st_mtime)
+# define psync_mtime_native_to_mtime(n) (n)
 #endif
 
 #define psync_stat_inode(s) ((s)->st_ino)
-#if defined(P_OS_MACOSX)
+# if defined(P_OS_MACOSX)
 #define psync_stat_device(s) ((s)->st_dev>>24)
 #else
-#define psync_stat_device(s) ((s)->st_dev)
+# define psync_stat_device(s) ((s)->st_dev)
 #endif
 
 typedef struct stat psync_stat_t;
@@ -252,10 +255,10 @@ typedef int psync_file_t;
 
 #include <malloc.h>
 
-#define psync_def_var_arr(name, type, size) type *name=(type *)alloca(sizeof(type)*(size))
-#define atoll _atoi64
+# define psync_def_var_arr(name, type, size) type *name=(type *)alloca(sizeof(type)*(size))
+# define atoll _atoi64
 #if _MSC_VER < 1900
-#define snprintf _snprintf
+# define snprintf _snprintf
 #endif
 //#define snprintf _snprintf
 
@@ -383,15 +386,15 @@ typedef struct {
 } psync_interface_list_t;
 
 #ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
+# define INVALID_SOCKET -1
 #endif
 
 #ifndef SOCKET_ERROR
-#define SOCKET_ERROR -1
+# define SOCKET_ERROR -1
 #endif
 
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE -1
+# define INVALID_HANDLE_VALUE -1
 #endif
 
 #define PSYNC_SOCKET_ERROR      -1
@@ -403,8 +406,8 @@ typedef struct {
 #else
   typedef unsigned int socklen_t;
 #endif
-#define __socklen_t_defined
-#define HAVE_SOCKET_LEN_T
+# define __socklen_t_defined
+# define HAVE_SOCKET_LEN_T
 #endif
 
 typedef void (*psync_list_dir_callback)(void *, psync_pstat *);
