@@ -113,7 +113,7 @@ situations, but it isn't always possible.
 These days, many popular operating systems have a replacement `init`
 program with its own configuration language. Example configuration files
 for several of these are included in 
-[`examples`](https://github.com/sergeyklay/console-client/tree/master/pCloudCC)
+[`examples`](https://github.com/sergeyklay/console-client/tree/master/examples)
 directory, but the most common is probably **systemd**, which reads a service
 definition for lines describing command to run at various times. You can
 autostart client on system boot as follows:
