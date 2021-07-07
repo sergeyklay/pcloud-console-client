@@ -6,22 +6,24 @@ A simple Linux console client for [pCloud](https://pcloud.com) cloud storage.
 
 To build pCloud Console Client you'll need the following requirements:
 
-- A C11 compatible compiler such as:
-  - [Gcc](https://gcc.gnu.org) >= 4.9
-  - [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html) >= 16.0
-  - [Clang](https://clang.llvm.org) >= 3.6
-  - [Apple Xcode](https://apps.apple.com/us/app/xcode/id497799835) >= 5.0
-  - [Visual Studio](https://visualstudio.microsoft.com/) >= 2019 (16.8)
-- [Zlib](http://zlib.net/) >= 1.1.4: A Massively Spiffy Yet Delicately Unobtrusive Compression Library
-- [Boost](http://www.boost.org/): Boost system and boost program options libraries used
+- [Zlib](http://zlib.net/) >= 1.1.4: A software library used for data compression
+- [Boost](http://www.boost.org/) >= 1.58: Boost system and boost program options libraries used for console client
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
 - [SQLite](https://www.sqlite.org/index.html) >= 3.0
 
 Also, you'll need the following build tools:
 
+- A C99/C++11 compatible compiler such as
+  [GCC](https://gcc.gnu.org),
+  [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
+  [Clang](https://clang.llvm.org) or
+  [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
 - [CMake](https://cmake.org/) >= 2.6
 - [GNU Make](https://www.gnu.org/software/make)
+
+**Note:** Some parts of the client use GNU extensions to ISO C99 standard,
+thus your compiler should support `-std=gnu99`.
 
 On Debian-based distros you can install the required packages this way:
 
@@ -38,7 +40,7 @@ $ sudo apt install \
     libudev-dev \
     zlib1g-dev
 ```
-On macOS, you most likely have a compiler as well as pthread, so you'll need only CMake:
+On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 
 ```shell
 $ brew install \
@@ -47,9 +49,6 @@ $ brew install \
     boost \
     zlib
 ```
-
-Please note that specific versions of libraries and programs at the time of
-reading this guide may vary.
 
 ## Build steps
 

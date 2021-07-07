@@ -5,12 +5,12 @@ RANLIB=ranlib
 USESSL=mbed
 
 #CFLAGS=-Wall -Wpointer-arith -O2 -g -fsanitize=address -mtune=core2
-CFLAGS=-Wall -Wpointer-arith -O2 -g -fno-stack-protector -fomit-frame-pointer -fPIC
+CFLAGS=-std=gnu99 -Wall -Wpointer-arith -O2 -g -fno-stack-protector -fomit-frame-pointer -fPIC
 #CFLAGS=-O2 -g -pg
 #CFLAGS=-Wall -Wpointer-arith -O2 -g -mtune=core2 -I../../psync32/zlib -I../../psync32/sqlite -m32 -D_FILE_OFFSET_BITS=64
 
-#CMAKE whants lib extension 
-LIB_A=libpsynclib.a 
+#CMAKE whants lib extension
+LIB_A=libpsynclib.a
 
 
 ifeq ($(OS),Windows_NT)
@@ -74,10 +74,9 @@ fs: $(OBJ) $(OBJFS)
 
 cli: fs
 	$(CC) $(CFLAGS) -o cli cli.c $(LIB_A) $(LDFLAGS)
-	
+
 overlay_client:
 	cd ./lib/poverlay_linux && make
 
 clean:
 	rm -f *~ *.o $(LIB_A) ./lib/poverlay_linux/*.o ./lib/poverlay_linux/overlay_client
-
