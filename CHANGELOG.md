@@ -15,7 +15,8 @@ releases, in reverse chronological order.
 
 ### Bugfix
 
-* Fixed typos and misspeling in the documentation.
+* Fixed typos and misspelling in the documentation.
+* Fixed redefinition of `_GNU_SOURCE` and `_DARWIN_USE_64_BIT_INODE`.
 
 ### Changes
 
