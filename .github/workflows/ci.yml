@@ -39,8 +39,22 @@ jobs:
         include:
           - name: linux-gcc-debug
             build-type: Debug
-            os: ubuntu-20.04
+            os: ubuntu-18.04
             ssl: mbedtls
+            compiler: gcc
+            version: '5'
+
+          # TODO: Enable after fix Makefile
+          #
+          #    /usr/bin/ld: ../lib/mbedtls/library/libmbedtls.a(aes.c.o): relocation R_X86_64_32S against `.bss'
+          #                 can not be used when making a shared object; recompile with -fPIC
+          #
+          # - name: linux-clang-debug
+          #   build-type: Debug
+          #   os: ubuntu-18.04
+          #   ssl: mbedtls
+          #   compiler: clang
+          #   version: '5.0'
 
     steps:
       - name: Checkout Code
@@ -52,14 +66,18 @@ jobs:
         run: |
           case ${{ runner.os }} in
             Linux*)
+              # Add more toolchains
               echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+              sudo add-apt-repository ppa:ubuntu-toolchain-r/test --yes
               sudo apt-get update --quiet --yes 1>/dev/null
+
+              # Install compiler
+              source .github/install-compiler-linux.sh \
+                "${{ matrix.compiler }}" "${{ matrix.version }}"
 
               # Install build deps
               sudo apt-get install --no-install-recommends -q -y \
-                 build-essential \
                  cmake \
-                 gcc \
                  fuse \
                  libboost-program-options-dev \
                  libboost-system-dev \
@@ -69,6 +87,11 @@ jobs:
                  zlib1g-dev
               ;;
           esac
+
+      - name: Verify Toolchain Version
+        run: |
+          ${{ matrix.compiler }} --version
+          cmake --version
 
       - name: Build pclsync
         working-directory: pCloudCC/lib/pclsync

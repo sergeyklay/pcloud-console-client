@@ -32,7 +32,6 @@ $ sudo apt install \
     build-essential \
     cmake \
     fuse \
-    gcc \
     libboost-program-options-dev \
     libboost-system-dev \
     libfuse-dev \

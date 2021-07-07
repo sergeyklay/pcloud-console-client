@@ -23,7 +23,7 @@ set (MBEDTLS_PATH ${CMAKE_SOURCE_DIR}/lib/mbedtls)
 set (SQLITE3_PATH ${CMAKE_SOURCE_DIR}/lib/sqlite)
 
 # Require C99. Some parts of the client use GNU extensions to ISO C99 standard,
-# thus teh compiler should support `-std=gnu99`
+# thus the compiler should support `-std=gnu99`
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.1.0")
   set(CMAKE_C_STANDARD 99)
   set(CMAKE_C_STANDARD_REQUIRED ON)
