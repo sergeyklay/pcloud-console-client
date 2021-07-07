@@ -27,7 +27,7 @@ thus your compiler should support `-std=gnu99`.
 
 On Debian and its derivatives you can install the required packages this way:
 
-```shell
+```sh
 $ sudo apt install \
     build-essential \
     cmake \
@@ -41,7 +41,7 @@ $ sudo apt install \
 ```
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 
-```shell
+```sh
 $ brew install \
     cmake \
     macfuse \
@@ -53,14 +53,14 @@ $ brew install \
 
 First you'll need clone the project:
 
-```shell
+```sh
 $ git clone https://github.com/pcloudcom/console-client.git
 $ cd console-client
 ```
 
 Finally, configure and build project as follows:
 
-```shell
+```sh
 $ cd pCloudCC/lib/pclsync
 $ make clean fs
 
@@ -81,112 +81,7 @@ $ pcloudcc -u username -p
 
 ## Usage
 
-Terminal command is `pcloudcc` and `-h` option prints short options description.
-
-```
-$ pcloudcc -h
-pCloud console client v.2.0.1
-Allowed options:
-  -h [ --help ]             produce help message
-  -u [ --username ] arg     pCloud account name
-  -p [ --password ]         pCloud account password
-  -c [ --crypto ] arg       Crypto password
-  -y [ --passascrypto ] arg Use user password as crypto password also.
-  -d [ --daemonize ]        Daemonize the process.
-  -o [ --commands  ]        Parent stays alive and processes commands.
-  -m [ --mountpoint ] arg   Mount point where drive to be mounted.
-  -k [ --commands_only ]    Daemon already started pass only commands.
-  -n [ --newuser ]          Switch if this is a new user to be registered.
-  -s [ --savepassword ]     Save password in database.
-```
-
-Also, there are several commands that the running service can execute. Commands are passed using
-
-```shell
-$ pcloudcc -k
-```
-
-or  starting the daemon with `-o`. Available commands are:
-- `startcrypto <crypto pass>` - starts crypto using given password.
-- `stopcrypto` – stops the crypto.
-- `finalize` – stops the running daemon.
-- `quit`, `q` - exits the current client. Daemon stays alive.
-
-### Example usage scenario
-
-1. Start the service manually
-   ```shell
-   $ pcloudcc -u example@myemail.com -p -s
-   ```
-2. Enter password and use `-s` switch to save the password.
-3. Verify that file system starts and mounts normally. If you don't have
-   existing user use `-n` switch to register new user:
-   ```shell
-   $ pcloudcc -u example@myemail.com -p -s -n
-   ```
-   Notice that a new user may take a while to mount. Please, be patient.
-4. Start the daemon service:
-   ```shell
-   $ pcloudcc -u example@myemail.com -d
-   ```
-5. Verify the file system is mounted.
-6. At that point you can test passing some commands.
-   ```shell
-   $ pcloudcc -u example@myemail.com -k
-   ```
-   Or starting the daemon with `-o`. Test unlocking and locking crypto if you
-   have subscription for it.
-7. Quit the client. Congratulations, your pCloud Console Client works properly.
-   You can now add `pcloudcc -u example@myemail.com -d` command in you startup
-   scripts  and thous mount the file system on startup.
-
-**Note:** Stopping daemon will break pending background transfers.
-Current version of `pcloudcc` doesn't support command to check if there are
-pending transfers. Locally cached files are located under `~/.pcloud/Cache`
-directory. When there is only one file `~/.pcloud/Cache/cached` (usually big sized)
-this mean that all transfers are completed.
-
-## Autostart on system boot
-
-It's probably easiet to just follow
-[these instructions](https://www.howtogeek.com/228467/how-to-make-a-program-run-at-startup-on-any-computer/)
-for setting up autostart. Alternatively, you can try following the instructions below.
-
-### Linux (systemd)
-
-Create `~/.config/systemd/user/pcloudcc.service` file with the following contents:
-
-```ini
-[Unit]
-Description=Console client for pCloud cloud storage
-Documentation=https://github.com/pcloudcom/console-client
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/sbin/pcloudcc -u example@myemail.com
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then run:
-```shell
-$ systemctl enable --user pcloudcc
-```
-
-followed by:
-```shell
-$ systemctl start --user pcloudcc
-```
-
-Remember to initialize you account first by running:
-
-```shell
-$ pcloudcc -u example@myemail.com -p -s
-```
+See [Maintaining pCloud Console Client](https://github.com/sergeyklay/console-client/blob/master/doc/Usage.md).
 
 ## Packages
 
@@ -212,6 +107,6 @@ $ pcloudcc -u example@myemail.com -p -s
 
 To create a Debian package form the source use:
 
-```shell
+```sh
 $ debuild -i -us -uc -b
 ```
