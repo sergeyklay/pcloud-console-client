@@ -11,7 +11,8 @@ releases, in reverse chronological order.
 
 ### Features
 
-* Introduced CI process through GitHub Actions.
+* Introduced the CI process through GitHub Actions.
+* Provided systemd service example.
 
 ### Bugfix
 
