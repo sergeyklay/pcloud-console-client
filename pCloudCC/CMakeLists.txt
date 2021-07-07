@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 2.6)
-project(pcloudcc)
+# Compatibility with CMake < 2.8.12 will be removed from a future version of
+# modern CMake. So tell CMake that the project does not need compatibility
+# with older versions.
+cmake_minimum_required(VERSION 2.8.12)
+
+project(pcloudcc LANGUAGES C CXX)
 
 #INCLUDE(CPack)
 
@@ -17,6 +21,25 @@ set (CMAKE_C_FLAGS "-fPIC")
 set (PCLSYNC_PATH ${CMAKE_SOURCE_DIR}/lib/pclsync)
 set (MBEDTLS_PATH ${CMAKE_SOURCE_DIR}/lib/mbedtls)
 set (SQLITE3_PATH ${CMAKE_SOURCE_DIR}/lib/sqlite)
+
+# Require C99. Some parts of the client use GNU extensions to ISO C99 standard,
+# thus teh compiler should support `-std=gnu99`
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.1.0")
+  set(CMAKE_C_STANDARD 99)
+  set(CMAKE_C_STANDARD_REQUIRED ON)
+endif()
+
+# Require C++11. We don't use GNU extensions to ISO C++11 standard, thus make
+# sure we're able build project using ISO C++.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.1.0")
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.5.0")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+endif()
 
 #add_subdirectory(${MBEDTLS_PATH})
 
@@ -71,5 +94,3 @@ link_directories(${PCLSYNC_PATH} ${MBEDTLS_PATH}/library ${SQLITE3_PATH} ${OVERL
 
 install(TARGETS pcloudcc RUNTIME DESTINATION bin)
 install(TARGETS pcloudcc_lib LIBRARY DESTINATION lib)
-
-

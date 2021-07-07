@@ -19,13 +19,13 @@ Also, you'll need the following build tools:
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
-- [CMake](https://cmake.org/) >= 2.6
-- [GNU Make](https://www.gnu.org/software/make)
+- [CMake](https://cmake.org/) >= 2.8.12
+- [GNU Make](https://www.gnu.org/software/make) >= 3.82
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
 thus your compiler should support `-std=gnu99`.
 
-On Debian-based distros you can install the required packages this way:
+On Debian and its derivatives you can install the required packages this way:
 
 ```shell
 $ sudo apt install \
