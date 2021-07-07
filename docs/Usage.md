@@ -29,9 +29,8 @@ Any other signals like `SIGQUIT` (<kbd>Ctrl</kbd> + <kbd>\\</kbd>),
 `SIGKILL`, etc are handled by your OS. For more see `man 2 signal` and
 `man 1 kill`.
 
-## Usage
-
-Terminal command is `pcloudcc` and `-h` option prints short options description.
+To get a help run the client followed by `-h` option. This will ask client to
+output short options description:
 
 ```sh
 $ pcloudcc -h
@@ -118,9 +117,9 @@ directory, but the most common is probably **systemd**, which reads a service
 definition for lines describing command to run at various times. You can
 autostart client on system boot as follows:
 
-Copy service:
+Copy service from the `examples` directory:
 ```sh
-$ sudo cp ./systemd/.pcloudcc@.service /usr/lib/systemd/user/pcloudcc@.service
+$ sudo cp examples/systemd/.pcloudcc@.service /usr/lib/systemd/user/pcloudcc@.service
 ```
 
 Then as your own user enable it:
