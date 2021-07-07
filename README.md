@@ -81,7 +81,7 @@ $ pcloudcc -u username -p
 
 ## Usage
 
-See [Maintaining pCloud Console Client](https://github.com/sergeyklay/console-client/blob/master/doc/Usage.md).
+See [Maintaining pCloud Console Client](https://github.com/sergeyklay/console-client/blob/master/docs/Usage.md).
 
 ## Packages
 
