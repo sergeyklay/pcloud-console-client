@@ -40,6 +40,7 @@ jobs:
           - name: linux-gcc-debug
             build-type: Debug
             os: ubuntu-20.04
+            ssl: mbedtls
 
     steps:
       - name: Checkout Code
@@ -73,11 +74,20 @@ jobs:
         working-directory: pCloudCC/lib/pclsync
         run: make clean fs
 
-      - name: Build mbedtls
+      - name: Configure mbedtls
+        if: matrix.ssl == 'mbedtls'
         working-directory: pCloudCC/lib/mbedtls
         run: |
-          cmake .
-          make clean all
+          cmake       \
+            -S .      \
+            -B .      \
+            -DCMAKE_C_STANDARD=99 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+
+      - name: Build mbedtls
+        if: matrix.ssl == 'mbedtls'
+        working-directory: pCloudCC/lib/mbedtls
+        run: make clean all
 
       - name: Configure client
         working-directory: pCloudCC
@@ -85,12 +95,12 @@ jobs:
           cmake       \
             -S .      \
             -B .build \
+            -DCMAKE_CXX_STANDARD=11 \
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
       - name: Build client
         working-directory: pCloudCC
-        run: |
-          cmake --build .build --config ${{ matrix.build-type }}
+        run: cmake --build .build --config ${{ matrix.build-type }}
 
       - name: Install client
         working-directory: pCloudCC/.build

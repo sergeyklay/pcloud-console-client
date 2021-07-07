@@ -14,16 +14,16 @@ To build pCloud Console Client you'll need the following requirements:
 
 Also, you'll need the following build tools:
 
-- A C11/C++11 compatible compiler such as
-  [Gcc](https://gcc.gnu.org),
+- A C99/C++11 compatible compiler such as
+  [GCC](https://gcc.gnu.org),
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
 - [CMake](https://cmake.org/) >= 2.6
 - [GNU Make](https://www.gnu.org/software/make)
 
-**Note:** Specific versions of libraries and programs at the time of reading
-this guide may vary.
+**Note:** Some parts of the client use GNU extensions to ISO C99 standard,
+thus your compiler should support `-std=gnu99`.
 
 On Debian-based distros you can install the required packages this way:
 
