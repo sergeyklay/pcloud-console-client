@@ -76,6 +76,9 @@ $ sudo cmake --build .build --target install
 $ pcloudcc -u username -p
 ```
 
+**Note:** You may need to call `sudo ldconfig` to configure dynamic linker
+run-time bindings.
+
 ## Usage
 
 See [Maintaining pCloud Console Client](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Usage.md).

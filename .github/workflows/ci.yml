@@ -125,6 +125,8 @@ jobs:
       - name: Install client
         run: |
           sudo cmake --build .build --config ${{ matrix.build-type }} --target install
+
+          # TODO: Get rid of this
           sudo ldconfig
 
       - name: Minimal Load Test
