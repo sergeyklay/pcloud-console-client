@@ -110,3 +110,16 @@ To create a Debian package form the source use:
 ```sh
 $ debuild -i -us -uc -b
 ```
+## Project Information
+
+pCloud Console Client was forked from the
+[project](https://github.com/pcloudcom/console-client) initially written by
+pCloud Ltd. to breathe new life into it and set a more dynamic pace of
+development.  If you'd like to contribute to pCloud Console Client you're most
+welcome!
+
+## License
+
+pCloud Console Client is open source software licensed under the
+[BSD 3-Clause Clear License](https://choosealicense.com/licenses/bsd-3-clause-clear/)
+See the LICENSE file for more information.
