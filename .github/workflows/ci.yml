@@ -126,7 +126,9 @@ jobs:
         run: sudo cmake --build .build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
-        run: pcloudcc --help
+        run: |
+          ldd "$(command -v pcloudcc)"
+          pcloudcc --help
 
       - name: Success Reporting
         if: success()
