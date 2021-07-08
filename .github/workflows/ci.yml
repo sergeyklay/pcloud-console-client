@@ -123,11 +123,13 @@ jobs:
         run: cmake --build .build --config ${{ matrix.build-type }}
 
       - name: Install client
-        run: sudo cmake --build .build --config ${{ matrix.build-type }} --target install
+        run: |
+          sudo cmake --build .build --config ${{ matrix.build-type }} --target install
+          sudo ldconfig
 
       - name: Minimal Load Test
         run: |
-          ldd "$(command -v pcloudcc)"
+          ldd "$(command -v pcloudcc)" | sed 's/^[ \t]*/    /'
           pcloudcc --help
 
       - name: Success Reporting
