@@ -39,21 +39,6 @@ else()
   set(BUILD_JOBS 2)
 endif()
 
-# When you create a shared library or DLL with the MSVC compiler, you
-# have to tell it what symbols you want exported from the library.
-# UNIX compilers default to exporting all symbols.  Windows defaults
-# to NONE.   When you create a DLL, you get two files a <LIB>.dll and
-# IF you have exports a <LIB>.lib.
-#
-# The following config will enable UNIX-like behavior in Windows and
-# forces to export all symbols.
-#
-# For more see:
-# https://cmake.org/cmake/help/latest/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.4")
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-
 # Generate a "compile_commands.json" file containing the exact compiler
 # calls for all translation units of the project in machine-readable form.
 # This is useful  for all sorts of tools ("clang-tidy", "cppcheck", "oclint",
