@@ -1,3 +1,16 @@
+# pCloud Console Client
+#
+# Copyright (c) 2021 Serghei Iakovlev.
+# Copyright (c) 2013-2016 Anton Titov.
+# Copyright (c) 2013-2016 pCloud Ltd.
+#
+# This source file is subject to the New BSD License that is bundled with this
+# project in the file LICENSE.
+#
+# If you did not receive a copy of the license and are unable to obtain it
+# through the world-wide-web, please send an email to egrep@protonmail.ch so
+# we can send you a copy immediately.
+
 # Please do not use this ignore file to define platform specific files.
 #
 # For these purposes create a global .gitignore file, which is a list of rules
@@ -8,8 +21,9 @@
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
 /.build
 
-/pCloudCC/lib/mbedtls/Makefile
-/pCloudCC/lib/mbedtls/library/Makefile
+# Configuration artifacts
+/src/lib/mbedtls/Makefile
+/src/lib/mbedtls/library/Makefile
 
 # Build artifacts
 *.o
