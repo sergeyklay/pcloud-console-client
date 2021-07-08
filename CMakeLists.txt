@@ -33,4 +33,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   message(STATUS "Used generator: ${CMAKE_GENERATOR}")
 endif()
 
+# Use a standard directory layout
+include(GNUInstallDirs)
+
 add_subdirectory(src)

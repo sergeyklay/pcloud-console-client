@@ -69,13 +69,30 @@ $ make clean all
 $ cd ../..
 $ cmake -S . -B .build
 $ cmake --build .build
-$ sudo cmake --build .build --target install
-
-$ pcloudcc -u username -p
 ```
 
-**Note:** You may need to call `sudo ldconfig` to configure dynamic linker
-run-time bindings.
+## Install
+
+To install client after the build stage simple use `install` target:
+
+```sh
+$ sudo cmake --build .build --target install
+```
+
+To install client in a non-standard location you'll need to change the
+installation prefix. Use `-DCMAKE_INSTALL_PREFIX=/new/location` to change it
+at client configure time as follows:
+
+```sh
+$ # Configure build
+$ cmake -S . -B .build -DCMAKE_INSTALL_PREFIX=~/.local
+
+# Build client
+$ cmake --build .build
+
+# Install client (this will use custom prefix now)
+$ cmake --build .build --target install
+```
 
 ## Packages
 
