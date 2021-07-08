@@ -126,11 +126,7 @@ jobs:
 
       - name: Install client
         working-directory: pCloudCC/.build
-        run: |
-          sudo make install
-          sudo ldconfig
-
-          ldd $(command -v pcloudcc)
+        run: sudo cmake --build .build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
         run: pcloudcc --help
