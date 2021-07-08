@@ -3,7 +3,7 @@
 pushd pCloudCC/lib/pclsync || exit 1
   echo "Build pclsync"
   make clean fs
-popd || exit
+popd || exit 1
 
 pushd pCloudCC/lib/mbedtls || exit 1
   echo "Configure Mbed TLS"
@@ -11,7 +11,7 @@ pushd pCloudCC/lib/mbedtls || exit 1
 
   echo "Build Mbed TLS"
   cmake --build . --config Release
-popd || exit
+popd || exit 1
 
 pushd pCloudCC || exit 1
   echo "Configure client"
@@ -23,4 +23,4 @@ pushd pCloudCC || exit 1
   echo "Install client"
   sudo make -C ../.build install
   sudo ldconfig
-popd || exit
+popd || exit 1
