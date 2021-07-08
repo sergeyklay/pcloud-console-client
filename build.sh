@@ -15,12 +15,12 @@ popd || exit
 
 pushd pCloudCC || exit 1
   echo "Configure client"
-  cmake -S . -B .build -DCMAKE_BUILD_TYPE=Release
+  cmake -S . -B ../.build -DCMAKE_BUILD_TYPE=Release
 
   echo "Build client"
-  cmake --build .build --config Release
+  cmake --build ../.build --config Release
 
   echo "Install client"
-  sudo make -C .build install
+  sudo make -C ../.build install
   sudo ldconfig
 popd || exit
