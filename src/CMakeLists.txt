@@ -17,8 +17,8 @@ unset(Boost_INCLUDE_DIR CACHE)
 unset(Boost_LIBRARY_DIRS CACHE)
 
 find_package(Boost COMPONENTS system program_options REQUIRED)
-include_directories("${Boost_INCLUDE_DIR}")
-link_directories("${Boost_LIBRARY_DIR}")
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIR})
 
 set (CMAKE_C_FLAGS "-fPIC")
 
@@ -26,12 +26,12 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
 set (OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
-include_directories("${OVERLAY_CLIENT_PATH}")
+include_directories(${OVERLAY_CLIENT_PATH})
 
 add_library(sqlite3 STATIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite/sqlite3.c")
 target_link_libraries(sqlite3 z dl)
 
-add_library(pcloudcc_lib
+add_library(pcloudcc_lib  # Rename
     SHARED pclsync_lib_c.cpp
            pclsync_lib.cpp
            control_tools.cpp
@@ -52,7 +52,7 @@ add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc pcloudcc_lib)
 
-target_link_libraries(pcloudcc "${Boost_LIBRARIES}")
+target_link_libraries(pcloudcc ${Boost_LIBRARIES})
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library"
@@ -74,8 +74,7 @@ file(TO_NATIVE_PATH
     message_RPATH)
 
 set_target_properties(pcloudcc PROPERTIES
-    # TODO: Sort out with version
-    # VERSION ${PROJECT_VERSION}
+    VERSION ${PROJECT_VERSION}
     MACOSX_RPATH ON
     # Don't skip the full RPATH for the build tree.
     SKIP_BUILD_RPATH OFF
