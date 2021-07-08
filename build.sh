@@ -25,10 +25,8 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
-pushd src/lib/pclsync || exit 1
-  echo "Build pclsync"
-  make clean fs
-popd || exit 1
+echo "Build pclsync"
+make -C src/lib/pclsync clean fs
 
 pushd src/lib/mbedtls || exit 1
   echo "Configure Mbed TLS"
@@ -39,10 +37,10 @@ pushd src/lib/mbedtls || exit 1
 popd || exit 1
 
 echo "Configure client"
-cmake -S . -B .build
+cmake -S . -B .build -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
 cmake --build .build
 
 echo "Install client"
-sudo cmake --build .build --target install
+cmake --build .build --target install

@@ -59,5 +59,38 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite"
     "${OVERLAY_CLIENT_PATH}")
 
-install(TARGETS pcloudcc RUNTIME DESTINATION bin)
-install(TARGETS pcloudcc_lib LIBRARY DESTINATION lib)
+file(RELATIVE_PATH _rel
+    ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+    ${CMAKE_INSTALL_PREFIX})
+
+if(APPLE)
+  set(_rpath "@loader_path/${_rel}")
+else()
+  set(_rpath "\$ORIGIN/${_rel}")
+endif()
+
+file(TO_NATIVE_PATH
+    "${_rpath}/${CMAKE_INSTALL_LIBDIR}"
+    message_RPATH)
+
+set_target_properties(pcloudcc PROPERTIES
+    # TODO: Sort out with version
+    # VERSION ${PROJECT_VERSION}
+    MACOSX_RPATH ON
+    # Don't skip the full RPATH for the build tree.
+    SKIP_BUILD_RPATH OFF
+    # When building, don't use the install RPATH already.
+    BUILD_WITH_INSTALL_RPATH OFF
+    # The RPATH to be used when installing.
+    INSTALL_RPATH "${message_RPATH}"
+    # Tells CMake to append linker search paths to
+    # the RPATH executable.
+    INSTALL_RPATH_USE_LINK_PATH ON)
+
+install(TARGETS pcloudcc
+    RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS pcloudcc_lib
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

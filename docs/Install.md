@@ -69,30 +69,27 @@ $ make clean all
 $ cd ../..
 $ cmake -S . -B .build
 $ cmake --build .build
-$ sudo cmake --build .build --target install
-
-$ pcloudcc -u username -p
 ```
 
-**Note:** You may need to call `sudo ldconfig` to configure dynamic linker
-run-time bindings.
+## Install
 
-## Packages
+To install client after the build stage simple use `install` target:
 
-### Current stable packages
+```sh
+$ sudo cmake --build .build --target install
+```
 
-- Ubuntu 18.04 64 bit
-  [pcloudcc_2.1.0-1_amd64_ubuntu.18.04.deb](https://my.pcloud.com/publink/show?code=XZvLyi7Zsz7t1H0aYIFiawL4LSgN3uxLBUJX)
-- Debian 9.9 64 bit
-  [pcloudcc_2.1.0-1_amd64_debian.9.9.deb](https://my.pcloud.com/publink/show?code=XZYVyi7ZseHyB89XXK0lVAdyy0AwQYl7osU7)
-- Debian 9.9 32 bit
-  [pcloudcc_2.1.0-1_i386_debian.9.9.deb](https://my.pcloud.com/publink/show?code=XZuVyi7ZLevxTwQKGrSrxp8uIrQodBwDfX67)
+To install client in a non-standard location you'll need to change the
+installation prefix. Use `-DCMAKE_INSTALL_PREFIX=/new/location` to change it
+at client configure time as follows:
 
-### Older pre-built packages
+```sh
+$ # Configure build
+$ cmake -S . -B .build -DCMAKE_INSTALL_PREFIX=~/.local
 
-- Binary package 64 bit
-  [pcloudcc_2.0.1-1_amd64.deb](https://my.pcloud.com/publink/show?code=XZv1aQ7ZkEd1Vr0gj3hTteoDtujd481o7amk)
-- Ubuntu 17.10 64 bit
-  [pcloudcc_2.0.1-1_amd64_ubuntu.17.10.deb](https://my.pcloud.com/publink/show?code=XZFeaQ7ZH1nHUfK4MLzGdeCvmmJywBUFANyy)
-- Ubuntu 14.04 64 bit
-  [pcloudcc_2.0.1-1_amd64_ubuntu.14.04.deb](https://my.pcloud.com/publink/show?code=XZSeaQ7ZFPq1g8oowJXyXap7KKzTtSKoACHy)
+# Build client
+$ cmake --build .build
+
+# Install client (this will use custom prefix now)
+$ cmake --build .build --target install
+```

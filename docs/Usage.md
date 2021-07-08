@@ -118,16 +118,20 @@ definition for lines describing command to run at various times. You can
 autostart client on system boot as follows:
 
 Copy service from the `examples` directory:
+
 ```sh
-$ sudo cp examples/systemd/.pcloudcc@.service /usr/lib/systemd/user/pcloudcc@.service
+$ mkdir -p ~/.config/systemd/user
+$ cp examples/systemd/pcloudcc@.service ~/.config/systemd/user
 ```
 
 Then as your own user enable it:
+
 ```sh
 $ systemctl --user enable pcloudcc@<example@myemail.com>.service
 ```
 
 Finally, start it:
+
 ```sh
 $ systemctl --user start pcloudcc@<example@myemail.com>.service
 ```
