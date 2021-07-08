@@ -27,8 +27,6 @@
 #ifndef OVERLAY_CLIENT_H
 #define OVERLAY_CLIENT_H
 
-// #define P_OS_MACOS
-
 typedef enum _pCloud_FileState
 {
   FileStateInSync = 0,

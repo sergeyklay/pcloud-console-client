@@ -1,8 +1,6 @@
 # pCloud Console Client
 #
 # Copyright (c) 2021 Serghei Iakovlev.
-# Copyright (c) 2013-2016 Anton Titov.
-# Copyright (c) 2013-2016 pCloud Ltd.
 #
 # This source file is subject to the New BSD License that is bundled with this
 # project in the file LICENSE.
@@ -31,47 +29,30 @@ include_directories(${OVERLAY_CLIENT_PATH})
 add_library(sqlite3 STATIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite/sqlite3.c")
 target_link_libraries(sqlite3 z dl)
 
-add_library(pcloudcc_lib  # Rename
-    SHARED pclsync_lib_c.cpp
-           pclsync_lib.cpp
+add_library(pclcli
+    STATIC pclcli.cpp
            control_tools.cpp
            "${OVERLAY_CLIENT_PATH}/overlay_client.c"
            "${OVERLAY_CLIENT_PATH}/debug.c")
 
-target_include_directories(pcloudcc_lib
+target_include_directories(pclcli
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
-target_link_libraries(pcloudcc_lib
+target_link_libraries(pclcli
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync/libpsynclib.a"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library/libmbedtls.a"
-    fuse
-    pthread
-    sqlite3)
+    fuse pthread sqlite3)
 
 add_executable(pcloudcc main.cpp)
 
-target_link_libraries(pcloudcc pcloudcc_lib)
-
-target_link_libraries(pcloudcc ${Boost_LIBRARIES})
+target_link_libraries(pcloudcc
+    pclcli
+    ${Boost_LIBRARIES})
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite"
     "${OVERLAY_CLIENT_PATH}")
-
-file(RELATIVE_PATH _rel
-    ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-    ${CMAKE_INSTALL_PREFIX})
-
-if(APPLE)
-  set(_rpath "@loader_path/${_rel}")
-else()
-  set(_rpath "\$ORIGIN/${_rel}")
-endif()
-
-file(TO_NATIVE_PATH
-    "${_rpath}/${CMAKE_INSTALL_LIBDIR}"
-    message_RPATH)
 
 set_target_properties(pcloudcc PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -90,6 +71,3 @@ install(TARGETS pcloudcc
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-install(TARGETS pcloudcc_lib
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

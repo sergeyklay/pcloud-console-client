@@ -22,28 +22,26 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/ 
+*/
 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <sys/un.h> 
-#include <stdlib.h> 
-#include <unistd.h> 
-#include <stdint.h> 
-#include <errno.h> 
-#include <netinet/in.h> 
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <errno.h>
+#include <netinet/in.h>
 
-#include "overlay_client.h" 
-#include "debug.h" 
-#define POVERLAY_BUFSIZE 512 
+#include "overlay_client.h"
+#include "debug.h"
+#define POVERLAY_BUFSIZE 512
 
 typedef struct _message {
 uint32_t type;
 uint64_t length;
 char value[];
 } message;
-
-
 
 #if defined(P_OS_MACOS)
 uint32_t clport = 8989 ;
@@ -64,9 +62,9 @@ int QueryState( pCloud_FileState *state, char * path) {
       *state = FileStateInProgress ;
     else if (rep == 11 )
       *state = FileStateNoSync ;
-    else 
+    else
       *state = FileStateInvalid ;
-  } else 
+  } else
     debug ( D_ERROR , "QueryState ERROR rep[%d] path[%s]" , rep, path);
   free (errm);
 return 0 ;
@@ -126,7 +124,7 @@ int SendCall( int id /*IN*/ , char * path /*IN*/ , int * ret /*OUT*/ , char ** e
     *ret = - 4 ;
     return - 4 ;
   }
-  #endif 
+  #endif
 
   message * mes = ( message *)sendbuf;
   memset (mes, 0 , mess_size);
@@ -167,32 +165,3 @@ int SendCall( int id /*IN*/ , char * path /*IN*/ , int * ret /*OUT*/ , char ** e
 
   return 0 ;
 }
-
-#ifdef PCLOUD_TESTING
-int main ( int arc, char **argv ){
-  int i,j = 0 ;
-  pCloud_FileState state;
-  char *errm;
-
-  for (i = 1 ; i < arc; ++i) {
-    QueryState(&state, argv[i]);
-    if (state == FileStateInSync)
-      printf( "File %s FileStateInSync\n" , argv[i]);
-    else if (state == FileStateNoSync)
-      printf( "File %s FileStateNoSync\n" , argv[i]);
-    else if (state == FileStateInProgress)
-      printf( "File %s FileStateInProgress\n" , argv[i]);
-    else if (state == FileStateInvalid)
-      printf( "File %s FileStateInvalid\n" , argv[i]);
-    else 
-      printf( "Not valid state returned for file %s\n" , argv[i]);
-    SendCall( 20 , argv[i], &j, &errm);
-    printf( "Call 20 returned %d msg %s \n" , j, errm);
-    SendCall( 21 , argv[i], &j, &errm);
-    printf( "Call 21 returned %d msg %s \n" , j, errm);
-    SendCall( 22 , argv[i], &j, &errm);
-    printf( "Call 22 returned %d msg %s \n" , j, errm);
-  }
-  return 0 ;
-}
-#endif

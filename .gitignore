@@ -1,8 +1,6 @@
 # pCloud Console Client
 #
 # Copyright (c) 2021 Serghei Iakovlev.
-# Copyright (c) 2013-2016 Anton Titov.
-# Copyright (c) 2013-2016 pCloud Ltd.
 #
 # This source file is subject to the New BSD License that is bundled with this
 # project in the file LICENSE.
