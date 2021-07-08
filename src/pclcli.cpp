@@ -1,48 +1,34 @@
-/*
- * Copyright (c) 2013-2015 pCloud Ltd.
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *      * Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *      * Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
- *      * Neither the name of pCloud Ltd nor the
- *        names of its contributors may be used to endorse or promote products
- *        derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-#include "pclsync_lib.h"
-#include "psynclib.h"
-#include "pcompat.h"
+// pCloud Console Client
+//
+// Copyright (c) 2021 Serghei Iakovlev.
+// Copyright (c) 2013-2016 Anton Titov.
+// Copyright (c) 2013-2016 pCloud Ltd.
+//
+// This source file is subject to the New BSD License that is bundled with this
+// project in the file LICENSE.
+//
+// If you did not receive a copy of the license and are unable to obtain it
+// through the world-wide-web, please send an email to egrep@protonmail.ch so
+// we can send you a copy immediately.
 
 #include <iostream>
-
 #include <string>
 #include <termios.h>
 #include <unistd.h>
 #include <cstdio>
 #include <cstring>
 
+#include "psynclib.h"
+#include "pcompat.h"
+
+#include "pclcli.hpp"
+#include "version.hpp"
 
 namespace cc  = console_client;
 namespace clib  = cc::clibrary;
 
-clib::pclsync_lib& clib::pclsync_lib::get_lib(){
-  static clib::pclsync_lib g_lib;
+clib::pclcli& clib::pclcli::get_lib(){
+  static clib::pclcli g_lib;
   return g_lib;}
 
 static std::string exec(const char* cmd) {
@@ -58,21 +44,21 @@ static std::string exec(const char* cmd) {
     return result;
 }
 
-char * clib::pclsync_lib::get_token(){
+char * clib::pclcli::get_token(){
   return psync_get_token();
 }
 
-void clib::pclsync_lib::get_pass_from_console()
+void clib::pclcli::get_pass_from_console()
 {
   do_get_pass_from_console(password_);
 }
 
-void clib::pclsync_lib::get_cryptopass_from_console()
+void clib::pclcli::get_cryptopass_from_console()
 {
   do_get_pass_from_console(crypto_pass_);
 }
 
-void clib::pclsync_lib::do_get_pass_from_console(std::string& password)
+void clib::pclcli::do_get_pass_from_console(std::string& password)
 {
   if (daemon_) {
      std::cout << "Not able to read password when started as daemon." << std::endl;
@@ -125,22 +111,21 @@ static int lib_setup_cripto(){
   int ret = 0;
   ret = psync_crypto_issetup();
   if (ret) {
-    ret = psync_crypto_start(clib::pclsync_lib::get_lib().get_crypto_pass().c_str());
+    ret = psync_crypto_start(clib::pclcli::get_lib().get_crypto_pass().c_str());
     std::cout << "crypto is setup, login result=" << ret << std::endl;
   } else {
     std::cout << "crypto is not setup" << std::endl;
-    ret = psync_crypto_setup(clib::pclsync_lib::get_lib().get_crypto_pass().c_str(), "no hint");
+    ret = psync_crypto_setup(clib::pclcli::get_lib().get_crypto_pass().c_str(), "no hint");
     if (ret)
       std::cout << "crypto setup failed" << std::endl;
     else{
-      ret = psync_crypto_start(clib::pclsync_lib::get_lib().get_crypto_pass().c_str());
+      ret = psync_crypto_start(clib::pclcli::get_lib().get_crypto_pass().c_str());
       std::cout << "crypto setup successful, start=" << ret << std::endl;
       ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr) ;
       std::cout << "creating folder=" << ret << std::endl;
     }
   }
   return ret;
-  clib::pclsync_lib::get_lib().crypto_on_ = true;
 }
 
 static char const * status2string (uint32_t status){
@@ -169,28 +154,27 @@ static void status_change(pstatus_t* status) {
   static int cryptocheck=0;
   static int mount_set=0;
   std::cout << "Down: " <<  status->downloadstr << "| Up: " << status->uploadstr <<", status is " << status2string(status->status) << std::endl;
-  *clib::pclsync_lib::get_lib().status_ = *status;
+  *clib::pclcli::get_lib().status_ = *status;
   if (status->status==PSTATUS_LOGIN_REQUIRED){
-    if (clib::pclsync_lib::get_lib().get_password().empty())
-      clib::pclsync_lib::get_lib().get_pass_from_console();
-//std::cout << "Username: " <<  clib::pclsync_lib::get_lib().get_username().c_str() << "| Password: " << clib::pclsync_lib::get_lib().get_password().c_str() << std::endl;
-    psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+    if (clib::pclcli::get_lib().get_password().empty())
+      clib::pclcli::get_lib().get_pass_from_console();
+    psync_set_user_pass(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(), (int) clib::pclcli::get_lib().save_pass_);
     std::cout << "logging in" << std::endl;
   }
   else if (status->status==PSTATUS_BAD_LOGIN_DATA){
-    if (!clib::pclsync_lib::get_lib().newuser_) {
-      clib::pclsync_lib::get_lib().get_pass_from_console();
-      psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+    if (!clib::pclcli::get_lib().newuser_) {
+      clib::pclcli::get_lib().get_pass_from_console();
+      psync_set_user_pass(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(), (int) clib::pclcli::get_lib().save_pass_);
     }
     else {
     std::cout << "registering" << std::endl;
-    if (psync_register(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(),1, NULL)){
+    if (psync_register(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(),1, nullptr)){
       std::cout << "both login and registration failed" << std::endl;
       exit(1);
     }
     else{
       std::cout << "registered, logging in" << std::endl;
-      psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+      psync_set_user_pass(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(), (int) clib::pclcli::get_lib().save_pass_);
     }
 
     }
@@ -198,43 +182,44 @@ static void status_change(pstatus_t* status) {
   if (status->status==PSTATUS_READY || status->status==PSTATUS_UPLOADING || status->status==PSTATUS_DOWNLOADING || status->status==PSTATUS_DOWNLOADINGANDUPLOADING){
     if (!cryptocheck){
       cryptocheck=1;
-      if (clib::pclsync_lib::get_lib().setup_crypto_) {
+      if (clib::pclcli::get_lib().setup_crypto_) {
         lib_setup_cripto();
       }
     }
     psync_fs_start();
   }
-  if (clib::pclsync_lib::get_lib().status_callback_)
-    clib::pclsync_lib::get_lib().status_callback_((int)status->status, status2string(status->status));
+  if (clib::pclcli::get_lib().status_callback_)
+    clib::pclcli::get_lib().status_callback_((int)status->status, status2string(status->status));
 }
 
-int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
+int clib::pclcli::start_crypto (const char* pass, void * rep) {
   std::cout << "calling startcrypto pass: "<<pass << std::endl;
   get_lib().crypto_pass_ = pass;
   return lib_setup_cripto();
 }
-int clib::pclsync_lib::stop_crypto (const char* path, void * rep) {
+
+int clib::pclcli::stop_crypto (const char* path, void * rep) {
   psync_crypto_stop();
   get_lib().crypto_on_ = false;
 }
-int clib::pclsync_lib::finalize (const char* path, void * rep) {
+
+int clib::pclcli::finalize (const char* path, void * rep) {
   psync_destroy();
   exit(0);
 }
-int clib::pclsync_lib::list_sync_folders (const char* path, void * rep) {
+
+int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t * folders = psync_get_sync_list();
   rep =psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
 
 }
-static const std::string client_name = " Console Client v.2.0.1";
-int clib::pclsync_lib::init()//std::string& username, std::string& password, std::string* crypto_pass, int setup_crypto, int usesrypto_userpass)
-{
-  std::string software_string = exec("lsb_release -ds");
-  psync_set_software_string(software_string.append(client_name).c_str());
-  if (setup_crypto_ && crypto_pass_.empty() )
-    return 3;
 
+int clib::pclcli::init()
+{
+  psync_set_software_string(PCLSYNC_VERSION_FULL);
+  if (setup_crypto_ && crypto_pass_.empty())
+    return 3;
 
   if (psync_init()){
     std::cout <<"init failed\n";
@@ -244,9 +229,6 @@ int clib::pclsync_lib::init()//std::string& username, std::string& password, std
    was_init_ = true;
    if (!get_mount().empty())
     psync_set_string_setting("fsroot",get_mount().c_str());
-
-// _tunnel  = psync_ssl_tunnel_start("127.0.0.1", 9443, "62.210.116.50", 443);
-
 
   int isfsautostart = psync_get_bool_setting("autostartfs");
 
@@ -263,15 +245,15 @@ int clib::pclsync_lib::init()//std::string& username, std::string& password, std
     psync_free(username_old);
   }
 
-  psync_add_overlay_callback(20,&clib::pclsync_lib::statrt_crypto);
-  psync_add_overlay_callback(21,&clib::pclsync_lib::stop_crypto);
-  psync_add_overlay_callback(22,&clib::pclsync_lib::finalize);
-  psync_add_overlay_callback(23,&clib::pclsync_lib::list_sync_folders);
+  psync_add_overlay_callback(20, &clib::pclcli::start_crypto);
+  psync_add_overlay_callback(21,&clib::pclcli::stop_crypto);
+  psync_add_overlay_callback(22,&clib::pclcli::finalize);
+  psync_add_overlay_callback(23,&clib::pclcli::list_sync_folders);
 
   return 0;
 }
 
-int clib::pclsync_lib::login(const char* user, const char* pass, int save) {
+int clib::pclcli::login(const char* user, const char* pass, int save) {
   set_username(user);
   set_password(pass);
   set_savepass(bool(save));
@@ -279,23 +261,19 @@ int clib::pclsync_lib::login(const char* user, const char* pass, int save) {
   return 0;
 }
 
-int clib::pclsync_lib::logout () {
+int clib::pclcli::logout () {
   set_password("");
   psync_logout();
   return 0;
 }
 
-int clib::pclsync_lib::unlink () {
+int clib::pclcli::unlink () {
   set_username("");
   set_password("");
   psync_unlink();
   return 0;
 }
 
-clib::pclsync_lib::pclsync_lib() : status_(new pstatus_struct_() ), was_init_(false), setup_crypto_(false)
-{}
+clib::pclcli::pclcli() : status_(new pstatus_struct_()), was_init_(false), setup_crypto_(false) {}
 
-clib::pclsync_lib::~pclsync_lib()
-{
-
-}
+clib::pclcli::~pclcli() = default;

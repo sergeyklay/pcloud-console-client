@@ -31,17 +31,16 @@ include_directories(${OVERLAY_CLIENT_PATH})
 add_library(sqlite3 STATIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite/sqlite3.c")
 target_link_libraries(sqlite3 z dl)
 
-add_library(pcloudcc_lib  # Rename
-    SHARED pclsync_lib_c.cpp
-           pclsync_lib.cpp
+add_library(pclcli
+    SHARED pclcli.cpp
            control_tools.cpp
            "${OVERLAY_CLIENT_PATH}/overlay_client.c"
            "${OVERLAY_CLIENT_PATH}/debug.c")
 
-target_include_directories(pcloudcc_lib
+target_include_directories(pclcli
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
-target_link_libraries(pcloudcc_lib
+target_link_libraries(pclcli
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync/libpsynclib.a"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library/libmbedtls.a"
     fuse
@@ -50,7 +49,7 @@ target_link_libraries(pcloudcc_lib
 
 add_executable(pcloudcc main.cpp)
 
-target_link_libraries(pcloudcc pcloudcc_lib)
+target_link_libraries(pcloudcc pclcli)
 
 target_link_libraries(pcloudcc ${Boost_LIBRARIES})
 
@@ -91,5 +90,5 @@ install(TARGETS pcloudcc
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(TARGETS pcloudcc_lib
+install(TARGETS pclcli
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

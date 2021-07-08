@@ -14,8 +14,8 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 
-#include "pclsync_lib.h"
-#include "control_tools.h"
+#include "pclcli.hpp"
+#include "control_tools.hpp"
 #include "version.hpp"
 
 namespace po = boost::program_options;
@@ -77,30 +77,30 @@ int main(int argc, char **argv) {
       std::cout << "Username option is required" << "\n";
       return 1;
     }
-    console_client::clibrary::pclsync_lib::get_lib().set_username(username);
+    console_client::clibrary::pclcli::get_lib().set_username(username);
 
     if (passwordsw) {
-      console_client::clibrary::pclsync_lib::get_lib().get_pass_from_console();
+      console_client::clibrary::pclcli::get_lib().get_pass_from_console();
     }
 
     if (crypto) {
-      console_client::clibrary::pclsync_lib::get_lib().setup_crypto_ = true;
+      console_client::clibrary::pclcli::get_lib().setup_crypto_ = true;
       if (vm.count("passascrypto"))
-        console_client::clibrary::pclsync_lib::get_lib().set_crypto_pass(password) ;
+        console_client::clibrary::pclcli::get_lib().set_crypto_pass(password) ;
       else {
         std::cout << "Enter crypto password."  << "\n";
-        console_client::clibrary::pclsync_lib::get_lib().get_cryptopass_from_console();
+        console_client::clibrary::pclcli::get_lib().get_cryptopass_from_console();
       }
     } else
-       console_client::clibrary::pclsync_lib::get_lib().setup_crypto_ = false;
+       console_client::clibrary::pclcli::get_lib().setup_crypto_ = false;
 
     if (vm.count("mountpoint"))
-        console_client::clibrary::pclsync_lib::get_lib().set_mount(
+        console_client::clibrary::pclcli::get_lib().set_mount(
                 vm["mountpoint"].as<std::string>());
 
-    console_client::clibrary::pclsync_lib::get_lib().newuser_ = newuser;
-    console_client::clibrary::pclsync_lib::get_lib().set_savepass(save_pass);
-    console_client::clibrary::pclsync_lib::get_lib().set_daemon(daemon);
+    console_client::clibrary::pclcli::get_lib().newuser_ = newuser;
+    console_client::clibrary::pclcli::get_lib().set_savepass(save_pass);
+    console_client::clibrary::pclcli::get_lib().set_daemon(daemon);
   }
   catch(std::exception& e) {
     std::cerr << "error: " << e.what() << "\n";
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   else {
     if (commands)
       std::cout << "The \"commands\" option was ignored because the client is not running in daemon mode"  << "\n";
-    if (!console_client::clibrary::pclsync_lib::get_lib().init())
+    if (!console_client::clibrary::pclcli::get_lib().init())
       sleep(360000);
   }
 
