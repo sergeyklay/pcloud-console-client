@@ -34,7 +34,7 @@ output short options description:
 
 ```sh
 $ pcloudcc -h
-pCloud console client v.2.0.1
+pCloud console client v3.0.0
 Allowed options:
   -h [ --help ]             produce help message
   -u [ --username ] arg     pCloud account name
