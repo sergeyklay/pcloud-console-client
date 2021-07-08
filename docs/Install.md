@@ -71,6 +71,18 @@ $ cmake -S . -B .build
 $ cmake --build .build
 ```
 
+### Configure flags
+
+To enable any build/run-time feature use CMake flags at configure time.
+For example, to enable the feature called `FEATURE` use `-DFEATURE=ON` and to
+disable the feature use `-DFEATURE=OFF`. Below are the special flags that are
+recognized during the project configuration phase:
+
+| Flag                            | Description                                               |
+| ------------------------------- |-----------------------------------------------------------|
+| `PCLSYNC_WARNINGS_AS_ERRORS`    | Turn all build warnings into errors.                      |
+| `CMAKE_EXPORT_COMPILE_COMMANDS` | Enable output of compile commands during generation.      |
+
 ## Install
 
 To install client after the build stage simple use `install` target:
