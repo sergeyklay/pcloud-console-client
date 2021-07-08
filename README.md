@@ -54,7 +54,7 @@ $ brew install \
 First you'll need clone the project:
 
 ```sh
-$ git clone https://github.com/pcloudcom/console-client.git
+$ git clone https://github.com/sergeyklay/pcloud-console-client.git
 $ cd console-client
 ```
 
