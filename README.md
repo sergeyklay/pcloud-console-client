@@ -19,7 +19,7 @@ Also, you'll need the following build tools:
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
-- [CMake](https://cmake.org/) >= 2.8.12
+- [CMake](https://cmake.org/) >= 3.3
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
@@ -61,23 +61,23 @@ $ cd console-client
 Finally, configure and build project as follows:
 
 ```sh
-$ cd pCloudCC/lib/pclsync
+$ cd src/lib/pclsync
 $ make clean fs
 
 $ cd ../mbedtls
 $ cmake .
-$ make clean
-$ make
+$ make clean all
 
 $ cd ../..
-$ cmake .
-$ make
-
-$ sudo make install
-$ sudo ldconfig
+$ cmake -S . -B .build
+$ cmake --build .build
+$ sudo cmake --build .build --target install
 
 $ pcloudcc -u username -p
 ```
+
+**Note:** You may need to call `sudo ldconfig` to configure dynamic linker
+run-time bindings.
 
 ## Usage
 

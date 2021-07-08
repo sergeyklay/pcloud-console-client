@@ -22,6 +22,6 @@ releases, in reverse chronological order.
 ### Changes
 
 * Improved documentation.
-* CMake < 2.8.12 is no longer supported.
-* Some parts of the client use GNU extensions to ISO C99 standard.
-  Instruct the compiler to use `-std=gnu99`.
+* CMake < 3.3 is no longer supported.
+* Instructed the compiler to use `-std=gnu99` when it is needed.
+* Reorganized project structures to follow modern CMake projects.
