@@ -23,8 +23,7 @@ else
     UNAME_S := $(shell uname -s)
     UNAME_V := $(shell uname -v)
     ifeq ($(UNAME_S),Linux)
-        CFLAGS += -DP_OS_LINUX
-        # CFLAGS += -DP_OS_LINUX -I../sqlite
+        CFLAGS += -DP_OS_LINUX -I../sqlite
             ifneq (,$(findstring Debian,$(UNAME_V)))
                 CFLAGS += -DP_OS_DEBIAN
             endif
