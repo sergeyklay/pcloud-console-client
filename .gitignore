@@ -22,6 +22,7 @@
 /.build
 
 # Configuration artifacts
+/src/version.hpp
 /src/lib/mbedtls/Makefile
 /src/lib/mbedtls/library/Makefile
 
