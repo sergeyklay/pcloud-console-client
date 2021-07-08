@@ -1,17 +1,32 @@
+// pCloud Console Client
+//
+// Copyright (c) 2021 Serghei Iakovlev.
+// Copyright (c) 2013-2016 Anton Titov.
+// Copyright (c) 2013-2016 pCloud Ltd.
+//
+// This source file is subject to the New BSD License that is bundled with this
+// project in the file LICENSE.
+//
+// If you did not receive a copy of the license and are unable to obtain it
+// through the world-wide-web, please send an email to egrep@protonmail.ch so
+// we can send you a copy immediately.
+
 #include <iostream>
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
-#include <iterator>
+
 #include "pclsync_lib.h"
 #include "control_tools.h"
+#include "version.hpp"
+
+namespace po = boost::program_options;
 namespace ct = control_tools;
 
-static std::string version = "3.0.0";
-
 int main(int argc, char **argv) {
-  std::cout << "pCloud console client v"<< version << std::endl;
+  std::cout << PCLSYNC_VERSION_FULL << std::endl;
+
   std::string username;
   std::string password;
+
   bool daemon = false;
   bool commands = false;
   bool commands_only = false;
@@ -27,13 +42,13 @@ int main(int argc, char **argv) {
         ("username,u", po::value<std::string>(&username), "pCloud account name")
         ("password,p", po::bool_switch(&passwordsw), "Ask pCloud account password")
         ("crypto,c",  po::bool_switch(&crypto), "Ask crypto password")
-        ("passascrypto,y", po::value<std::string>(), "Use user password as crypto password also.")
-        ("daemonize,d", po::bool_switch(&daemon), "Daemonize the process.")
-        ("commands ,o", po::bool_switch(&commands), "Parent stays alive and processes commands. ")
-        ("mountpoint,m", po::value<std::string>(), "Mount point where drive to be mounted.")
+        ("passascrypto,y", po::value<std::string>(), "Use user password as crypto password also")
+        ("daemonize,d", po::bool_switch(&daemon), "Daemonize the process")
+        ("commands ,o", po::bool_switch(&commands), "Parent stays alive and processes commands")
+        ("mountpoint,m", po::value<std::string>(), "Mount point where drive to be mounted")
         ("commands_only,k", po::bool_switch(&commands_only),"Daemon already started pass only commands")
-        ("newuser,n", po::bool_switch(&newuser), "Switch if this is a new user to be registered.")
-        ("savepassword,s", po::bool_switch(&save_pass), "Save password in database.")
+        ("newuser,n", po::bool_switch(&newuser), "Switch if this is a new user to be registered")
+        ("savepassword,s", po::bool_switch(&save_pass), "Save password in database")
     ;
 
     po::variables_map vm;
@@ -59,7 +74,7 @@ int main(int argc, char **argv) {
     }
 
     if ((!vm.count("username"))) {
-      std::cout << "Username option is required!!!"  << "\n";
+      std::cout << "Username option is required" << "\n";
       return 1;
     }
     console_client::clibrary::pclsync_lib::get_lib().set_username(username);
@@ -80,7 +95,8 @@ int main(int argc, char **argv) {
        console_client::clibrary::pclsync_lib::get_lib().setup_crypto_ = false;
 
     if (vm.count("mountpoint"))
-        console_client::clibrary::pclsync_lib::get_lib().set_mount( vm["mountpoint"].as<std::string>());
+        console_client::clibrary::pclsync_lib::get_lib().set_mount(
+                vm["mountpoint"].as<std::string>());
 
     console_client::clibrary::pclsync_lib::get_lib().newuser_ = newuser;
     console_client::clibrary::pclsync_lib::get_lib().set_savepass(save_pass);
@@ -94,15 +110,14 @@ int main(int argc, char **argv) {
     std::cerr << "Exception of unknown type!\n";
   }
 
-
-    if (daemon)
-      ct::daemonize(commands);
-    else {
-      if (commands)
-        std::cout << "Option commnads/o  ignored."  << "\n";
-      if (!console_client::clibrary::pclsync_lib::get_lib().init())
-        sleep(360000);
-    }
+  if (daemon)
+    ct::daemonize(commands);
+  else {
+    if (commands)
+      std::cout << "The \"commands\" option was ignored because the client is not running in daemon mode"  << "\n";
+    if (!console_client::clibrary::pclsync_lib::get_lib().init())
+      sleep(360000);
+  }
 
   return 0;
 }
