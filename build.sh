@@ -37,7 +37,7 @@ pushd src/lib/mbedtls || exit 1
 popd || exit 1
 
 echo "Configure client"
-cmake -S . -B .build -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
+cmake -S . -B .build -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
 cmake --build .build
