@@ -1,12 +1,12 @@
 [Unit]
 Description=pCloud %i sync for %u
-Documentation=https://github.com/pcloudcom/console-client
+Documentation=https://github.com/sergeyklay/pcloud-console-client
 After=network.target
 
 [Service]
 Type=simple
 WorkingDirectory=%h
-ExecStart=/usr/local/bin/pcloudcc -u %i -m %h/pCloudDrive
+ExecStart=pcloudcc -u %i -m %h/pCloudDrive
 Restart=on-failure
 RestartSec=10
 
