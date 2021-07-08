@@ -94,12 +94,12 @@ jobs:
           cmake --version
 
       - name: Build pclsync
-        working-directory: pCloudCC/lib/pclsync
+        working-directory: src/lib/pclsync
         run: make clean fs
 
       - name: Configure Mbed TLS
         if: matrix.ssl == 'mbedtls'
-        working-directory: pCloudCC/lib/mbedtls
+        working-directory: src/lib/mbedtls
         run: >-
           cmake
           -S .
@@ -109,11 +109,10 @@ jobs:
 
       - name: Build Mbed TLS
         if: matrix.ssl == 'mbedtls'
-        working-directory: pCloudCC/lib/mbedtls
+        working-directory: src/lib/mbedtls
         run: cmake --build . --config ${{ matrix.build-type }}
 
       - name: Configure client
-        working-directory: pCloudCC
         run: >-
           cmake
           -S .
@@ -121,11 +120,9 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
       - name: Build client
-        working-directory: pCloudCC
         run: cmake --build .build --config ${{ matrix.build-type }}
 
       - name: Install client
-        working-directory: pCloudCC/.build
         run: sudo cmake --build .build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
