@@ -20,6 +20,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # CMake Script Includes
 include(Bootstrap)
+include(CompilerFlags)
 include(LanguageStandard)
 
 # Determine if Stars is built as a subproject (using add_subdirectory) or if
