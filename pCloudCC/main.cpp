@@ -6,10 +6,10 @@ namespace po = boost::program_options;
 #include "control_tools.h"
 namespace ct = control_tools;
 
-static std::string version = "2.0.1";
+static std::string version = "3.0.0";
 
 int main(int argc, char **argv) {
-  std::cout << "pCloud console client v."<< version << std::endl;
+  std::cout << "pCloud console client v"<< version << std::endl;
   std::string username;
   std::string password;
   bool daemon = false;
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   bool passwordsw = false;
   bool save_pass = false;
   bool crypto = false;
-  
+
   try {
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -36,15 +36,15 @@ int main(int argc, char **argv) {
         ("savepassword,s", po::bool_switch(&save_pass), "Save password in database.")
     ;
 
-    po::variables_map vm;        
+    po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    
+
     if (commands_only) {
       ct::process_commands();
       exit(0);
     }
-    
+
     for (int i = 1; i < argc;++i)
       memset(argv[i],0,strlen(argv[i]));
     if (daemon){
@@ -52,22 +52,22 @@ int main(int argc, char **argv) {
     } else {
       strncpy(argv[0], "pCloudDrive", strlen(argv[0]));
     }
-    
+
     if (vm.count("help")) {
       std::cout << desc << "\n";
       return 0;
     }
-    
+
     if ((!vm.count("username"))) {
       std::cout << "Username option is required!!!"  << "\n";
       return 1;
     }
     console_client::clibrary::pclsync_lib::get_lib().set_username(username);
-    
+
     if (passwordsw) {
       console_client::clibrary::pclsync_lib::get_lib().get_pass_from_console();
     }
-    
+
     if (crypto) {
       console_client::clibrary::pclsync_lib::get_lib().setup_crypto_ = true;
       if (vm.count("passascrypto"))
@@ -76,12 +76,12 @@ int main(int argc, char **argv) {
         std::cout << "Enter crypto password."  << "\n";
         console_client::clibrary::pclsync_lib::get_lib().get_cryptopass_from_console();
       }
-    } else 
+    } else
        console_client::clibrary::pclsync_lib::get_lib().setup_crypto_ = false;
-    
+
     if (vm.count("mountpoint"))
         console_client::clibrary::pclsync_lib::get_lib().set_mount( vm["mountpoint"].as<std::string>());
-    
+
     console_client::clibrary::pclsync_lib::get_lib().newuser_ = newuser;
     console_client::clibrary::pclsync_lib::get_lib().set_savepass(save_pass);
     console_client::clibrary::pclsync_lib::get_lib().set_daemon(daemon);
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     std::cerr << "Exception of unknown type!\n";
   }
 
-  
+
     if (daemon)
       ct::daemonize(commands);
     else {
@@ -103,6 +103,6 @@ int main(int argc, char **argv) {
       if (!console_client::clibrary::pclsync_lib::get_lib().init())
         sleep(360000);
     }
-  
+
   return 0;
 }
