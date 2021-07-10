@@ -29,3 +29,8 @@ releases, in reverse chronological order.
 * Project building no longer generates shared objects
   (`*.so`, `*.dlyb`, `*.dll`) and from now the entire runtime is in one file
   (`pcloudcc`).
+* The previous version of the client used `lsb_release` on registration phase.
+  However, this could lead to internal data structure overflow and was unstable
+  due to the fact that `lsb_release` could return a string of arbitrary length.
+  This behavior was disabled in the current client version. Now the client send
+  only the OS name and client version.
