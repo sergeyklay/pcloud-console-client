@@ -15,7 +15,6 @@
 #include <string>
 #include <termios.h>
 #include <unistd.h>
-#include <cstdio>
 #include <cstring>
 
 #include "psynclib.h"
@@ -24,25 +23,31 @@
 #include "pclcli.hpp"
 #include "version.hpp"
 
-namespace cc  = console_client;
-namespace clib  = cc::clibrary;
+namespace cc = console_client;
+namespace clib = cc::clibrary;
 
-clib::pclcli& clib::pclcli::get_lib(){
+clib::pclcli& clib::pclcli::get_lib() {
   static clib::pclcli g_lib;
-  return g_lib;}
-
-static std::string exec(const char* cmd) {
-    FILE* pipe=popen(cmd, "r");
-    if (!pipe) return "ERROR";
-    char buffer[128];
-    std::string result;
-    while (!feof(pipe)) {
-        if (fgets(buffer, 128, pipe) != nullptr)
-            result += buffer;
-    }
-    pclose(pipe);
-    return result;
+  return g_lib;
 }
+
+// TODO: See note in 'clib::pclcli::init'
+// static std::string exec(const char* cmd) {
+//   std::array<char, 128> buffer{};
+//   std::string result;
+//   size_t size = 0;
+//
+//   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+//   if (!pipe) {
+//     throw std::runtime_error("popen() failed");
+//   }
+//
+//   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+//     result += buffer.data();
+//   }
+//
+//   return result;
+// }
 
 char * clib::pclcli::get_token(){
   return psync_get_token();
