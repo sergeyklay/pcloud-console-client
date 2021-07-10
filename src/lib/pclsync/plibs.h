@@ -50,13 +50,13 @@
  {D_NOTICE, "NOTICE"}\
 }
 
-#ifndef DEBUG_LEVEL
+#ifndef DEBUG_LEVEL // TODO: Add to the documentation
 #define DEBUG_LEVEL D_NOTICE
 #endif
 
 #define IS_DEBUG (DEBUG_LEVEL>=D_WARNING)
 
-#define DEBUG_FILE "/tmp/psync_err.log"
+#define DEBUG_FILE "/tmp/psync_err.log" // TODO: Parametrize via CMake
 
 #if defined(assert)
 #undef assert

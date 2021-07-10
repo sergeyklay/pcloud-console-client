@@ -107,7 +107,7 @@ void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata){
     std::cout <<"event" << event << std::endl;
 }
 
-static int lib_setup_cripto(){
+static int lib_setup_crypto() {
   int ret = 0;
   ret = psync_crypto_issetup();
   if (ret) {
@@ -129,7 +129,7 @@ static int lib_setup_cripto(){
 }
 
 static char const * status2string (uint32_t status){
-  switch (status){
+  switch (status) {
     case PSTATUS_READY: return "READY";
     case PSTATUS_DOWNLOADING: return "DOWNLOADING";
     case PSTATUS_UPLOADING: return "UPLOADING";
@@ -183,7 +183,7 @@ static void status_change(pstatus_t* status) {
     if (!cryptocheck){
       cryptocheck=1;
       if (clib::pclcli::get_lib().setup_crypto_) {
-        lib_setup_cripto();
+        lib_setup_crypto();
       }
     }
     psync_fs_start();
@@ -195,7 +195,7 @@ static void status_change(pstatus_t* status) {
 int clib::pclcli::start_crypto (const char* pass, void * rep) {
   std::cout << "calling startcrypto pass: "<<pass << std::endl;
   get_lib().crypto_pass_ = pass;
-  return lib_setup_cripto();
+  return lib_setup_crypto();
 }
 
 int clib::pclcli::stop_crypto (const char* path, void * rep) {
@@ -210,33 +210,34 @@ int clib::pclcli::finalize (const char* path, void * rep) {
 
 int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t * folders = psync_get_sync_list();
-  rep =psync_malloc(sizeof(folders));
+  rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
-
 }
 
-int clib::pclcli::init()
-{
+int clib::pclcli::init() {
+  // TODO: Old behavior leads to char overflow. Try to sort out
+  // const std::string client_name = " Console Client v.2.0.1";
+  // std::string software_string = exec("lsb_release -ds");
+  // psync_set_software_string(software_string.append(client_name).c_str());
+
   psync_set_software_string(PCLSYNC_VERSION_FULL);
   if (setup_crypto_ && crypto_pass_.empty())
     return 3;
 
-  if (psync_init()){
-    std::cout <<"init failed\n";
+  if (psync_init()) {
+    std::cout <<"init failed\n"; // TODO: Describe why
     return 1;
   }
 
    was_init_ = true;
    if (!get_mount().empty())
-    psync_set_string_setting("fsroot",get_mount().c_str());
-
-  int isfsautostart = psync_get_bool_setting("autostartfs");
+    psync_set_string_setting("fsroot", get_mount().c_str());
 
   psync_start_sync(status_change, event_handler);
   char * username_old = psync_get_username();
 
   if (username_old){
-    if (username_.compare(username_old) != 0){
+    if (username_ != username_old){
       std::cout << "logged in with user " << username_old <<", not "<< username_ <<", unlinking"<<std::endl;
       psync_unlink();
       psync_free(username_old);
@@ -274,6 +275,15 @@ int clib::pclcli::unlink () {
   return 0;
 }
 
-clib::pclcli::pclcli() : status_(new pstatus_struct_()), was_init_(false), setup_crypto_(false) {}
+clib::pclcli::pclcli():
+  crypto_on_(false),
+  save_pass_(false),
+  newuser_(false),
+  to_set_mount_(false),
+  daemon_(false),
+  status_(new pstatus_struct_()),
+  was_init_(false),
+  setup_crypto_(false),
+  status_callback_{} {}
 
 clib::pclcli::~pclcli() = default;

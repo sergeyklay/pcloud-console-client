@@ -171,9 +171,6 @@ static void psync_stop_crypto_on_sleep(){
 int psync_init(){
   psync_thread_name="main app thread";
   debug(D_NOTICE, "initializing library version "PSYNC_LIB_VERSION);
-  debug(D_NOTICE, "last commit time "GIT_COMMIT_DATE);
-  debug(D_NOTICE, "previous commit time "GIT_PREV_COMMIT_DATE);
-  debug(D_NOTICE, "previous commit id "GIT_PREV_COMMIT_ID);
   if (IS_DEBUG){
     pthread_mutex_lock(&psync_libstate_mutex);
     if (psync_libstate!=0){
@@ -187,13 +184,13 @@ int psync_init(){
   psync_compat_init();
   if (!psync_database){
     psync_database=psync_get_default_database_path();
-    if (unlikely_log(!psync_database)){
+    if (unlikely_log(!psync_database)) {
       if (IS_DEBUG)
         pthread_mutex_unlock(&psync_libstate_mutex);
       return_error(PERROR_NO_HOMEDIR);
     }
   }
-  if (psync_sql_connect(psync_database)){
+  if (psync_sql_connect(psync_database)) {
     if (IS_DEBUG)
       pthread_mutex_unlock(&psync_libstate_mutex);
     return_error(PERROR_DATABASE_OPEN);
