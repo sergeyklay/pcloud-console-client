@@ -75,12 +75,43 @@ For example, to enable the feature called `FEATURE` use `-DFEATURE=ON` and to
 disable the feature use `-DFEATURE=OFF`. Below are the special flags that are
 recognized during the project configuration phase:
 
-| Feature                         | Possible Value                          | Description                                                       |
-| ------------------------------- |-----------------------------------------|-------------------------------------------------------------------|
-| `PCLSYNC_WARNINGS_AS_ERRORS`    | `ON`, `OFF`                             | Turn all build warnings into errors.                              |
-| `PCLSYNC_SSL_IMPL`              | `mbedtls`, `openssl`, `securetransport` | Used SSL implementation.                                          |
-| `CMAKE_EXPORT_COMPILE_COMMANDS` | `ON`, `OFF`                             | Enable output of compile commands during generation.              |
-| `CMAKE_INSTALL_PREFIX`          | Any path.                               | This directory is prepended onto all install directories.         |
+| Feature                      | Possible Value                                                      | Description                                                       |
+| ---------------------------- |---------------------------------------------------------------------|-------------------------------------------------------------------|
+| `PCLSYNC_WARNINGS_AS_ERRORS` | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
+| `PCLSYNC_SSL_IMPL`           | `mbedtls`, `openssl`, `securetransport`                             | Used SSL implementation.                                          |
+| `CMAKE_BUILD_TYPE`           | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | This directory is prepended onto all install directories.         |
+| `CMAKE_INSTALL_PREFIX`       | Any path.                                                           | This directory is prepended onto all install directories.         |
+
+#### Switching build modes in CMake
+
+CMake supports different build modes, to allow the stripping of debug
+information, or to add coverage information to the binaries.
+
+The following modes are supported:
+
+* **Release:** This generates the default code without any unnecessary
+  information in the binary files.
+* **Debug:** This generates debug information and disables optimization of the
+  code.
+* **RelWithDebInfo:** Is the same as **Release**, allowing
+  you to have symbol files for debugging.
+* **MinSizeRel:** Is the same as **Release**, with its
+  optimization configuration just set to minimize size.
+* **Asan:** This instruments the code with Address Sanitizer to check for
+  memory errors.
+* **Ubsan:** This instruments the code with Undefined Behavior Sanitizer to
+  check for undefined behavior errors.
+
+To enable any of these build mode use `-DCMAKE_BUILD_TYPE=MODE` at configure
+phase, and then specify at build phase, e.g.:
+
+```sh
+# Configure client
+cmake -S . -B .build -DCMAKE_BUILD_TYPE=Release
+
+# Build client
+cmake --build .build --config Release
+```
 
 ## Install
 

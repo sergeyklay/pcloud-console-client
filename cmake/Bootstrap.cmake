@@ -47,6 +47,4 @@ endif()
 #
 # For more see:
 # https://cmake.org/cmake/help/latest/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.5.0")
-  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-endif()
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
