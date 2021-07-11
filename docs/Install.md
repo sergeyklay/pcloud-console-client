@@ -59,9 +59,6 @@ $ cd console-client
 Finally, configure and build project as follows:
 
 ```sh
-$ cd src/lib/pclsync
-$ make clean fs
-
 $ cd ../mbedtls
 $ cmake .
 $ make clean all
@@ -78,10 +75,12 @@ For example, to enable the feature called `FEATURE` use `-DFEATURE=ON` and to
 disable the feature use `-DFEATURE=OFF`. Below are the special flags that are
 recognized during the project configuration phase:
 
-| Flag                            | Description                                               |
-| ------------------------------- |-----------------------------------------------------------|
-| `PCLSYNC_WARNINGS_AS_ERRORS`    | Turn all build warnings into errors.                      |
-| `CMAKE_EXPORT_COMPILE_COMMANDS` | Enable output of compile commands during generation.      |
+| Feature                         | Possible Value                          | Description                                                       |
+| ------------------------------- |-----------------------------------------|-------------------------------------------------------------------|
+| `PCLSYNC_WARNINGS_AS_ERRORS`    | `ON`, `OFF`                             | Turn all build warnings into errors.                              |
+| `PCLSYNC_SSL_IMPL`              | `mbedtls`, `openssl`, `securetransport` | Used SSL implementation.                                          |
+| `CMAKE_EXPORT_COMPILE_COMMANDS` | `ON`, `OFF`                             | Enable output of compile commands during generation.              |
+| `CMAKE_INSTALL_PREFIX`          | Any path.                               | This directory is prepended onto all install directories.         |
 
 ## Install
 
