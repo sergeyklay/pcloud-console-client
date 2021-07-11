@@ -23,6 +23,16 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
+if [ -d "$(pwd)/.build" ]; then
+  cmake --build .build --target clean || true
+
+  find . -type f -name 'CMakeCache.txt' -delete
+  find . -type f -name 'cmake_install.cmake' -delete
+  find . -type d -name 'CMakeFiles' -exec rm -rf {} +
+
+  rm -rf ./.build
+fi
+
 pushd src/lib/mbedtls || exit 1
   echo "Configure Mbed TLS"
   cmake -S . -B . -DCMAKE_C_STANDARD=99 -DCMAKE_BUILD_TYPE=Release
@@ -30,10 +40,6 @@ pushd src/lib/mbedtls || exit 1
   echo "Build Mbed TLS"
   cmake --build . --config Release
 popd || exit 1
-
-if [ -d "$(pwd)/.build" ]; then
-  cmake --build .build --target clean
-fi
 
 echo "Configure client"
 cmake -S . -B .build -DCMAKE_INSTALL_PREFIX="$HOME/.local"
