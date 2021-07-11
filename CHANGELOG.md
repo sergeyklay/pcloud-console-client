@@ -26,11 +26,11 @@ releases, in reverse chronological order.
 * Instructed the compiler to use `-std=gnu99` when it is needed.
 * Reorganized project structures to follow modern CMake layout.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
-* Project building no longer generates shared objects
-  (`*.so`, `*.dlyb`, `*.dll`) and from now the entire runtime is in one file
-  (`pcloudcc`).
+* Project build no longer uses `pcloudcc_lib` shared library and from now the
+  entire runtime is in one file.
 * The previous version of the client used `lsb_release` on registration phase.
   However, this could lead to internal data structure overflow and was unstable
   due to the fact that `lsb_release` could return a string of arbitrary length.
   This behavior was disabled in the current client version. Now the client send
   only the OS name and client version.
+* Build project using single CMake command only.

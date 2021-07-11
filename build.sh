@@ -23,9 +23,6 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
-echo "Build pclsync"
-make -C src/lib/pclsync clean fs
-
 pushd src/lib/mbedtls || exit 1
   echo "Configure Mbed TLS"
   cmake -S . -B . -DCMAKE_C_STANDARD=99 -DCMAKE_BUILD_TYPE=Release

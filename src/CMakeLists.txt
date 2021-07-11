@@ -18,16 +18,10 @@ find_package(Boost COMPONENTS system program_options REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIR})
 
-set (CMAKE_C_FLAGS "-fPIC")
-
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
+add_subdirectory(lib/pclsync)
 
 set (OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
 include_directories(${OVERLAY_CLIENT_PATH})
-
-add_library(sqlite3 STATIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite/sqlite3.c")
-target_link_libraries(sqlite3 z dl)
 
 add_library(pclcli
     STATIC pclcli.cpp
@@ -39,7 +33,7 @@ target_include_directories(pclcli
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
 target_link_libraries(pclcli
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync/libpsynclib.a"
+    pcloud::psync
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library/libmbedtls.a"
     fuse pthread sqlite3)
 
@@ -51,7 +45,6 @@ target_link_libraries(pcloudcc
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/sqlite"
     "${OVERLAY_CLIENT_PATH}")
 
 set_target_properties(pcloudcc PROPERTIES

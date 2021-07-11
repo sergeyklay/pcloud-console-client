@@ -93,10 +93,6 @@ jobs:
           ${{ matrix.compiler }} --version
           cmake --version
 
-      - name: Build pclsync
-        working-directory: src/lib/pclsync
-        run: make clean fs
-
       - name: Configure Mbed TLS
         if: matrix.ssl == 'mbedtls'
         working-directory: src/lib/mbedtls
