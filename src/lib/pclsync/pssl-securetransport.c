@@ -1,7 +1,7 @@
 /* Copyright (c) 2013-2014 Anton Titov.
  * Copyright (c) 2013-2014 pCloud Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of pCloud Ltd nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -54,7 +54,7 @@ OSStatus SecKeyDecrypt(
         SecPadding          padding,
         const uint8_t       *cipherText,
         size_t              cipherTextLen,
-        uint8_t             *plainText, 
+        uint8_t             *plainText,
         size_t              *plainTextLen);
 
 PSYNC_THREAD int psync_ssl_errno;
@@ -136,7 +136,7 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
   }
   else if (st==errSSLWouldBlock){
     *sslconn=ref;
-    return PSYNC_SSL_NEED_FINISH;    
+    return PSYNC_SSL_NEED_FINISH;
   }
   debug(D_WARNING, "connection failed with status %d", (int)st);
 err2:
@@ -179,7 +179,7 @@ void psync_ssl_free(void *sslconn){
   CFRelease((SSLContextRef)sslconn);
 }
 
-int psync_ssl_pendingdata(void *sslconn){
+size_t psync_ssl_pendingdata(void *sslconn){
   size_t p;
   if (SSLGetBufferedReadSize((SSLContextRef)sslconn, &p)==noErr)
     return p;
@@ -204,7 +204,7 @@ int psync_ssl_read(void *sslconn, void *buf, int num){
     }
   }
   else
-    return ret;  
+    return ret;
 }
 
 int psync_ssl_write(void *sslconn, const void *buf, int num){
@@ -370,19 +370,19 @@ psync_rsa_publickey_t psync_ssl_rsa_binary_to_public(psync_binary_rsa_key_t bin)
   CFDataRef data;
   CFArrayRef out;
   OSStatus st;
-  
+
   form=kSecFormatUnknown;
   type=kSecItemTypePublicKey;
   data=CFDataCreate(NULL, bin->data, bin->datalen);
   st=SecItemImport(data, NULL, &form, &type, 0, NULL, NULL, &out);
   CFRelease(data);
   if (unlikely_log(st!=errSecSuccess))
-    PSYNC_INVALID_RSA;    
+    PSYNC_INVALID_RSA;
   ret=(SecKeyRef)CFArrayGetValueAtIndex(out, 0);
   if (unlikely_log(ret==NULL)){
     CFRelease(out);
     return PSYNC_INVALID_RSA;
-  }  
+  }
   CFRetain(ret);
   CFRelease(out);
   return ret;
@@ -395,19 +395,19 @@ psync_rsa_privatekey_t psync_ssl_rsa_binary_to_private(psync_binary_rsa_key_t bi
   CFDataRef data;
   CFArrayRef out;
   OSStatus st;
-  
+
   form=kSecFormatUnknown;
   type=kSecItemTypePrivateKey;
   data=CFDataCreate(NULL, bin->data, bin->datalen);
   st=SecItemImport(data, NULL, &form, &type, 0, NULL, NULL, &out);
   CFRelease(data);
   if (unlikely_log(st!=errSecSuccess))
-    PSYNC_INVALID_RSA;    
+    PSYNC_INVALID_RSA;
   ret=(SecKeyRef)CFArrayGetValueAtIndex(out, 0);
   if (unlikely_log(ret==NULL)){
     CFRelease(out);
     return PSYNC_INVALID_RSA;
-  }  
+  }
   CFRetain(ret);
   CFRelease(out);
   return ret;
@@ -449,7 +449,7 @@ static void PKCS5_PBKDF2_HMAC_SHA1(const char *pass, size_t passlen, const unsig
 psync_symmetric_key_t psync_ssl_gen_symmetric_key_from_pass(const char *password, size_t keylen, const char *salt, size_t saltlen){
   psync_symmetric_key_t key=(psync_symmetric_key_t)psync_malloc(keylen+offsetof(psync_symmetric_key_struct_t, key));
   key->keylen=keylen;
-  PKCS5_PBKDF2_HMAC_SHA1(password, strlen(password), (const unsigned char *)salt, 
+  PKCS5_PBKDF2_HMAC_SHA1(password, strlen(password), (const unsigned char *)salt,
                                 saltlen, PSYNC_CRYPTO_PASS_TO_KEY_ITERATIONS, keylen, key->key);
   return key;
 /*  CFDictionaryRef dict;
