@@ -22,7 +22,7 @@ releases, in reverse chronological order.
 ### Changes
 
 * Improved documentation.
-* CMake < 3.3 is no longer supported.
+* CMake < 3.10.2 is no longer supported.
 * Instructed the compiler to use `-std=gnu99` when it is needed.
 * Reorganized project structures to follow modern CMake layout.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.

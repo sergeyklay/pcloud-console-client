@@ -9,7 +9,7 @@
 # through the world-wide-web, please send an email to egrep@protonmail.ch so
 # we can send you a copy immediately.
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 
 project(pcloudcc LANGUAGES C CXX)
 
