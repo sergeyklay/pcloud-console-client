@@ -17,6 +17,9 @@
 #  FUSE_USE_VERSION    - FUSE version API.
 #  FUSE_VERSION_STRING - FUSE version string.
 
+# TODO: Provide ability to specify FUSE library path as well as includes
+# TODO: Provide ability to specify FUSE version eg FUSE_API=[2,3]
+
 if(FUSE_INCLUDE_DIR)
   set(FUSE_FIND_QUIETLY TRUE)
 endif()
@@ -24,7 +27,7 @@ endif()
 if(APPLE)
   set(FUSE_NAMES libosxfuse.dylib fuse)
 else()
-  # TODO: Is this works on Cygwin?
+  # TODO: Is this will work on Cygwin?
   set(FUSE_NAMES fuse)
 endif()
 
@@ -45,7 +48,7 @@ endif()
 find_path(
     FUSE_INCLUDE_DIR
     NAMES fuse_common.h
-    PATHS /usr/local/include/osxfuse /usr/local/include /usr/include/fuse)
+    PATHS /usr/local/include/osxfuse /usr/local/include/fuse /usr/include/fuse)
 
 if(FUSE_INCLUDE_DIR)
   file(STRINGS "${FUSE_INCLUDE_DIR}/fuse_common.h" fuse_version_str
