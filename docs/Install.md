@@ -4,10 +4,8 @@
 
 To build pCloud Console Client you'll need the following requirements:
 
-- [Boost](http://www.boost.org/) >= 1.58: Boost system and boost program options libraries used for console client
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
-- [SQLite](https://www.sqlite.org/index.html) >= 3.0
 
 Also, you'll need the following build tools:
 
@@ -32,8 +30,6 @@ $ sudo apt install \
     build-essential \
     cmake \
     fuse \
-    libboost-program-options-dev \
-    libboost-system-dev \
     libfuse-dev \
     libpthread-stubs0-dev \
     libudev-dev
@@ -43,18 +39,7 @@ On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 ```sh
 $ brew install \
     cmake \
-    macfuse \
-    boost
-```
-
-The following dependencies is recommended install using pip:
-
-- Conan
-
-They can be installed using pip as follows:
-
-```sh
-$ pip install --user -r requirements.txt
+    macfuse
 ```
 
 ## Build steps
@@ -77,6 +62,11 @@ specifying that Conan should integrate with CMake:
 
 ```sh
 $ conan install . -if=.build --build=missing
+```
+
+Or, if you'd like to use specific conan profile:
+```sh
+$ conan install . -if=.build --profile=clang  --build=missing
 ```
 
 This example establishes out-of-source `.build/` folder, so that source folder

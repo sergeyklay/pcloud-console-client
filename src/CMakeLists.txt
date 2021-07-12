@@ -9,20 +9,12 @@
 # through the world-wide-web, please send an email to egrep@protonmail.ch so
 # we can send you a copy immediately.
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-unset(Boost_INCLUDE_DIR CACHE)
-unset(Boost_LIBRARY_DIRS CACHE)
-
-find_package(Boost COMPONENTS system program_options REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIR})
-
 add_subdirectory(lib/pclsync)
 
 set (OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
 include_directories(${OVERLAY_CLIENT_PATH})
 
+# TODO: Add debug.c only on -DCMAKE_BUILD_TYPE=Debug
 add_library(pclcli
     STATIC pclcli.cpp
            control_tools.cpp
@@ -34,7 +26,9 @@ target_include_directories(pclcli
 
 target_link_libraries(pclcli
     pcloud::psync
-    fuse pthread sqlite3)
+    CONAN_PKG::sqlite3
+    ${FUSE_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT})
 
 if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls") # TODO: Add to docs
   target_link_libraries(pclcli CONAN_PKG::mbedtls)
@@ -44,10 +38,11 @@ add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
     pclcli
-    ${Boost_LIBRARIES})
+    ${FUSE_LIBRARIES}
+    CONAN_PKG::boost)
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
-    "${OVERLAY_CLIENT_PATH}")
+    ${OVERLAY_CLIENT_PATH})
 
 set_target_properties(pcloudcc PROPERTIES
     VERSION ${PROJECT_VERSION}
