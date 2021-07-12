@@ -4,7 +4,6 @@
 
 To build pCloud Console Client you'll need the following requirements:
 
-- [Zlib](http://zlib.net/) >= 1.1.4: A software library used for data compression
 - [Boost](http://www.boost.org/) >= 1.58: Boost system and boost program options libraries used for console client
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
@@ -19,9 +18,12 @@ Also, you'll need the following build tools:
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
 - [CMake](https://cmake.org/) >= 3.3
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
+- [Conan](https://conan.io/) decentralized package manager with a client-server architecture
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
 thus your compiler should support `-std=gnu99`.
+
+For project dependencies list see `conanfile.txt` bundled with this project.
 
 On Debian and its derivatives you can install the required packages this way:
 
@@ -34,8 +36,7 @@ $ sudo apt install \
     libboost-system-dev \
     libfuse-dev \
     libpthread-stubs0-dev \
-    libudev-dev \
-    zlib1g-dev
+    libudev-dev
 ```
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 
@@ -43,8 +44,17 @@ On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 $ brew install \
     cmake \
     macfuse \
-    boost \
-    zlib
+    boost
+```
+
+The following dependencies is recommended install using pip:
+
+- Conan
+
+They can be installed using pip as follows:
+
+```sh
+$ pip install --user -r requirements.txt
 ```
 
 ## Build steps
@@ -56,15 +66,32 @@ $ git clone https://github.com/sergeyklay/pcloud-console-client.git
 $ cd console-client
 ```
 
-Finally, configure and build project as follows:
+Then, install project dependencies:
 
 ```sh
-$ cd ../mbedtls
-$ cmake .
-$ make clean all
+$ pip install -r requirements.txt
+```
 
-$ cd ../..
+Next, initialize project with Conan - this is using the `conanfile.txt`
+specifying that Conan should integrate with CMake:
+
+```sh
+$ conan install . -if=.build --build=missing
+```
+
+This example establishes out-of-source `.build/` folder, so that source folder
+is not polluted. For a detailed instruction on how to use and customize conan
+please refer [here](https://docs.conan.io/en/latest/getting_started.html).
+
+Next, generate the build files using CMake:
+
+```sh
 $ cmake -S . -B .build
+```
+
+Finally, build project:
+
+```sh
 $ cmake --build .build
 ```
 
