@@ -16,12 +16,6 @@ project(pcloudcc LANGUAGES C CXX)
 # Provide path for additional CMake scripts
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-# CMake Script Includes
-include(Bootstrap)
-include(CompilerFlags)
-include(LanguageStandard)
-include(ProjectInfo)
-
 # Determine if Stars is built as a subproject (using add_subdirectory) or if
 # it is the master project.
 set(MASTER_PROJECT OFF)
@@ -31,6 +25,17 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   message(STATUS "CMake version: ${CMAKE_VERSION}")
   message(STATUS "Used generator: ${CMAKE_GENERATOR}")
 endif()
+
+# Common CMake scripts
+include(Bootstrap)
+include(CompilerFlags)
+include(LanguageStandard)
+
+# Conan helpers
+include(ConanHelper)
+
+# Project specific variables
+include(ProjectInfo)
 
 # Use a standard directory layout
 include(GNUInstallDirs)
