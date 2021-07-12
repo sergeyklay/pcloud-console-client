@@ -1,0 +1,27 @@
+# pCloud Console Client
+#
+# Copyright (c) 2021 Serghei Iakovlev.
+#
+# This source file is subject to the New BSD License that is bundled with this
+# project in the file LICENSE.
+#
+# If you did not receive a copy of the license and are unable to obtain it
+# through the world-wide-web, please send an email to egrep@protonmail.ch so
+# we can send you a copy immediately.
+
+[requires]
+zlib/1.2.11
+mbedtls/2.25.0
+
+[options]
+mbedtls:shared=False
+
+[generators]
+cmake
+json
+
+# Local Variables:
+# mode: conf
+# tab-width: 2
+# indent-tabs-mode: nil
+# End:
