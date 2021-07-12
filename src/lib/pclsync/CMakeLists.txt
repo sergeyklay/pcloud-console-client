@@ -105,13 +105,13 @@ elseif(APPLE)
 
   find_package(Threads REQUIRED)
   find_package(FUSE 2.6 REQUIRED)
-  target_compile_definitions(psync PRIVATE P_USE_FUSE)
+  target_compile_definitions(psync PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION})
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
 
   find_package(Threads REQUIRED)
   find_package(FUSE 2.6 REQUIRED)
-  target_compile_definitions(psync PRIVATE P_USE_FUSE)
+  target_compile_definitions(psync PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION})
 endif()
 
 target_include_directories(psync
