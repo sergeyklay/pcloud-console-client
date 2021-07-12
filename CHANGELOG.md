@@ -18,6 +18,7 @@ releases, in reverse chronological order.
 
 * Fixed typos and misspelling in the documentation.
 * Fixed redefinition of `_GNU_SOURCE` and `_DARWIN_USE_64_BIT_INODE`.
+* Fixed `control_tools` function signatures.
 
 ### Changes
 

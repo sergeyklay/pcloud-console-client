@@ -34,8 +34,7 @@ enum command_ids_ {
   STOPSYNC
 };
 
-
-int start_crypto(const char * pass) {
+void start_crypto(const char * pass) {
   int ret;
   char* errm;
   if (SendCall(STARTCRYPTO, pass, &ret, &errm))
@@ -44,7 +43,9 @@ int start_crypto(const char * pass) {
     std::cout << "Crypto started. "<< std::endl;
   free(errm);
 }
-int stop_crypto(){
+
+
+void stop_crypto(){
   int ret;
   char* errm;
   if (SendCall(STOPCRYPTO, "", &ret, &errm))
@@ -53,7 +54,8 @@ int stop_crypto(){
     std::cout << "Crypto Stopped. "<< std::endl;
   free(errm);
 }
-int finalize(){
+
+void finalize(){
    int ret;
   char* errm;
   if (SendCall(FINALIZE, "", &ret, &errm))
@@ -63,6 +65,7 @@ int finalize(){
 
   free(errm);
 }
+
 void process_commands()
 {
   std::cout<< "Supported commands are:" << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
@@ -82,7 +85,7 @@ void process_commands()
   }
 }
 
-int daemonize(bool do_commands) {
+void daemonize(bool do_commands) {
   pid_t pid, sid;
 
   pid = fork();
