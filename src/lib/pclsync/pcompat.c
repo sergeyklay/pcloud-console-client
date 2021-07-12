@@ -44,8 +44,8 @@
 #if defined(P_OS_MACOSX)
 #include <sys/sysctl.h>
 #include <sys/attr.h>
-#include <Foundation/Foundation.h>
-#include <SystemConfiguration/SystemConfiguration.h>
+/*#include <Foundation/Foundation.h>
+#include <SystemConfiguration/SystemConfiguration.h>*/
 #endif
 
 #if defined(P_OS_POSIX)
