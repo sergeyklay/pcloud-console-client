@@ -151,7 +151,7 @@ void psync_path_status_init() {
   psync_tree_for_each_element_call_safe(sync_data, sync_data_t, tree, sync_data_free);
   sync_data=PSYNC_TREE_EMPTY;
   psync_path_status_reload_syncs();
-  psync_path_status_clear_path_cache();
+  psync_path_status_clear_path_cache(); /* ERR */
   load_sync_tasks();
   psync_sql_unlock();
 }
@@ -181,7 +181,7 @@ void psync_path_status_reload_syncs() {
   psync_list_bulder_add_sql(builder, res, create_sync_list_entry);
   old=syncs;
   syncs=(path_sync_list_t *)psync_list_builder_finalize(builder);
-  psync_path_status_clear_sync_path_cache();
+  psync_path_status_clear_sync_path_cache(); /* ERR */
   psync_sql_unlock();
   if (old)
     psync_free_after_sec(old, 30);
@@ -202,7 +202,7 @@ void psync_path_status_clear_path_cache() {
 void psync_path_status_clear_sync_path_cache() {
   uint64_t nsync_hash_seed;
   do {
-    psync_ssl_rand_strong((unsigned char *)&nsync_hash_seed, sizeof(nsync_hash_seed));
+    psync_ssl_rand_strong((unsigned char *)&nsync_hash_seed, sizeof(nsync_hash_seed)); /* ERR */
   } while (unlikely(nsync_hash_seed==drv_hash_seed));
   psync_sql_lock();
   sync_hash_seed=nsync_hash_seed;

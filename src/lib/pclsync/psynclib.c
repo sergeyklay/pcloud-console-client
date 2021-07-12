@@ -197,17 +197,17 @@ int psync_init(){
   }
   psync_sql_statement("UPDATE task SET inprogress=0 WHERE inprogress=1");
   psync_timer_init();
-  if (unlikely_log(psync_ssl_init())){
+  if (unlikely_log(psync_ssl_init())){  /* OK */
     if (IS_DEBUG)
       pthread_mutex_unlock(&psync_libstate_mutex);
     return_error(PERROR_SSL_INIT_FAILED);
   }
 
-  psync_libs_init();
-  psync_settings_init();
-  psync_status_init();
-  psync_timer_sleep_handler(psync_stop_crypto_on_sleep);
-  psync_path_status_init();
+  psync_libs_init(); /* OK */
+  psync_settings_init(); /* OK */
+  psync_status_init(); /* OK */
+  psync_timer_sleep_handler(psync_stop_crypto_on_sleep); /* OK */
+  psync_path_status_init(); /* ERR */
   if (IS_DEBUG){
     psync_libstate=1;
     pthread_mutex_unlock(&psync_libstate_mutex);

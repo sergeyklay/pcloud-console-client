@@ -21,6 +21,8 @@
 #include <mbedtls/pkcs5.h>
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/sha256.h>
+#include <mbedtls/error.h>
+#include <mbedtls/pem.h>
 
 #include "plibs.h"
 #include "pssl.h"
@@ -76,7 +78,13 @@ PSYNC_THREAD int psync_ssl_errno;
 uint32_t psync_ssl_hw_aes;
 #endif
 
-int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len) {
+static void debug_mbedtls_error(int errnum) {
+  char error_buf[100];
+  mbedtls_strerror( errnum, error_buf, 100 );
+  debug(D_ERROR, "mbedtls error[%d]: %s", errnum, error_buf);
+}
+
+int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len) { /* ERR */
   ctr_drbg_context_locked *rng;
   int ret;
   rng=(ctr_drbg_context_locked *)p_rng;
@@ -86,7 +94,7 @@ int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len
   return ret;
 }
 
-#if defined(PSYNC_AES_HW_GCC)
+#ifdef PSYNC_AES_HW_GCC
 static uint32_t psync_ssl_detect_aes_hw() {
   uint32_t eax, ecx;
   eax = 1;
@@ -125,14 +133,29 @@ int psync_ssl_init() {
 #endif
   if (pthread_mutex_init(&psync_mbed_rng.mutex, NULL))
     return PRINT_RETURN(-1);
+
   mbedtls_entropy_init(&psync_mbed_entropy);
   psync_get_random_seed(seed, seed, sizeof(seed), 0);
   mbedtls_entropy_update_manual(&psync_mbed_entropy, seed, sizeof(seed));
   mbedtls_ctr_drbg_init(&psync_mbed_rng.rnd);
   mbedtls_x509_crt_init(&psync_mbed_trusted_certs_x509);
-  for (i=0; i<ARRAY_SIZE(psync_ssl_trusted_certs); i++)
-    if (mbedtls_x509_crt_parse(&psync_mbed_trusted_certs_x509, (const unsigned char *)psync_ssl_trusted_certs[i], strlen(psync_ssl_trusted_certs[i])))
+
+  /* Loading the certificates */
+  int crt_parse_status = 0;
+  for (i = 0; i < ARRAY_SIZE(psync_ssl_trusted_certs); ++i) {
+    crt_parse_status = mbedtls_x509_crt_parse(
+        &psync_mbed_trusted_certs_x509,
+        (const unsigned char *)psync_ssl_trusted_certs[i],
+        /* + 1 here  since the terminating NULL byte is counted in */
+        strlen(psync_ssl_trusted_certs[i]) + 1
+    );
+
+    if (crt_parse_status != 0) {
       debug(D_ERROR, "failed to load certificate %lu", (unsigned long)i);
+      debug_mbedtls_error(crt_parse_status);
+    }
+  }
+
   return 0;
 }
 
@@ -375,7 +398,7 @@ int psync_ssl_write(void *sslconn, const void *buf, int num) {
   return PSYNC_SSL_FAIL;
 }
 
-void psync_ssl_rand_strong(unsigned char *buf, int num) {
+void psync_ssl_rand_strong(unsigned char *buf, int num) { /* ERR */
   if (unlikely(ctr_drbg_random_locked(&psync_mbed_rng, buf, num))) {
     debug(D_CRITICAL, "could not generate %d random bytes, exiting", num);
     abort();
