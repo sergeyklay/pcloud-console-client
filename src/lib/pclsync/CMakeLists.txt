@@ -62,7 +62,6 @@ set(psync_sources
     pasyncnet.c
     ppathstatus.c
     pdevice_monitor.c
-    #
     pfs.c
     ppagecache.c
     pfsfolder.c
@@ -127,8 +126,7 @@ target_include_directories(psync
     PUBLIC ${FUSE_INCLUDE_DIR})
 
 if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
-  target_include_directories(psync
-      PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../mbedtls/include")
+  target_link_libraries(psync CONAN_PKG::mbedtls)
 endif()
 
 if(APPLE)

@@ -34,8 +34,11 @@ target_include_directories(pclcli
 
 target_link_libraries(pclcli
     pcloud::psync
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library/libmbedtls.a"
     fuse pthread sqlite3)
+
+if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls") # TODO: Add to docs
+  target_link_libraries(pclcli CONAN_PKG::mbedtls)
+endif()
 
 add_executable(pcloudcc main.cpp)
 
@@ -44,7 +47,6 @@ target_link_libraries(pcloudcc
     ${Boost_LIBRARIES})
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library"
     "${OVERLAY_CLIENT_PATH}")
 
 set_target_properties(pcloudcc PROPERTIES
