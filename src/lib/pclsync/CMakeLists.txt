@@ -98,20 +98,18 @@ unset(psync_ssl_def)
 
 if (WIN32)
   target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
-  set(FUSE_USE_VERSION 0)
-  mark_as_advanced(FUSE_USE_VERSION)
 elseif(APPLE)
   target_compile_definitions(psync PRIVATE P_OS_MACOSX)
-
   find_package(Threads REQUIRED)
-  find_package(FUSE 2.6 REQUIRED)
-  target_compile_definitions(psync PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION})
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
-
   find_package(Threads REQUIRED)
-  find_package(FUSE 2.6 REQUIRED)
-  target_compile_definitions(psync PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION})
+endif()
+
+find_package(FUSE 2.6 REQUIRED)
+if(FUSE_FOUND)
+  target_compile_definitions(psync
+      PRIVATE "${FUSE_DEFINITIONS}")
 endif()
 
 target_include_directories(psync

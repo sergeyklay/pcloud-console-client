@@ -16,9 +16,7 @@
 #  FUSE_FOUND          - True if FUSE lib is found.
 #  FUSE_USE_VERSION    - FUSE version API.
 #  FUSE_VERSION_STRING - FUSE version string.
-
-# TODO: Provide ability to specify FUSE library path as well as includes
-# TODO: Provide ability to specify FUSE version eg FUSE_API=[2,3]
+#  FUSE_DEFINITIONS    - The compiler definitions, required for building with FUSE
 
 if(FUSE_INCLUDE_DIR)
   set(FUSE_FIND_QUIETLY TRUE)
@@ -26,15 +24,25 @@ endif()
 
 if(APPLE)
   set(FUSE_NAMES libosxfuse.dylib fuse)
+  set (FUSE_SUFFIXES osxfuse macfuse fuse)
+elseif(WINDOWS)
+  set (FUSE_NAMES libdokanfuse1)
+  set (FUSE_SUFFIXES dokanfuse1)
 else()
-  # TODO: Is this will work on Cygwin?
   set(FUSE_NAMES fuse)
+  set(FUSE_SUFFIXES fuse)
 endif()
 
 find_library(
     FUSE_LIBRARY
     NAMES ${FUSE_NAMES}
-    PATHS /lib64 /lib /usr/lib64 /usr/lib /usr/local/lib64 /usr/local/lib /usr/lib/x86_64-linux-gnu
+    PATHS /lib64
+          /lib
+          /usr/lib64
+          /usr/lib
+          /usr/local/lib64
+          /usr/local/lib
+          /usr/lib/x86_64-linux-gnu
 )
 
 set(_fuse_message "Check for fuse")
@@ -48,9 +56,14 @@ endif()
 find_path(
     FUSE_INCLUDE_DIR
     NAMES fuse.h
-    PATHS /usr/local/include/osxfuse /usr/local/include/fuse /usr/include/fuse)
+    PATHS /usr/local/include /usr/include
+    PATH_SUFFIXES ${FUSE_SUFFIXES})
 
+# check found version
 if(FUSE_INCLUDE_DIR)
+  set(FUSE_INCLUDE_DIR "${FUSE_INCLUDE_DIR}/fuse")
+
+  # retrieve version information from the header
   file(STRINGS "${FUSE_INCLUDE_DIR}/fuse_common.h" fuse_version_str
       REGEX "^#define[\t ]+FUSE.+VERSION[\t ]+[0-9]+")
 
@@ -76,4 +89,18 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args("FUSE" DEFAULT_MSG
     FUSE_INCLUDE_DIR FUSE_LIBRARY)
 
-mark_as_advanced(FUSE_FIND_QUIETLY FUSE_NAMES FUSE_LIBRARY FUSE_INCLUDE_DIR)
+# add definitions
+if(FUSE_FOUND)
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES ia64)
+    set(FUSE_DEFINITIONS "-D_REENTRANT -D_FILE_OFFSET_BITS=64")
+  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES amd64)
+    set(FUSE_DEFINITIONS "-D_REENTRANT -D_FILE_OFFSET_BITS=64")
+  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES x86_64)
+    set(FUSE_DEFINITIONS "-D_REENTRANT -D_FILE_OFFSET_BITS=64")
+  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES ia64)
+    set(FUSE_DEFINITIONS "-D_REENTRANT")
+  endif()
+endif()
+
+mark_as_advanced(FUSE_FIND_QUIETLY FUSE_NAMES FUSE_LIBRARY)
+mark_as_advanced(FUSE_DEFINITIONS FUSE_INCLUDE_DIR FUSE_COMMON_INCLUDE_DIR)

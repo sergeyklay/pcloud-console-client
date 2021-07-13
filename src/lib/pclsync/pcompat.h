@@ -108,8 +108,6 @@
 # define P_OS_ID 9
 #endif
 
-#define _FILE_OFFSET_BITS 64
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdint.h>

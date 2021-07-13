@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define _FILE_OFFSET_BITS 64
-
 #include <pthread.h>
 #include <fuse.h>
 #include <errno.h>
