@@ -14,7 +14,7 @@ include(CMakeDependentOption)
 option(PCLSYNC_WARNINGS_AS_ERRORS "Turn all build warnings into errors")
 
 add_library(compilerflags INTERFACE)
-add_library(pcloud::CompilerFlags ALIAS compilerflags)
+add_library(pcloud::compilerflags ALIAS compilerflags)
 
 # Clang / GCC
 # For "-Werror" see target_compile_options() bellow

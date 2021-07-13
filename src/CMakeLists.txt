@@ -14,31 +14,32 @@ add_subdirectory(lib/pclsync)
 set(OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
 include_directories(${OVERLAY_CLIENT_PATH})
 
-# TODO: Add debug.c only on -DCMAKE_BUILD_TYPE=Debug
-add_library(pclcli
-    STATIC pclcli.cpp
-           control_tools.cpp
-           "${OVERLAY_CLIENT_PATH}/overlay_client.c"
-           "${OVERLAY_CLIENT_PATH}/debug.c")
+set(pclcli_sources
+    pclcli.cpp
+    control_tools.cpp
+    "${OVERLAY_CLIENT_PATH}/overlay_client.c"
+    "${OVERLAY_CLIENT_PATH}/debug.c")
+
+add_library(pclcli STATIC ${pclcli_sources})
+add_library(pcloud::pclcli ALIAS pclcli)
+unset(pclcli_sources)
 
 target_include_directories(pclcli
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
 target_link_libraries(pclcli
-    pcloud::psync
-    CONAN_PKG::sqlite3
-    ${FUSE_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT})
+    PRIVATE pcloud::psync
+            CONAN_PKG::sqlite3
+            ${CMAKE_THREAD_LIBS_INIT})
 
 if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
-  target_link_libraries(pclcli CONAN_PKG::mbedtls)
+  target_link_libraries(pclcli PRIVATE CONAN_PKG::mbedtls)
 endif()
 
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
-    PRIVATE pclcli
-            ${FUSE_LIBRARIES}
+    PRIVATE pcloud::pclcli
             CONAN_PKG::boost)
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
