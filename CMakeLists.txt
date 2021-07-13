@@ -40,4 +40,7 @@ include(ProjectInfo)
 # Use a standard directory layout
 include(GNUInstallDirs)
 
+# We prefer libraries over frameworks
+set(CMAKE_FIND_FRAMEWORK LAST)
+
 add_subdirectory(src)
