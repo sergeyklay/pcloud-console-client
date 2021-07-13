@@ -200,12 +200,12 @@ void psync_path_status_clear_path_cache() {
 }
 
 void psync_path_status_clear_sync_path_cache() {
-  uint64_t nsync_hash_seed2;
+  uint64_t nsync_hash_seed;
   do {
-    psync_ssl_rand_strong((unsigned char *)&nsync_hash_seed2, sizeof(nsync_hash_seed2));
-  } while (unlikely(nsync_hash_seed2==drv_hash_seed));
+    psync_ssl_rand_strong((unsigned char *)&nsync_hash_seed, sizeof(nsync_hash_seed));
+  } while (unlikely(nsync_hash_seed==drv_hash_seed));
   psync_sql_lock();
-  sync_hash_seed=nsync_hash_seed2;
+  sync_hash_seed=nsync_hash_seed;
   psync_sql_unlock();
 }
 
