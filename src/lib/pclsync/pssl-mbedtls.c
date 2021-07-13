@@ -89,7 +89,7 @@ int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len
   int ret;
   rng=(ctr_drbg_context_locked *)p_rng;
   pthread_mutex_lock(&rng->mutex);
-  ret=mbedtls_ctr_drbg_random(&rng->rnd, output, output_len); /* ERR */
+  ret=mbedtls_ctr_drbg_random(&rng->rnd, output, output_len);
   pthread_mutex_unlock(&rng->mutex);
   return ret;
 }
@@ -138,7 +138,7 @@ int psync_ssl_init() {
   psync_get_random_seed(seed, seed, sizeof(seed), 0);
   mbedtls_entropy_update_manual(&psync_mbed_entropy, seed, sizeof(seed));
 
-  /* initialize the CTR_DRBG context */
+  /* Initialize the CTR_DRBG context */
   mbedtls_ctr_drbg_init(&psync_mbed_rng.rnd);
 
   /* Seed and set up the CTR_DRBG entropy source for future reseeds */
@@ -413,7 +413,7 @@ int psync_ssl_write(void *sslconn, const void *buf, int num) {
 }
 
 void psync_ssl_rand_strong(unsigned char *buf, int num) {
-  if (unlikely(ctr_drbg_random_locked(&psync_mbed_rng, buf, num))) { /* ERR */
+  if (unlikely(ctr_drbg_random_locked(&psync_mbed_rng, buf, num))) {
     debug(D_CRITICAL, "could not generate %d random bytes, exiting", num);
     abort();
   }
