@@ -61,7 +61,10 @@ find_path(
 
 # check found version
 if(FUSE_INCLUDE_DIR)
-  set(FUSE_INCLUDE_DIR "${FUSE_INCLUDE_DIR}/fuse")
+  # usually on Linux FUSE_INCLUDE_DIR is /usr/include
+  if (FUSE_INCLUDE_DIR MATCHES "/include$" AND NOT WINDOWS)
+    set(FUSE_INCLUDE_DIR "${FUSE_INCLUDE_DIR}/fuse")
+  endif()
 
   # retrieve version information from the header
   file(STRINGS "${FUSE_INCLUDE_DIR}/fuse_common.h" fuse_version_str
