@@ -30,7 +30,7 @@ target_link_libraries(pclcli
     ${FUSE_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT})
 
-if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls") # TODO: Add to docs
+if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
   target_link_libraries(pclcli CONAN_PKG::mbedtls)
 endif()
 
