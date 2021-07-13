@@ -2464,6 +2464,7 @@ int psync_send_debug(int thread, const char *file, const char *function, int uns
 
 void psync_netlibs_init(){
   psync_timer_register(psync_netlibs_timer, 1, NULL);
+  /* FIXME: sem_init is deprecated */
   sem_init(&api_pool_sem, 0, PSYNC_APIPOOL_MAXACTIVE);
 }
 

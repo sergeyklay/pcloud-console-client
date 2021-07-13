@@ -28,6 +28,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <errno.h>
@@ -35,6 +36,7 @@
 
 #include "overlay_client.h"
 #include "debug.h"
+
 #define POVERLAY_BUFSIZE 512
 
 typedef struct _message {
