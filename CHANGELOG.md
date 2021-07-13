@@ -8,6 +8,8 @@ releases, in reverse chronological order.
 ### Removals
 
 * Code cleanup. Removed not used, old and duplicate stuff to avoid confusion.
+* Removed hardcoded mbedtls library.
+* Removed hardcoded sqlite3 library.
 
 ### Features
 
@@ -16,16 +18,19 @@ releases, in reverse chronological order.
 
 ### Bugfix
 
-* Fixed typos and misspelling in the documentation.
+* Fixed typos and misspellings in the documentation.
 * Fixed redefinition of `_GNU_SOURCE` and `_DARWIN_USE_64_BIT_INODE`.
 * Fixed `control_tools` function signatures.
+* Add missed return for `clib::pclcli::start_crypto`,
+  `clib::pclcli::stop_crypto` and `clib::pclcli::finalize`.
 
 ### Changes
 
 * Improved documentation.
 * CMake < 3.10.2 is no longer supported.
-* Instructed the compiler to use `-std=gnu99` when it is needed.
+* Build project using single CMake command only.
 * Reorganized project structures to follow modern CMake layout.
+* Instructed the compiler to use `-std=gnu99` when it is needed.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
 * Project build no longer uses `pcloudcc_lib` shared library and from now the
   entire runtime is in one file.
@@ -34,4 +39,3 @@ releases, in reverse chronological order.
   due to the fact that `lsb_release` could return a string of arbitrary length.
   This behavior was disabled in the current client version. Now the client send
   only the OS name and client version.
-* Build project using single CMake command only.
