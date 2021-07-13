@@ -137,7 +137,22 @@ int psync_ssl_init() {
   mbedtls_entropy_init(&psync_mbed_entropy);
   psync_get_random_seed(seed, seed, sizeof(seed), 0);
   mbedtls_entropy_update_manual(&psync_mbed_entropy, seed, sizeof(seed));
+
+  /* initialize the CTR_DRBG context */
   mbedtls_ctr_drbg_init(&psync_mbed_rng.rnd);
+
+  /* Seed and set up the CTR_DRBG entropy source for future reseeds */
+  int seed_status = mbedtls_ctr_drbg_seed(
+      &psync_mbed_rng.rnd,
+      mbedtls_entropy_func,
+      &psync_mbed_entropy,
+      NULL,
+      0
+  );
+  if (seed_status != 0) {
+    return PRINT_RETURN(-1);
+  }
+
   mbedtls_x509_crt_init(&psync_mbed_trusted_certs_x509);
 
   /* Loading the certificates */
@@ -146,8 +161,7 @@ int psync_ssl_init() {
     crt_parse_status = mbedtls_x509_crt_parse(
         &psync_mbed_trusted_certs_x509,
         (const unsigned char *)psync_ssl_trusted_certs[i],
-        /* + 1 here  since the terminating NULL byte is counted in */
-        strlen(psync_ssl_trusted_certs[i])// + 1
+        strlen(psync_ssl_trusted_certs[i])
     );
 
     if (crt_parse_status != 0) {
