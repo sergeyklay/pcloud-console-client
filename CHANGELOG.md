@@ -44,3 +44,4 @@ releases, in reverse chronological order.
 * Bumped SQLite3 from 3.12.0 to 3.36.0
 * Replaced deprecated `readdir_r()` function with `readdir()`.
 * Replaced deprecated semaphores implementation on macOS with GCD semaphores.
+* Updated macOS versions list to identity caller on API calls.
