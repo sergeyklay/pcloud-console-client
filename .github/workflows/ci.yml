@@ -50,13 +50,13 @@ jobs:
           #    /usr/bin/ld: ../lib/mbedtls/library/libmbedtls.a(aes.c.o): relocation R_X86_64_32S against `.bss'
           #                 can not be used when making a shared object; recompile with -fPIC
           #
-        - name: linux-clang-debug
-          build-type: Debug
-          os: ubuntu-18.04
-          ssl: mbedtls
-          compiler: clang
-          arch: x64
-          version: '5.0'
+          - name: linux-clang-debug
+            build-type: Debug
+            os: ubuntu-18.04
+            ssl: mbedtls
+            compiler: clang
+            arch: x64
+            version: '5.0'
 
     steps:
       - name: Checkout Code
