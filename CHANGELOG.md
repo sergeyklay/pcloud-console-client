@@ -42,4 +42,5 @@ releases, in reverse chronological order.
   only the OS name and client version.
 * Bumped Mbed TLS from 1.3.10 to 2.25.0
 * Bumped SQLite3 from 3.12.0 to 3.36.0
-* Replaced deprecated `readdir_r()` function by `readdir()`.
+* Replaced deprecated `readdir_r()` function with `readdir()`.
+* Replaced deprecated semaphores implementation on macOS with GCD semaphores.
