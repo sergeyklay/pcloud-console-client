@@ -47,7 +47,7 @@ endif()
 
 find_path(
     FUSE_INCLUDE_DIR
-    NAMES fuse_common.h
+    NAMES fuse.h
     PATHS /usr/local/include/osxfuse /usr/local/include/fuse /usr/include/fuse)
 
 if(FUSE_INCLUDE_DIR)
