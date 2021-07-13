@@ -74,11 +74,8 @@ if(FUSE_INCLUDE_DIR)
       fuse_version_major "${fuse_version_str}")
   string(REGEX REPLACE ".*#define[\t ]+FUSE_MINOR_VERSION[\t ]+([0-9]+).*" "\\1"
       fuse_version_minor "${fuse_version_str}")
-  if (fuse_version_minor)
-    string(SUBSTRING "${fuse_version_minor}" 0 1 fuse_version_minor_1)
-  endif()
 
-  set(FUSE_USE_VERSION "${fuse_version_major}${fuse_version_minor_1}")
+  set(FUSE_USE_VERSION "${fuse_version_major}${fuse_version_minor}")
   set(FUSE_VERSION_STRING "${fuse_version_major}.${fuse_version_minor}")
 
   unset(fuse_version_str)

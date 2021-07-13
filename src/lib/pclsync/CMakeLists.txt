@@ -109,7 +109,8 @@ endif()
 find_package(FUSE 2.6 REQUIRED)
 if(FUSE_FOUND)
   target_compile_definitions(psync
-      PRIVATE "${FUSE_DEFINITIONS}")
+      PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION}
+              "${FUSE_DEFINITIONS}")
 endif()
 
 target_include_directories(psync
