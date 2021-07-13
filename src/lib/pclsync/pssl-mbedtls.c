@@ -84,17 +84,17 @@ static void debug_mbedtls_error(int errnum) {
   debug(D_ERROR, "mbedtls error[%d]: %s", errnum, error_buf);
 }
 
-int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len) { /* ERR */
+int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len) {
   ctr_drbg_context_locked *rng;
   int ret;
   rng=(ctr_drbg_context_locked *)p_rng;
   pthread_mutex_lock(&rng->mutex);
-  ret=mbedtls_ctr_drbg_random(&rng->rnd, output, output_len);
+  ret=mbedtls_ctr_drbg_random(&rng->rnd, output, output_len); /* ERR */
   pthread_mutex_unlock(&rng->mutex);
   return ret;
 }
 
-#ifdef PSYNC_AES_HW_GCC
+#ifdef PSYNC_AES_HW_GCC /* TODO: This should work on Clang too */
 static uint32_t psync_ssl_detect_aes_hw() {
   uint32_t eax, ecx;
   eax = 1;
@@ -147,7 +147,7 @@ int psync_ssl_init() {
         &psync_mbed_trusted_certs_x509,
         (const unsigned char *)psync_ssl_trusted_certs[i],
         /* + 1 here  since the terminating NULL byte is counted in */
-        strlen(psync_ssl_trusted_certs[i]) + 1
+        strlen(psync_ssl_trusted_certs[i])// + 1
     );
 
     if (crt_parse_status != 0) {
