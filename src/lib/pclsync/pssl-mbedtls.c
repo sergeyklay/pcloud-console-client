@@ -398,8 +398,8 @@ int psync_ssl_write(void *sslconn, const void *buf, int num) {
   return PSYNC_SSL_FAIL;
 }
 
-void psync_ssl_rand_strong(unsigned char *buf, int num) { /* ERR */
-  if (unlikely(ctr_drbg_random_locked(&psync_mbed_rng, buf, num))) {
+void psync_ssl_rand_strong(unsigned char *buf, int num) {
+  if (unlikely(ctr_drbg_random_locked(&psync_mbed_rng, buf, num))) { /* ERR */
     debug(D_CRITICAL, "could not generate %d random bytes, exiting", num);
     abort();
   }
