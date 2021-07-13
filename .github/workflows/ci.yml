@@ -105,6 +105,15 @@ jobs:
       - name: Setting Up Build Vars
         run: echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
 
+      - name: Setup Conan Cache
+        id: conan-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CONAN_USER_HOME }}/.conan/data
+          key: ${{ runner.os }}-conan-${{ matrix.compiler }}-${{ hashFiles('**/conanfile.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-conan-${{ matrix.compiler }}-
+
       - name: Configure Conan
         run: |
           mkdir -p "${{ env.CONAN_USER_HOME }}/.conan/profiles"
