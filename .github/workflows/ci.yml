@@ -113,6 +113,9 @@ jobs:
         run: |
           mkdir -p "${{ env.CONAN_USER_HOME }}/.conan/profiles"
 
+          # WARN: Remotes registry file missing, creating default one
+          cp tools/conan/remotes.json "${{ env.CONAN_USER_HOME }}/.conan/remotes.json"
+
           # Install conan profiles
           cp tools/conan/profiles/* "${{ env.CONAN_USER_HOME }}/.conan/profiles/"
           conan profile list
