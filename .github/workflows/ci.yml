@@ -88,25 +88,41 @@ jobs:
               ;;
           esac
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.arch }}
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Verify Toolchain Version
         run: |
           ${{ matrix.compiler }} --version
           cmake --version
+          conan --version
 
-      - name: Configure Mbed TLS
-        if: matrix.ssl == 'mbedtls'
-        working-directory: src/lib/mbedtls
+      - name: Setting Up Build Vars
+        run: echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
+
+      - name: Configure Conan
+        run: |
+          mkdir -p "${{ env.CONAN_USER_HOME }}/.conan/profiles"
+
+          # Install conan profiles
+          cp tools/conan/profiles/* "${{ env.CONAN_USER_HOME }}/.conan/profiles/"
+          conan profile list
+
+      - name: Install The Requirements Using Conan
         run: >-
-          cmake
-          -S .
-          -B .
-          -DCMAKE_C_STANDARD=99
-          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
-
-      - name: Build Mbed TLS
-        if: matrix.ssl == 'mbedtls'
-        working-directory: src/lib/mbedtls
-        run: cmake --build . --config ${{ matrix.build-type }}
+          conan
+          install .
+          --install-folder .build
+          --profile ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.version }}-${{ matrix.build-type }}
+          --build missing
 
       - name: Configure client
         run: >-
