@@ -24,15 +24,7 @@ set -o nounset
 set -o errexit
 
 # Clear any cache
-if [ -d "$(pwd)/.build" ]; then
-  cmake --build .build --target clean || true
-
-  find . -type f -name 'CMakeCache.txt' -delete
-  find . -type f -name 'cmake_install.cmake' -delete
-  find . -type d -name 'CMakeFiles' -exec rm -rf {} +
-
-  rm -rf ./.build
-fi
+rm -rf "$(pwd)/.build"
 
 conan install . -if=.build --build=missing
 
