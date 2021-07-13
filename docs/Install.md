@@ -64,11 +64,6 @@ specifying that Conan should integrate with CMake:
 $ conan install . -if=.build --build=missing
 ```
 
-Or, if you'd like to use specific conan profile:
-```sh
-$ conan install . -if=.build --profile=clang  --build=missing
-```
-
 This example establishes out-of-source `.build/` folder, so that source folder
 is not polluted. For a detailed instruction on how to use and customize conan
 please refer [here](https://docs.conan.io/en/latest/getting_started.html).
