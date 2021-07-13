@@ -42,6 +42,7 @@ jobs:
             os: ubuntu-18.04
             ssl: mbedtls
             compiler: gcc
+            arch: x64
             version: '5'
 
           # TODO: Enable after fix Makefile
