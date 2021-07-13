@@ -54,7 +54,6 @@ mbedtls:shared=False
 
 [generators]
 cmake
-cmake_paths
 json
 
 # Local Variables:
