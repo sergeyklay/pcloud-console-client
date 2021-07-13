@@ -37,9 +37,9 @@ endif()
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
-    pclcli
-    ${FUSE_LIBRARIES}
-    CONAN_PKG::boost)
+    PRIVATE pclcli
+            ${FUSE_LIBRARIES}
+            CONAN_PKG::boost)
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
     ${OVERLAY_CLIENT_PATH})
