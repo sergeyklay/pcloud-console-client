@@ -11,7 +11,7 @@
 
 add_subdirectory(lib/pclsync)
 
-set (OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
+set(OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
 include_directories(${OVERLAY_CLIENT_PATH})
 
 # TODO: Add debug.c only on -DCMAKE_BUILD_TYPE=Debug

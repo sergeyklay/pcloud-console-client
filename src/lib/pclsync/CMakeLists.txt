@@ -127,7 +127,7 @@ target_link_libraries(psync
     CONAN_PKG::openssl
     CONAN_PKG::zlib
     CONAN_PKG::sqlite3
-    ${FUSE_LIBRARIES}
+    ${FUSE_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT})
 
 if(APPLE)
