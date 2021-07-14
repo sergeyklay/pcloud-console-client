@@ -45,3 +45,4 @@ releases, in reverse chronological order.
 * Replaced deprecated `readdir_r()` function with `readdir()`.
 * Replaced deprecated semaphores implementation on macOS with GCD semaphores.
 * Updated macOS versions list to identity caller on API calls.
+* Move Debian control files to `tools` directory
