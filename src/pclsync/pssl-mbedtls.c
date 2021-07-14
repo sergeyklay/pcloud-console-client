@@ -1,16 +1,12 @@
 /*
- * pCloud Console Client
+ * This file is part of the pCloud Console Client.
  *
- * Copyright (c) 2021 Serghei Iakovlev.
- * Copyright (c) 2015 Anton Titov.
- * Copyright (c) 2015 pCloud Ltd.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2015 Anton Titov
+ * (c) 2015 pCloud Ltd
  *
- * This source file is subject to the New BSD License that is bundled with this
- * project in the file LICENSE.
- *
- * If you did not receive a copy of the license and are unable to obtain it
- * through the world-wide-web, please send an email to egrep@protonmail.ch so
- * we can send you a copy immediately.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
 #include <pthread.h>
