@@ -7,7 +7,7 @@
 
 include(CMakeDependentOption)
 
-option(PCLSYNC_WARNINGS_AS_ERRORS "Turn all build warnings into errors")
+option(PCLOUD_WARNINGS_AS_ERRORS "Turn all build warnings into errors")
 
 add_library(compilerflags INTERFACE)
 add_library(pcloud::compilerflags ALIAS compilerflags)

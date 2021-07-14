@@ -89,8 +89,8 @@ recognized during the project configuration phase:
 
 | Feature                      | Possible Value                                                      | Description                                                       |
 | ---------------------------- |---------------------------------------------------------------------|-------------------------------------------------------------------|
-| `PCLSYNC_WARNINGS_AS_ERRORS` | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
-| `PCLSYNC_SSL_IMPL`           | `mbedtls`, `openssl`, `securetransport`                             | Used SSL implementation.                                          |
+| `PCLOUD_WARNINGS_AS_ERRORS`  | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
+| `PCLOUD_TLS_IMPL`            | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
 | `CMAKE_BUILD_TYPE`           | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | This directory is prepended onto all install directories.         |
 | `CMAKE_INSTALL_PREFIX`       | Any path.                                                           | This directory is prepended onto all install directories.         |
 

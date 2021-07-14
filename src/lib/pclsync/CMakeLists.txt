@@ -5,8 +5,8 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-# Setup SSL implementation
-include(SSLImpl)
+# Setup TLS implementation
+include(TLSImplementation)
 
 set(psync_sources
     pcompat.c
@@ -64,9 +64,9 @@ set(psync_sources
     pfsstatic.c
     plocks.c)
 
-if(PCLOUD_SSL_IMPL STREQUAL "openssl")
+if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   list(APPEND psync_sources pssl-openssl.c)
-elseif(PCLOUD_SSL_IMPL STREQUAL "securetransport")
+elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   list(APPEND psync_sources pssl-securetransport.c)
 else()
   list(APPEND psync_sources pssl-mbedtls.c)
@@ -96,10 +96,10 @@ target_include_directories(psync
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}
     PUBLIC ${FUSE_INCLUDE_DIR})
 
-if(PCLOUD_SSL_IMPL STREQUAL "openssl")
+if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync CONAN_PKG::openssl)
   target_compile_definitions(psync PRIVATE P_SSL_OPENSSL)
-elseif(PCLOUD_SSL_IMPL STREQUAL "securetransport")
+elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   target_compile_definitions(psync PRIVATE P_SSL_SECURETRANSPORT)
 else()
   target_link_libraries(psync CONAN_PKG::mbedtls)
