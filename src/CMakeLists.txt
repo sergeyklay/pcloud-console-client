@@ -5,6 +5,7 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
+add_subdirectory(logger)
 add_subdirectory(pclsync)
 add_subdirectory(overlay_client)
 

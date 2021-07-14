@@ -30,6 +30,8 @@ conan install . -if=.build --build=missing
 
 echo "Configure client"
 cmake -S . -B .build \
+  -DPCLOUD_MAINTAINER_LOGS=ON \
+  -DPCLOUD_MAINTAINER_LOG_FILE=/tmp/pcloudcc.log \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 

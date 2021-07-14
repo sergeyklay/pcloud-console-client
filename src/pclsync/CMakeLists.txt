@@ -91,7 +91,7 @@ target_compile_definitions(psync
 
 target_include_directories(psync
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}
-    PUBLIC ${FUSE_INCLUDE_DIR})
+    PUBLIC  ${FUSE_INCLUDE_DIR})
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync CONAN_PKG::openssl)
@@ -104,6 +104,7 @@ else()
 endif()
 
 target_link_libraries(psync
+    pcloud::logger
     CONAN_PKG::zlib
     CONAN_PKG::sqlite3
     ${FUSE_LIBRARY})

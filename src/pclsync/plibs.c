@@ -2450,6 +2450,7 @@ static void time_format(time_t tm, unsigned long ns, char *result){
   memcpy(result, " +0000", 7); // copies the null byte
 }
 
+/* TODO: Duplicate */
 int psync_debug(const char *file, const char *function, int unsigned line, int unsigned level, const char *fmt, ...){
   static const struct {
     psync_uint_t level;

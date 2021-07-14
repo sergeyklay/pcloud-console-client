@@ -10,8 +10,6 @@
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
-#define REGISTRY_KEY_PCLOUD    "SOFTWARE\\PCloud\\pCloud"
-
 #define D_NONE     0
 #define D_BUG      10
 #define D_CRITICAL 20

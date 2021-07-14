@@ -25,7 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gitcommit.h"
 #include "plibs.h"
 #include "pcompat.h"
 #include "psynclib.h"
@@ -61,7 +60,7 @@
 #include "poverlay.h"
 #include "pasyncnet.h"
 #include "ppathstatus.h"
-//#include "pdevice_monitor.h"
+#include "logger.h"
 
 #include <string.h>
 #include <ctype.h>
@@ -86,7 +85,8 @@ static pthread_mutex_t psync_libstate_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 PSYNC_NOINLINE void *psync_emergency_malloc(size_t size){
   void *ret;
-  debug(D_WARNING, "could not allocate %lu bytes", (unsigned long)size);
+  log_warn("could not allocate %lu bytes", (unsigned long)size);
+
   psync_try_free_memory();
   ret=psync_real_malloc(size);
   if (likely(ret))
@@ -95,11 +95,14 @@ PSYNC_NOINLINE void *psync_emergency_malloc(size_t size){
 #else
     return ret;
 #endif
-  else{
-    debug(D_CRITICAL, "could not allocate %lu bytes even after freeing some memory, aborting", (unsigned long)size);
-    abort();
-    return NULL;
-  }
+
+  log_fatal(
+      "could not allocate %lu bytes even after freeing some memory, aborting",
+      (unsigned long)size
+  );
+
+  abort();
+  return NULL;
 }
 
 void *psync_malloc(size_t size){
@@ -115,18 +118,22 @@ void *psync_malloc(size_t size){
     return psync_emergency_malloc(size);
 }
 
-PSYNC_NOINLINE void *psync_emergency_realloc(void *ptr, size_t size){
+PSYNC_NOINLINE void *psync_emergency_realloc(void *ptr, size_t size) {
   void *ret;
-  debug(D_WARNING, "could not reallocate %lu bytes", (unsigned long)size);
+  log_warn("could not reallocate %lu bytes", (unsigned long)size);
+
   psync_try_free_memory();
-  ret=psync_real_realloc(ptr, size);
+  ret = psync_real_realloc(ptr, size);
   if (likely(ret))
     return ret;
-  else{
-    debug(D_CRITICAL, "could not reallocate %lu bytes even after freeing some memory, aborting", (unsigned long)size);
-    abort();
-    return NULL;
-  }
+
+  log_fatal(
+      "could not reallocate %lu bytes even after freeing some memory, aborting",
+      (unsigned long)size
+  );
+
+  abort();
+  return NULL;
 }
 
 void *psync_realloc(void *ptr, size_t size){
@@ -156,26 +163,27 @@ void psync_set_alloc(psync_malloc_t malloc_call, psync_realloc_t realloc_call, p
   psync_real_free=free_call;
 }
 
-void psync_set_software_string(const char *str){
-  debug(D_NOTICE, "setting software name to %s", str);
+void psync_set_software_string(const char *str) {
+  log_info("setting software name to %s", str);
   psync_set_software_name(str);
 }
 
 static void psync_stop_crypto_on_sleep(){
   if (psync_setting_get_bool(_PS(sleepstopcrypto)) && psync_crypto_isstarted()){
     psync_cloud_crypto_stop();
-    debug(D_NOTICE, "stopped crypto due to sleep");
+    log_info("stopped crypto due to sleep");
   }
 }
 
 int psync_init(){
   psync_thread_name="main app thread";
-  debug(D_NOTICE, "initializing library version "PSYNC_LIB_VERSION);
+  log_info("initializing library version %s", PSYNC_LIB_VERSION);
+
   if (IS_DEBUG){
     pthread_mutex_lock(&psync_libstate_mutex);
     if (psync_libstate!=0){
       pthread_mutex_unlock(&psync_libstate_mutex);
-      debug(D_BUG, "you are not supposed to call psync_init for a second time");
+      log_error("you are not supposed to call psync_init for a second time");
       return 0;
     }
   }
@@ -215,23 +223,22 @@ int psync_init(){
 
   psync_run_thread("Overlay main thread", overlay_main_loop);
   init_overlay_callbacks();
-  //psync_run_thread("Device monitor main thread", pinit_device_monitor);
 
   return 0;
 }
 
 void psync_start_sync(pstatus_change_callback_t status_callback, pevent_callback_t event_callback){
-  debug(D_NOTICE, "starting sync");
+  log_info("starting sync");
   if (IS_DEBUG){
     pthread_mutex_lock(&psync_libstate_mutex);
     if (psync_libstate==0){
       pthread_mutex_unlock(&psync_libstate_mutex);
-      debug(D_BUG, "you are calling psync_start_sync before psync_init");
+      log_error("you are calling psync_start_sync before psync_init");
       return;
     }
     else if (psync_libstate==2){
       pthread_mutex_unlock(&psync_libstate_mutex);
-      debug(D_BUG, "you are calling psync_start_sync for a second time");
+      log_error("you are calling psync_start_sync for a second time");
       return;
     }
     else
@@ -347,7 +354,7 @@ static void psync_invalidate_auth(const char *auth){
 }
 
 void psync_logout2(uint32_t auth_status, int doinvauth){
-  debug(D_NOTICE, "logout");
+  log_info("logout");
   psync_sql_statement("DELETE FROM setting WHERE id IN ('pass', 'auth', 'saveauth')");
   if (doinvauth)
     psync_invalidate_auth(psync_my_auth);
@@ -376,7 +383,7 @@ void psync_logout(){
 
 void psync_unlink(){
   int ret;
-  debug(D_NOTICE, "unlink");
+  log_info("unlink");
   psync_diff_lock();
   psync_stop_all_download();
   psync_stop_all_upload();
@@ -392,63 +399,23 @@ void psync_unlink(){
   psync_set_status(PSTATUS_TYPE_RUN, PSTATUS_RUN_STOP);
   psync_timer_notify_exception();
   psync_sql_lock();
-  debug(D_NOTICE, "clearing database, locked");
+  log_info("clearing database, locked");
   psync_cache_clean_all();
   ret=psync_sql_close();
   psync_file_delete(psync_database);
   if (ret){
-    debug(D_ERROR, "failed to close database, exiting");
+    log_error("failed to close database, exiting");
     exit(1);
   }
   psync_pagecache_clean_cache();
   psync_sql_connect(psync_database);
-  /*
-    psync_sql_res *res;
-    psync_variant_row row;
-    char *sql;
-    const char *str;
-    size_t len;
-    psync_list list;
-    string_list *le;
-    psync_list_init(&list);
-    res=psync_sql_query("SELECT name FROM sqlite_master WHERE type='index'");
-    while ((row=psync_sql_fetch_row(res))){
-      str=psync_get_lstring(row[0], &len);
-      le=(string_list *)psync_malloc(offsetof(string_list, str)+len+1);
-      memcpy(le->str, str, len+1);
-      psync_list_add_tail(&list, &le->list);
-    }
-    psync_sql_free_result(res);
-    psync_list_for_each_element(le, &list, string_list, list){
-      sql=psync_strcat("DROP INDEX ", le->str, NULL);
-      psync_sql_statement(sql);
-      psync_free(sql);
-    }
-    psync_list_for_each_element_call(&list, string_list, list, psync_free);
-    psync_list_init(&list);
-    res=psync_sql_query("SELECT name FROM sqlite_master WHERE type='table'");
-    while ((row=psync_sql_fetch_row(res))){
-      str=psync_get_lstring(row[0], &len);
-      le=(string_list *)psync_malloc(offsetof(string_list, str)+len+1);
-      memcpy(le->str, str, len+1);
-      psync_list_add_tail(&list, &le->list);
-    }
-    psync_sql_free_result(res);
-    psync_list_for_each_element(le, &list, string_list, list){
-      sql=psync_strcat("DROP TABLE ", le->str, NULL);
-      psync_sql_statement(sql);
-      psync_free(sql);
-    }
-    psync_list_for_each_element_call(&list, string_list, list, psync_free);
-    psync_sql_statement("VACUUM");
-  */
   pthread_mutex_lock(&psync_my_auth_mutex);
   memset(psync_my_auth, 0, sizeof(psync_my_auth));
   psync_my_user=NULL;
   psync_my_pass=NULL;
   psync_my_userid=0;
   pthread_mutex_unlock(&psync_my_auth_mutex);
-  debug(D_NOTICE, "clearing database, finished");
+  log_info("clearing database, finished");
   psync_fs_pause_until_login();
   psync_fs_clean_tasks();
   psync_path_status_init();
@@ -500,7 +467,11 @@ psync_syncid_t psync_add_sync_by_folderid(const char *localpath, psync_folderid_
   if (syncmp){
     size_t len=strlen(syncmp);
     if (!psync_filename_cmpn(syncmp, localpath, len) && (localpath[len]==0 || localpath[len]=='/' || localpath[len]=='\\')){
-      debug(D_NOTICE, "local path %s is on pCloudDrive mounted as %s, rejecting sync", localpath, syncmp);
+      log_info(
+          "local path %s is on pCloudDrive mounted as %s, rejecting sync",
+          localpath,
+          syncmp
+      );
       psync_free(syncmp);
       return_isyncid(PERROR_LOCAL_IS_ON_PDRIVE);
     }
@@ -702,17 +673,6 @@ static void psync_delete_local_recursive(psync_syncid_t syncid, psync_folderid_t
 int psync_delete_sync(psync_syncid_t syncid){
   psync_sql_res *res;
   psync_sql_start_transaction();
-/* this is slow and unneeded:
-  psync_uint_row row;
-  res=psync_sql_query("SELECT type, itemid, localitemid FROM task WHERE syncid=?");
-  psync_sql_bind_uint(res, 1, syncid);
-  while ((row=psync_sql_fetch_rowint(res)))
-    if (row[0]==PSYNC_DOWNLOAD_FILE)
-      psync_stop_file_download(row[1], syncid);
-    else if (row[0]==PSYNC_UPLOAD_FILE)
-      psync_delete_upload_tasks_for_file(row[2]);
-  psync_sql_free_result(res);
-  */
   psync_delete_local_recursive(syncid, 0);
   res=psync_sql_prep_statement("DELETE FROM syncfolder WHERE id=?");
   psync_sql_bind_uint(res, 1, syncid);
@@ -807,7 +767,7 @@ int psync_is_lname_to_ignore(const char *name, size_t namelen){
     if (psync_match_pattern(namelower, pt, pl)){
       if (namelower!=buff)
         psync_free(namelower);
-      debug(D_NOTICE, "ignoring file/folder %s", name);
+      log_info("ignoring file/folder %s", name);
       return 1;
     }
   } while (sc);
@@ -864,7 +824,7 @@ static int do_run_command_get_res(const char *cmd, size_t cmdlen, const binparam
   }
   result=psync_find_result(res, "result", PARAM_NUM)->num;
   if (result){
-    debug(D_WARNING, "command %s returned code %u", cmd, (unsigned)result);
+    log_warn("command %s returned code %u", cmd, (unsigned)result);
     if (err)
       *err=psync_strdup(psync_find_result(res, "error", PARAM_STR)->str);
     psync_process_api_error(result);
@@ -1217,7 +1177,7 @@ int psync_accept_share_request(psync_sharerequestid_t requestid, psync_folderid_
 
 int psync_account_stopshare(psync_shareid_t shareid, char **err) {
   psync_shareid_t shareidarr[] = {shareid};
-  debug(D_NOTICE, "shareidarr %lld", (long long)shareidarr[0]);
+  log_info("shareidarr %lld", (long long)shareidarr[0]);
   int result =  do_psync_account_stopshare(shareidarr, 1, shareidarr, 1, err);
   return result;
 }
@@ -1236,7 +1196,7 @@ int psync_remove_share(psync_shareid_t shareid, char **err){
       psync_free(*err);
       *err = err1;
     }
-    debug(D_NOTICE, "erroris  %s", *err);
+    log_info("erroris  %s", *err);
   }
   return result;
 }
@@ -1244,7 +1204,7 @@ int psync_remove_share(psync_shareid_t shareid, char **err){
 static int psync_account_modifyshare(psync_shareid_t shareid, uint32_t permissions, char **err) {
   psync_shareid_t shareidarr[] = {shareid};
   uint32_t permsarr[] = {permissions};
-  debug(D_NOTICE, "shareidarr %lld", (long long)shareidarr[0]);
+  log_info("shareidarr %lld", (long long)shareidarr[0]);
   int result =  do_psync_account_modifyshare(shareidarr, permsarr, 1, shareidarr, permsarr, 1, err);
   return result;
 }
@@ -1263,7 +1223,7 @@ int psync_modify_share(psync_shareid_t shareid, uint32_t permissions, char **err
       psync_free(*err);
       *err = err1;
     }
-     debug(D_NOTICE, "erroris  %s", *err);
+    log_info("erroris  %s", *err);
   }
   return result;
 }
@@ -1281,7 +1241,7 @@ static unsigned long psync_parse_version(const char *currentversion){
     else if (*currentversion>='0' && *currentversion<='9')
       cm=cm*10+*currentversion-'0';
     else
-      debug(D_WARNING, "invalid characters in version string: %s", currentversion);
+      log_warn("invalid characters in version string: %s", currentversion);
     currentversion++;
   }
 }
@@ -1350,7 +1310,7 @@ psync_new_version_t *psync_check_new_version(const char *os, unsigned long curre
   int ret;
   ret=run_command_get_res("getlastversion", params, NULL, &res);
   if (ret){
-    debug(D_WARNING, "getlastversion returned %d", ret);
+    log_warn("getlastversion returned %d", ret);
     return NULL;
   }
   if (!psync_find_result(res, "newversion", PARAM_BOOL)->num){
@@ -1369,9 +1329,10 @@ static void psync_del_all_except(void *ptr, psync_pstat_fast *st){
   if (!psync_filename_cmp(st->name, nmarr[1]) || st->isfolder)
     return;
   fp=psync_strcat(nmarr[0], PSYNC_DIRECTORY_SEPARATOR, st->name, NULL);
-  debug(D_NOTICE, "deleting old update file %s", fp);
+  log_info("deleting old update file %s", fp);
   if (psync_file_delete(fp))
-    debug(D_WARNING, "could not delete %s", fp);
+    log_warn("could not delete %s", fp);
+
   psync_free(fp);
 }
 
@@ -1463,12 +1424,12 @@ psync_new_version_t *psync_check_new_version_download(const char *os, unsigned l
   ret=run_command_get_res("getlastversion", params, NULL, &res);
   if (unlikely(ret==-1))
     do{
-      debug(D_WARNING, "could not connect to server, sleeping");
+      log_warn("could not connect to server, sleeping");
       psync_milisleep(10000);
       ret=run_command_get_res("getlastversion", params, NULL, &res);
     } while (ret==-1);
   if (ret){
-    debug(D_WARNING, "getlastversion returned %d", ret);
+    log_warn("getlastversion returned %d", ret);
     return NULL;
   }
   if (!psync_find_result(res, "newversion", PARAM_BOOL)->num){
@@ -1477,8 +1438,8 @@ psync_new_version_t *psync_check_new_version_download(const char *os, unsigned l
   }
   ret=psync_download_new_version(psync_find_result(res, "download", PARAM_HASH), &lfilename);
   if (unlikely(ret==-1))
-    do{
-      debug(D_WARNING, "could not download update, sleeping");
+    do {
+      log_warn("could not download update, sleeping");
       psync_milisleep(10000);
       ret=psync_download_new_version(psync_find_result(res, "download", PARAM_HASH), &lfilename);
     } while (ret==-1);
@@ -1486,37 +1447,42 @@ psync_new_version_t *psync_check_new_version_download(const char *os, unsigned l
     psync_free(res);
     return NULL;
   }
-  debug(D_NOTICE, "update downloaded to %s", lfilename);
+
+  log_info("update downloaded to %s", lfilename);
   ver=psync_res_to_ver(res, lfilename);
   psync_free(lfilename);
   psync_free(res);
   return ver;
 }
 
-void psync_run_new_version(psync_new_version_t *ver){
-  debug(D_NOTICE, "running %s", ver->localpath);
+void psync_run_new_version(psync_new_version_t *ver) {
+  log_info("running %s", ver->localpath);
   if (psync_run_update_file(ver->localpath))
     return;
+
   psync_destroy();
   exit(0);
 }
 
-static int psync_upload_result(binresult *res, psync_fileid_t *fileid){
+static uint64_t psync_upload_result(binresult *res, psync_fileid_t *fileid) {
   uint64_t result;
-  result=psync_find_result(res, "result", PARAM_NUM)->num;
-  if (likely(!result)){
-    const binresult *meta=psync_find_result(res, "metadata", PARAM_ARRAY)->array[0];
-    *fileid=psync_find_result(meta, "fileid", PARAM_NUM)->num;
+  result = psync_find_result(res, "result", PARAM_NUM)->num;
+
+  if (likely(!result)) {
+    const binresult *meta = psync_find_result(res, "metadata", PARAM_ARRAY)->array[0];
+    *fileid = psync_find_result(meta, "fileid", PARAM_NUM)->num;
     psync_free(res);
     psync_diff_wake();
     return 0;
   }
-  else{
-    debug(D_WARNING, "uploadfile returned error %u: %s", (unsigned)result, psync_find_result(res, "error", PARAM_STR)->str);
-    psync_free(res);
-    psync_process_api_error(result);
-    return result;
-  }
+
+  log_warn(
+      "uploadfile returned error %u: %s",
+      (unsigned)result, psync_find_result(res, "error", PARAM_STR)->str
+  );
+  psync_free(res);
+  psync_process_api_error(result);
+  return result;
 }
 
 static int psync_upload_params(binparam *params, size_t paramcnt, const void *data, size_t length, psync_fileid_t *fileid){
