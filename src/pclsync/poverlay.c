@@ -29,21 +29,21 @@ void instance_thread(LPVOID) {}
 
 poverlay_callback * callbacks;
 static int callbacks_size = 15;
-static const int calbacks_lower_band = 20;
+static const int callbacks_lower_band = 20;
 
 int psync_add_overlay_callback(int id, poverlay_callback callback)
 {
   poverlay_callback * callbacks_old = callbacks;
   int callbacks_size_old = callbacks_size;
-  if (id < calbacks_lower_band)
+  if (id < callbacks_lower_band)
     return -1;
-  if (id > (calbacks_lower_band + callbacks_size)) {
-     callbacks_size = id - calbacks_lower_band + 1;
+  if (id > (callbacks_lower_band + callbacks_size)) {
+     callbacks_size = id - callbacks_lower_band + 1;
      init_overlay_callbacks();
      memcpy(callbacks,callbacks_old, callbacks_size_old*sizeof(poverlay_callback));
      psync_free(callbacks_old);
   }
-  callbacks[id - calbacks_lower_band] = callback;
+  callbacks[id - callbacks_lower_band] = callback;
   return 0;
 }
 
@@ -92,7 +92,7 @@ void get_answer_to_request(message *request, message *replay) {
         replay->type=13;
         memcpy(replay->value, "No.", 4);
     }
-  } else if ((callbacks_running)&&(request->type < (calbacks_lower_band + callbacks_size))) {
+  } else if ((callbacks_running)&&(request->type < (callbacks_lower_band + callbacks_size))) {
     int ind = request->type - 20;
     int ret = 0;
     message *rep = NULL;

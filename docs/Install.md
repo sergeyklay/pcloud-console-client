@@ -48,7 +48,7 @@ First you'll need clone the project:
 
 ```sh
 $ git clone https://github.com/sergeyklay/pcloud-console-client.git
-$ cd console-client
+$ cd pcloud-console-client
 ```
 
 Then, install Conan:
