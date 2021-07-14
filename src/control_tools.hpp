@@ -11,8 +11,8 @@
 // through the world-wide-web, please send an email to egrep@protonmail.ch so
 // we can send you a copy immediately.
 
-#ifndef PSYNC_CONTROL_TOOLS_H
-#define PSYNC_CONTROL_TOOLS_H
+#ifndef PSYNC_CONTROL_TOOLS_HPP_
+#define PSYNC_CONTROL_TOOLS_HPP_
 
 namespace control_tools {
   void start_crypto(const char * pass);
@@ -22,4 +22,4 @@ namespace control_tools {
   void process_commands();
 }
 
-#endif  // PSYNC_CONTROL_TOOLS_H
+#endif  // PSYNC_CONTROL_TOOLS_HPP_

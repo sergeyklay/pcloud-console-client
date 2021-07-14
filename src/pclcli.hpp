@@ -11,8 +11,8 @@
 // through the world-wide-web, please send an email to egrep@protonmail.ch so
 // we can send you a copy immediately.
 
-#ifndef PSYNC_PCLCLI_H
-#define PSYNC_PCLCLI_H
+#ifndef PSYNC_PCLCLI_HPP_
+#define PSYNC_PCLCLI_HPP_
 
 #include <string>
 
@@ -96,4 +96,4 @@ namespace console_client {
   }
 }
 
-#endif  // PSYNC_PCLCLI_H
+#endif  // PSYNC_PCLCLI_HPP_

@@ -13,8 +13,8 @@
  * we can send you a copy immediately.
  */
 
-#ifndef PSYNC_MBEDTLS_H
-#define PSYNC_MBEDTLS_H
+#ifndef PSYNC_PSSL_MBEDTLS_H_
+#define PSYNC_PSSL_MBEDTLS_H_
 
 #include <stdint.h>
 #include <mbedtls/sha1.h>
@@ -143,4 +143,4 @@ static inline void psync_aes256_decode_4blocks_consec_xor(psync_aes256_decoder e
     ((unsigned long *)dst)[i]^=((unsigned long *)bxor)[i];
 }
 #endif  /* PSYNC_AES_HW */
-#endif  /* PSYNC_MBEDTLS_H */
+#endif  /* PSYNC_PSSL_MBEDTLS_H_ */
