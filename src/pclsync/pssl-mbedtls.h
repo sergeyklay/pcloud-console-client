@@ -3,7 +3,7 @@
  *
  * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
  * (c) 2015 Anton Titov
- * (c) 2021 2015 pCloud Ltd
+ * (c) 2015 pCloud Ltd
  *
  * For the full copyright and license information, please view
  * the LICENSE file that was distributed with this source code.

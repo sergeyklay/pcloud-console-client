@@ -44,9 +44,6 @@ set(psync_sources
     pbusinessaccount.c
     pcontacts.c
     poverlay.c
-    poverlay_lin.c
-    poverlay_mac.c
-    poverlay_win.c
     pcompression.c
     pasyncnet.c
     ppathstatus.c

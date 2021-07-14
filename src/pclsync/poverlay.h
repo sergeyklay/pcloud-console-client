@@ -1,5 +1,15 @@
-#ifndef POVERLAY_H
-#define POVERLAY_H
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2015 pCloud Ltd
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+#ifndef PCLOUD_PCLSYNC_POVERLAY_H_
+#define PCLOUD_PCLSYNC_POVERLAY_H_
 
 #ifndef VOID
 #define VOID void
@@ -22,7 +32,7 @@ extern int callbacks_running;
 
 void overlay_main_loop(VOID);
 void instance_thread(LPVOID);
-void get_answer_to_request(message *requesr /*IN*/, message *replay/*OUT*/);
+void get_answer_to_request(message *request /*IN*/, message *replay/*OUT*/);
 void psync_stop_overlays();
 void psync_start_overlays();
 void psync_stop_overlay_callbacks();
@@ -34,5 +44,4 @@ void init_overlay_callbacks();
 int psync_add_overlay_callback(int id, poverlay_callback callback);
 
 
-#endif // POVERLAY_H
-
+#endif  /* PCLOUD_PCLSYNC_POVERLAY_H_ */
