@@ -1,20 +1,16 @@
 /*
- * pCloud Console Client
+ * This file is part of the pCloud Console Client.
  *
- * Copyright (c) 2021 Serghei Iakovlev.
- * Copyright (c) 2015 Anton Titov.
- * Copyright (c) 2015 pCloud Ltd.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2015 Anton Titov
+ * (c) 2021 2015 pCloud Ltd
  *
- * This source file is subject to the New BSD License that is bundled with this
- * project in the file LICENSE.
- *
- * If you did not receive a copy of the license and are unable to obtain it
- * through the world-wide-web, please send an email to egrep@protonmail.ch so
- * we can send you a copy immediately.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PSYNC_PSSL_MBEDTLS_H_
-#define PSYNC_PSSL_MBEDTLS_H_
+#ifndef PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_
+#define PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_
 
 #include <stdint.h>
 #include <mbedtls/sha1.h>
@@ -143,4 +139,4 @@ static inline void psync_aes256_decode_4blocks_consec_xor(psync_aes256_decoder e
     ((unsigned long *)dst)[i]^=((unsigned long *)bxor)[i];
 }
 #endif  /* PSYNC_AES_HW */
-#endif  /* PSYNC_PSSL_MBEDTLS_H_ */
+#endif  /* PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_ */

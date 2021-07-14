@@ -1,18 +1,14 @@
-// pCloud Console Client
+// This file is part of the pCloud Console Client.
 //
-// Copyright (c) 2021 Serghei Iakovlev.
-// Copyright (c) 2013-2016 Anton Titov.
-// Copyright (c) 2013-2016 pCloud Ltd.
+// (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+// (c) 2013-2016 Anton Titov
+// (c) 2013-2016 pCloud Ltd
 //
-// This source file is subject to the New BSD License that is bundled with this
-// project in the file LICENSE.
-//
-// If you did not receive a copy of the license and are unable to obtain it
-// through the world-wide-web, please send an email to egrep@protonmail.ch so
-// we can send you a copy immediately.
+// For the full copyright and license information, please view
+// the LICENSE file that was distributed with this source code.
 
-#ifndef PSYNC_CONTROL_TOOLS_HPP_
-#define PSYNC_CONTROL_TOOLS_HPP_
+#ifndef PCLOUD_CONTROL_TOOLS_HPP_
+#define PCLOUD_CONTROL_TOOLS_HPP_
 
 namespace control_tools {
   void start_crypto(const char * pass);
@@ -22,4 +18,4 @@ namespace control_tools {
   void process_commands();
 }
 
-#endif  // PSYNC_CONTROL_TOOLS_HPP_
+#endif  // PCLOUD_CONTROL_TOOLS_HPP_
