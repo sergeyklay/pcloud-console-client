@@ -5,14 +5,14 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-add_subdirectory(lib/pclsync)
+add_subdirectory(pclsync)
 add_subdirectory(overlay_client)
 
 add_library(pclcli STATIC pclcli.cpp control_tools.cpp)
 add_library(pcloud::pclcli ALIAS pclcli)
 
 target_include_directories(pclcli
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/pclsync"
            "${CMAKE_CURRENT_SOURCE_DIR}/overlay_client")
 
 target_link_libraries(pclcli
