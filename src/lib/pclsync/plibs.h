@@ -42,12 +42,13 @@
 #define D_WARNING  40
 #define D_NOTICE   50
 
-#define DEBUG_LEVELS {\
- {D_BUG, "BUG"},\
- {D_CRITICAL, "CRITICAL ERROR"},\
- {D_ERROR, "ERROR"},\
- {D_WARNING, "WARNING"},\
- {D_NOTICE, "NOTICE"}\
+/* FIXME: This code is duplicated in 3 places */
+#define DEBUG_LEVELS {           \
+ {D_BUG, "BUG"},                 \
+ {D_CRITICAL, "CRITICAL ERROR"}, \
+ {D_ERROR, "ERROR"},             \
+ {D_WARNING, "WARNING"},         \
+ {D_NOTICE, "NOTICE"}            \
 }
 
 #ifndef DEBUG_LEVEL // TODO: Add to the documentation

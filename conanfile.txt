@@ -1,0 +1,63 @@
+# pCloud Console Client
+#
+# Copyright (c) 2021 Serghei Iakovlev.
+#
+# This source file is subject to the New BSD License that is bundled with this
+# project in the file LICENSE.
+#
+# If you did not receive a copy of the license and are unable to obtain it
+# through the world-wide-web, please send an email to egrep@protonmail.ch so
+# we can send you a copy immediately.
+
+[requires]
+zlib/1.2.11
+mbedtls/2.25.0
+boost/1.76.0
+openssl/1.1.1k
+sqlite3/3.36.0
+
+[options]
+boost:bzip2=False
+boost:zlib=False
+boost:shared=False
+boost:without_atomic=True
+boost:without_chrono=True
+boost:without_container=True
+boost:without_context=True
+boost:without_contract=True
+boost:without_coroutine=True
+boost:without_date_time=True
+boost:without_exception=True
+boost:without_graph=True
+boost:without_fiber=True
+boost:without_filesystem=True
+boost:without_graph_parallel=True
+boost:without_iostreams=True
+boost:without_json=True
+boost:without_locale=True
+boost:without_log=True
+boost:without_math=True
+boost:without_mpi=True
+boost:without_nowide=True
+boost:without_python=True
+boost:without_random=True
+boost:without_regex=True
+boost:without_serialization=True
+boost:without_stacktrace=True
+boost:without_test=True
+boost:without_thread=True
+boost:without_timer=True
+boost:without_type_erasure=True
+boost:without_wave=True
+
+mbedtls:shared=False
+
+[generators]
+cmake
+json
+
+# Local Variables:
+# mode: conf
+# tab-width: 2
+# indent-tabs-mode: nil
+# End:

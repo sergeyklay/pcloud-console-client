@@ -9,43 +9,41 @@
 # through the world-wide-web, please send an email to egrep@protonmail.ch so
 # we can send you a copy immediately.
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-unset(Boost_INCLUDE_DIR CACHE)
-unset(Boost_LIBRARY_DIRS CACHE)
-
-find_package(Boost COMPONENTS system program_options REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIR})
-
 add_subdirectory(lib/pclsync)
 
-set (OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
+set(OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
 include_directories(${OVERLAY_CLIENT_PATH})
 
-add_library(pclcli
-    STATIC pclcli.cpp
-           control_tools.cpp
-           "${OVERLAY_CLIENT_PATH}/overlay_client.c"
-           "${OVERLAY_CLIENT_PATH}/debug.c")
+set(pclcli_sources
+    pclcli.cpp
+    control_tools.cpp
+    "${OVERLAY_CLIENT_PATH}/overlay_client.c"
+    "${OVERLAY_CLIENT_PATH}/debug.c")
+
+add_library(pclcli STATIC ${pclcli_sources})
+add_library(pcloud::pclcli ALIAS pclcli)
+unset(pclcli_sources)
 
 target_include_directories(pclcli
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
 
 target_link_libraries(pclcli
-    pcloud::psync
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library/libmbedtls.a"
-    fuse pthread sqlite3)
+    PRIVATE pcloud::psync
+            CONAN_PKG::sqlite3
+            ${CMAKE_THREAD_LIBS_INIT})
+
+if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
+  target_link_libraries(pclcli PRIVATE CONAN_PKG::mbedtls)
+endif()
 
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
-    pclcli
-    ${Boost_LIBRARIES})
+    PRIVATE pcloud::pclcli
+            CONAN_PKG::boost)
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/mbedtls/library"
-    "${OVERLAY_CLIENT_PATH}")
+    ${OVERLAY_CLIENT_PATH})
 
 set_target_properties(pcloudcc PROPERTIES
     VERSION ${PROJECT_VERSION}

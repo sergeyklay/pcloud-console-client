@@ -206,22 +206,25 @@ int clib::pclcli::start_crypto (const char* pass, void * rep) {
 int clib::pclcli::stop_crypto (const char* path, void * rep) {
   psync_crypto_stop();
   get_lib().crypto_on_ = false;
+  return 0;
 }
 
 int clib::pclcli::finalize (const char* path, void * rep) {
   psync_destroy();
-  exit(0);
+  /* exit(0); */
+  return 0;
 }
 
 int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t * folders = psync_get_sync_list();
   rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
+  return 0;
 }
 
 int clib::pclcli::init() {
   // TODO: Old behavior leads to char overflow. Try to sort out
-  // const std::string client_name = " Console Client v.2.0.1";
+  // const std::string client_name = " Console Client v3.0.0";
   // std::string software_string = exec("lsb_release -ds");
   // psync_set_software_string(software_string.append(client_name).c_str());
 
@@ -252,9 +255,9 @@ int clib::pclcli::init() {
   }
 
   psync_add_overlay_callback(20, &clib::pclcli::start_crypto);
-  psync_add_overlay_callback(21,&clib::pclcli::stop_crypto);
-  psync_add_overlay_callback(22,&clib::pclcli::finalize);
-  psync_add_overlay_callback(23,&clib::pclcli::list_sync_folders);
+  psync_add_overlay_callback(21, &clib::pclcli::stop_crypto);
+  psync_add_overlay_callback(22, &clib::pclcli::finalize);
+  psync_add_overlay_callback(23, &clib::pclcli::list_sync_folders);
 
   return 0;
 }

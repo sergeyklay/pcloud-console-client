@@ -65,7 +65,6 @@ endif()
 # debugger can still produce a stack backtrace even with optimizations flags
 # (eg '-O1', '-O2', etc).
 #
-# TODO: Add to docs
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # Setup Asan flags
   set(CMAKE_C_FLAGS_ASAN

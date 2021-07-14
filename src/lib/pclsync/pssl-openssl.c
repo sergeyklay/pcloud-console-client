@@ -1,7 +1,7 @@
 /* Copyright (c) 2013 Anton Titov.
  * Copyright (c) 2013 pCloud Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of pCloud Ltd nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -115,7 +115,7 @@ static void openssl_thread_setup(){
 static int psync_ssl_detect_aes_hw(){
   uint32_t eax, ecx;
   eax=1;
-  __asm__("cpuid" 
+  __asm__("cpuid"
           : "=c"(ecx)
           : "a"(eax)
           : "%ebx", "%edx");
@@ -165,7 +165,7 @@ int psync_ssl_init(){
       return -1;
     }
     SSL_CTX_set_verify(globalctx, SSL_VERIFY_NONE, NULL);
-    SSL_CTX_set_read_ahead(globalctx, 0); // readahed breaks SSL_Pending 
+    SSL_CTX_set_read_ahead(globalctx, 0); // readahed breaks SSL_Pending
     SSL_CTX_set_session_cache_mode(globalctx, SSL_SESS_CACHE_CLIENT|SSL_SESS_CACHE_NO_INTERNAL);
     SSL_CTX_set_options(globalctx, SSL_OP_NO_COMPRESSION);
     SSL_CTX_set_mode(globalctx, SSL_MODE_RELEASE_BUFFERS);
@@ -368,7 +368,7 @@ void psync_ssl_free(void *sslconn){
   psync_free(conn);
 }
 
-int psync_ssl_pendingdata(void *sslconn){
+size_t psync_ssl_pendingdata(void *sslconn){
   return SSL_pending(((ssl_connection_t *)sslconn)->ssl);
 }
 
@@ -583,7 +583,7 @@ psync_rsa_privatekey_t psync_ssl_rsa_binary_to_private(psync_binary_rsa_key_t bi
 psync_symmetric_key_t psync_ssl_gen_symmetric_key_from_pass(const char *password, size_t keylen, const unsigned char *salt, size_t saltlen, size_t iterations){
   psync_symmetric_key_t key=(psync_symmetric_key_t)psync_locked_malloc(keylen+offsetof(psync_symmetric_key_struct_t, key));
   key->keylen=keylen;
-  PKCS5_PBKDF2_HMAC(password, strlen(password), salt, 
+  PKCS5_PBKDF2_HMAC(password, strlen(password), salt,
                                 saltlen, iterations, EVP_sha512(), keylen, key->key);
   return key;
 }

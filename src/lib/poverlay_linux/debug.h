@@ -35,4 +35,4 @@ void pc_debug(const char *file, const char *function, int unsigned line, int uns
 #endif
 ;
 
-#endif /*_DEBUG_H*/
+#endif  /* _DEBUG_H */

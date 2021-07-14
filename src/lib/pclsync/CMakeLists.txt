@@ -62,7 +62,6 @@ set(psync_sources
     pasyncnet.c
     ppathstatus.c
     pdevice_monitor.c
-    #
     pfs.c
     ppagecache.c
     pfsfolder.c
@@ -99,27 +98,19 @@ unset(psync_ssl_def)
 
 if (WIN32)
   target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
-  set(FUSE_USE_VERSION 0)
-  mark_as_advanced(FUSE_USE_VERSION)
 elseif(APPLE)
   target_compile_definitions(psync PRIVATE P_OS_MACOSX)
-
-  find_package(FUSE 2.6 REQUIRED)
-  find_package(OpenSSL REQUIRED)
-  find_package(ZLIB REQUIRED)
-  find_package(SQLite3 REQUIRED)
-
-  target_compile_definitions(psync PRIVATE P_USE_FUSE)
+  find_package(Threads REQUIRED)
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
-
-  find_package(FUSE 2.6 REQUIRED)
   find_package(Threads REQUIRED)
-  find_package(OpenSSL REQUIRED)
-  find_package(ZLIB REQUIRED)
-  find_package(SQLite3 REQUIRED)
+endif()
 
-  target_compile_definitions(psync PRIVATE P_USE_FUSE)
+find_package(FUSE 2.6 REQUIRED)
+if(FUSE_FOUND)
+  target_compile_definitions(psync
+      PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION}
+              "${FUSE_DEFINITIONS}")
 endif()
 
 target_include_directories(psync
@@ -127,21 +118,17 @@ target_include_directories(psync
     PUBLIC ${FUSE_INCLUDE_DIR})
 
 if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
-  target_include_directories(psync
-      PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../mbedtls/include")
+  target_link_libraries(psync CONAN_PKG::mbedtls)
 endif()
 
+# TODO: Do we need openssl here in case of mbedtls?
+target_link_libraries(psync
+    CONAN_PKG::openssl
+    CONAN_PKG::zlib
+    CONAN_PKG::sqlite3
+    ${FUSE_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT})
+
 if(APPLE)
-  target_link_libraries(psync
-      ${OPENSSL_LIBRARIES}
-      ${FUSE_LIBRARIES}
-      ${ZLIB_LIBRARIES}
-      ${SQLite3_LIBRARIES})
-elseif(UNIX)
-  target_link_libraries(psync
-      ${OPENSSL_LIBRARIES}
-      ${CMAKE_THREAD_LIBS_INIT}
-      ${FUSE_LIBRARIES}
-      ${ZLIB_LIBRARIES}
-      ${SQLite3_LIBRARIES})
+  target_link_libraries(psync "-framework Cocoa")
 endif()

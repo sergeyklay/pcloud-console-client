@@ -26,10 +26,17 @@
  */
 
 #define __STDC_FORMAT_MACROS
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
+
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#else
 #include <semaphore.h>
+#endif
+
 #include "pnetlibs.h"
 #include "pssl.h"
 #include "psettings.h"
@@ -97,7 +104,11 @@ static pthread_mutex_t file_lock_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 static struct time_bytes download_bytes_sec[PSYNC_SPEED_CALC_AVERAGE_SEC], upload_bytes_sec[PSYNC_SPEED_CALC_AVERAGE_SEC];
 
-static sem_t api_pool_sem;
+#ifdef __APPLE__
+dispatch_semaphore_t api_pool_sem;
+#else
+sem_t                api_pool_sem;
+#endif
 
 char apiserver[64]=PSYNC_API_HOST;
 static char apikey[68]="API:"PSYNC_API_HOST;
@@ -112,7 +123,13 @@ static uint32_t hash_func(const char *key){
 
 static psync_socket *psync_get_api(){
   psync_socket *sock;
+
+#ifdef __APPLE__
+  dispatch_semaphore_wait(api_pool_sem, DISPATCH_TIME_FOREVER);
+#else
   sem_wait(&api_pool_sem);
+#endif
+
   debug(D_NOTICE, "connecting to %s", apiserver);
   sock=psync_api_connect(apiserver, psync_setting_get_bool(_PS(usessl)));
   if (sock)
@@ -121,7 +138,11 @@ static psync_socket *psync_get_api(){
 }
 
 static void psync_ret_api(void *ptr){
+#ifdef __APPLE__
+  dispatch_semaphore_signal(api_pool_sem);
+#else
   sem_post(&api_pool_sem);
+#endif
   debug(D_NOTICE, "closing connection to api");
   psync_socket_close((psync_socket *)ptr);
   debug(D_NOTICE, "closed connection to api");
@@ -2464,7 +2485,12 @@ int psync_send_debug(int thread, const char *file, const char *function, int uns
 
 void psync_netlibs_init(){
   psync_timer_register(psync_netlibs_timer, 1, NULL);
+#ifdef __APPLE__
+  dispatch_semaphore_t *sem = &api_pool_sem;
+  *sem = dispatch_semaphore_create(PSYNC_APIPOOL_MAXACTIVE);
+#else
   sem_init(&api_pool_sem, 0, PSYNC_APIPOOL_MAXACTIVE);
+#endif
 }
 
 int psync_do_run_command_res(const char *cmd, size_t cmdlen, const binparam *params, size_t paramscnt, char **err){

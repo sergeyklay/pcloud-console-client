@@ -25,9 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define FUSE_USE_VERSION 26
-#define _FILE_OFFSET_BITS 64
-
 #include <pthread.h>
 #include <fuse.h>
 #include <errno.h>
@@ -65,12 +62,7 @@ typedef off_t fuse_off_t;
 #include <signal.h>
 #endif
 
-#if defined(P_OS_MACOSX)
-#include <sys/mount.h>
-#include <sys/mount.h>
-#endif
-
-#if defined(P_OS_LINUX)
+#if defined(P_OS_MACOSX) || defined(P_OS_LINUX)
 #include <sys/mount.h>
 #endif
 
@@ -3069,11 +3061,11 @@ void psync_fs_refresh_folder(psync_folderid_t folderid){
   psync_binhex(rndhex, rndbuff, sizeof(rndbuff));
   rndhex[2*sizeof(rndbuff)]=0;
   pthread_mutex_lock(&start_mutex);
-  if (started==1){
-	  if (psync_invalidate_os_cache_needed())
+  if (started==1) {
+    if (psync_invalidate_os_cache_needed())
       fpath=psync_strcat(psync_current_mountpoint, path, NULL);
     else
-	    fpath=psync_strcat(psync_current_mountpoint, path, "/", psync_fake_prefix, rndhex, NULL);
+      fpath=psync_strcat(psync_current_mountpoint, path, "/", psync_fake_prefix, rndhex, NULL);
   }
   else
     fpath=NULL;
@@ -3519,4 +3511,3 @@ int psync_fs_remount(){
   else
     return 0;
 }
-
