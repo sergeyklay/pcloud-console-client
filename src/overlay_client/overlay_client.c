@@ -1,37 +1,19 @@
-/* Copyright (c) 2013-2015 pCloud Ltd.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-* * Redistributions of source code must retain the above copyright
-* notice, this list of conditions and the following disclaimer.
-* * Redistributions in binary form must reproduce the above copyright
-* notice, this list of conditions and the following disclaimer in the
-* documentation and/or other materials provided with the distribution.
-* * Neither the name of pCloud Ltd nor the
-* names of its contributors may be used to endorse or promote products
-* derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
-* DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2015 pCloud Ltd
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
 
-#include <stdio.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <errno.h>
 #include <netinet/in.h>
 
 #include "overlay_client.h"
@@ -57,7 +39,7 @@ static void read_x_bytes(int socket, unsigned int x, void * buffer){
   }
 }
 
-#if defined(P_OS_MACOS)
+#if defined(P_OS_MACOSX)
 uint32_t clport = 8989 ;
 #else
 char *clsoc = "/tmp/pcloud_unix_soc.sock" ;
@@ -83,8 +65,9 @@ int QueryState( pCloud_FileState *state, char * path) {
   free (errm);
 return 0 ;
 }
+
 int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void * out /*OUT*/ ) {
-  #if defined(P_OS_MACOS)
+  #if defined(P_OS_MACOSX)
   struct sockaddr_in addr;
   #else
   struct sockaddr_un addr;
@@ -104,10 +87,11 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
 
   debug ( D_NOTICE , "SenCall id[%d] path[%s]\n" , id, path);
 
-  #if defined(P_OS_MACOS)
+  #if defined(P_OS_MACOSX)
   if ( (fd = socket ( AF_INET , SOCK_STREAM , 0 )) == - 1 ) {
-    if (errm)
-      *errm = strndup ( "Unable to create INET socket" , 28 );
+    if (out)
+      /* TODO: Is this works? */
+      out = (void *)strndup("Unable to create INET socket", 28);
     *ret = - 1 ;
     return - 1 ;
   }
@@ -117,8 +101,9 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   addr. sin_addr . s_addr = htonl ( INADDR_LOOPBACK );
   addr. sin_port = htons ( clport );
   if ( connect (fd, ( struct sockaddr *)&addr, sizeof ( struct sockaddr )) == - 1 ) {
-    if (errm)
-      *errm = strndup ( "Unable to connect to INET socket" , 32 );
+    if (out)
+      /* TODO: Is this works? */
+      out = (void *)strndup( "Unable to connect to INET socket", 32);
     *ret = - 2 ;
     return - 2 ;
   }
