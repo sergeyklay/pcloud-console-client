@@ -5,15 +5,8 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-set(PCLSYNC_ALLOWED_SSL_IMPL mbedtls openssl securetransport)
-set(PCLSYNC_SSL_IMPL "mbedtls" CACHE STRING "Used SSL implementation") # TODO: Add to docs
-set_property(CACHE PCLSYNC_SSL_IMPL PROPERTY STRINGS "${PCLSYNC_ALLOWED_SSL_IMPL}")
-
-if(NOT PCLSYNC_SSL_IMPL IN_LIST PCLSYNC_ALLOWED_SSL_IMPL)
-  message(FATAL_ERROR "Invalid SSL implementation: ${PCLSYNC_SSL_IMPL}")
-else()
-  message(STATUS "Used SSL implementation: ${PCLSYNC_SSL_IMPL}")
-endif()
+# Setup TLS implementation
+include(TLSImplementation)
 
 set(psync_sources
     pcompat.c
@@ -71,26 +64,18 @@ set(psync_sources
     pfsstatic.c
     plocks.c)
 
-if(PCLSYNC_SSL_IMPL STREQUAL "openssl")
-  set(psync_ssl_def P_SSL_OPENSSL)
+if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   list(APPEND psync_sources pssl-openssl.c)
-elseif(PCLSYNC_SSL_IMPL STREQUAL "securetransport")
-  set(psync_ssl_def P_SSL_SECURETRANSPORT)
+elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   list(APPEND psync_sources pssl-securetransport.c)
 else()
-  set(psync_ssl_def P_SSL_MBEDTLS)
   list(APPEND psync_sources pssl-mbedtls.c)
 endif()
-
-mark_as_advanced(PCLSYNC_ALLOWED_SSL_IMPL PCLSYNC_SSL_IMPL)
 
 # Add definition for psync library
 add_library(psync STATIC ${psync_sources})
 add_library(pcloud::psync ALIAS psync)
 unset(psync_sources)
-
-target_compile_definitions(psync PRIVATE ${psync_ssl_def})
-unset(psync_ssl_def)
 
 if (WIN32)
   target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
@@ -103,28 +88,33 @@ elseif(UNIX)
 endif()
 
 find_package(FUSE 2.6 REQUIRED)
-if(FUSE_FOUND)
-  target_compile_definitions(psync
-      PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION}
-              "${FUSE_DEFINITIONS}")
-endif()
+target_compile_definitions(psync
+    PRIVATE FUSE_USE_VERSION=${FUSE_USE_VERSION}
+            "${FUSE_DEFINITIONS}")
 
 target_include_directories(psync
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}
     PUBLIC ${FUSE_INCLUDE_DIR})
 
-if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
+if(PCLOUD_TLS_IMPL STREQUAL "openssl")
+  target_link_libraries(psync CONAN_PKG::openssl)
+  target_compile_definitions(psync PRIVATE P_SSL_OPENSSL)
+elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
+  target_compile_definitions(psync PRIVATE P_SSL_SECURETRANSPORT)
+else()
   target_link_libraries(psync CONAN_PKG::mbedtls)
+  target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
 endif()
 
-# TODO: Do we need openssl here in case of mbedtls?
 target_link_libraries(psync
-    CONAN_PKG::openssl
     CONAN_PKG::zlib
     CONAN_PKG::sqlite3
-    ${FUSE_LIBRARY}
-    ${CMAKE_THREAD_LIBS_INIT})
+    ${FUSE_LIBRARY})
 
 if(APPLE)
   target_link_libraries(psync "-framework Cocoa")
+endif()
+
+if (NOT WIN32)
+  target_link_libraries(psync ${CMAKE_THREAD_LIBS_INIT})
 endif()
