@@ -78,11 +78,11 @@ PSYNC_THREAD int psync_ssl_errno;
 uint32_t psync_ssl_hw_aes;
 #endif
 
-static void debug_mbedtls_error(int errnum) {
-  char error_buf[100];
-  mbedtls_strerror( errnum, error_buf, 100 );
-  debug(D_ERROR, "mbedtls error[%d]: %s", errnum, error_buf);
-}
+#define mbedtls_log_error(errnum) do {                         \
+  char error_buf[100];                                         \
+  mbedtls_strerror(errnum, error_buf, 100);                    \
+  debug(D_ERROR, "mbedtls error[%d]: %s", errnum, error_buf);  \
+} while (0)
 
 int ctr_drbg_random_locked(void *p_rng, unsigned char *output, size_t output_len) {
   ctr_drbg_context_locked *rng;
@@ -156,17 +156,16 @@ int psync_ssl_init() {
   mbedtls_x509_crt_init(&psync_mbed_trusted_certs_x509);
 
   /* Loading the certificates */
-  int crt_parse_status = 0;
+  int crt_parse_status;
   for (i = 0; i < ARRAY_SIZE(psync_ssl_trusted_certs); ++i) {
     crt_parse_status = mbedtls_x509_crt_parse(
         &psync_mbed_trusted_certs_x509,
         (const unsigned char *)psync_ssl_trusted_certs[i],
-        strlen(psync_ssl_trusted_certs[i])
+        strlen(psync_ssl_trusted_certs[i]) + 1
     );
 
     if (crt_parse_status != 0) {
-      debug(D_ERROR, "failed to load certificate %lu", (unsigned long)i);
-      debug_mbedtls_error(crt_parse_status);
+      mbedtls_log_error(crt_parse_status);
     }
   }
 
@@ -300,16 +299,54 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
   ssl_connection_t *conn;
   mbedtls_ssl_session *sess;
   int ret;
-  conn=psync_ssl_alloc_conn(hostname);
+
+  conn = psync_ssl_alloc_conn(hostname);
   mbedtls_ssl_init(&conn->ssl);
-  conn->sock=sock;
-  mbedtls_ssl_conf_endpoint(&conn->config, MBEDTLS_SSL_IS_CLIENT);
-  mbedtls_ssl_conf_authmode(&conn->config, MBEDTLS_SSL_VERIFY_REQUIRED);
-  mbedtls_ssl_conf_min_version(&conn->config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+  conn->sock = sock;
+
+  /*  Setup stuff */
+  mbedtls_ssl_config_init(&conn->config);
+  if ((ret = mbedtls_ssl_config_defaults(
+      &conn->config,
+      MBEDTLS_SSL_IS_CLIENT,
+      MBEDTLS_SSL_TRANSPORT_STREAM,
+      MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
+  {
+    mbedtls_log_error(ret);
+    goto err1;
+  }
+
+  /* TLS 1.2 */
+  mbedtls_ssl_conf_min_version(
+      &conn->config,
+      MBEDTLS_SSL_MAJOR_VERSION_3,
+      MBEDTLS_SSL_MINOR_VERSION_3
+  );
+
   mbedtls_ssl_conf_ca_chain(&conn->config, &psync_mbed_trusted_certs_x509, NULL);
   mbedtls_ssl_conf_ciphersuites(&conn->config, psync_mbed_ciphersuite);
   mbedtls_ssl_conf_rng(&conn->config, ctr_drbg_random_locked, &psync_mbed_rng);
-  mbedtls_ssl_set_bio(&conn->ssl, psync_mbed_read, mbedtls_net_send, mbedtls_net_recv, NULL);
+
+  /* Setup an SSL context */
+  if ((ret = mbedtls_ssl_setup(&conn->ssl, &conn->config)) != 0) {
+    mbedtls_log_error(ret);
+    goto err1;
+  }
+
+  /* Setup SSL hostname */
+  if ((ret = mbedtls_ssl_set_hostname(&conn->ssl, hostname)) != 0) {
+    mbedtls_log_error(ret);
+    goto err1;
+  }
+
+  /* Set the underlying BIO callbacks for write, read and read-with-timeout */
+  mbedtls_ssl_set_bio(
+      &conn->ssl,
+      conn,
+      psync_mbed_write,
+      psync_mbed_read,
+      NULL
+  );
 
   /* we do not need SNI, but should not hurt in general to support */
   mbedtls_ssl_set_hostname(&conn->ssl, hostname);
@@ -321,19 +358,25 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
     mbedtls_ssl_session_free(sess);
     psync_free(sess);
   }
-  ret=mbedtls_ssl_handshake(&conn->ssl);
-  if (ret==0) {
+
+  /* Performing the SSL/TLS handshake */
+  ret = mbedtls_ssl_handshake(&conn->ssl);
+
+  if (ret == 0) {
     if (psync_ssl_check_peer_public_key(conn))
       goto err1;
     *sslconn=conn;
     psync_ssl_save_session(conn);
     return PSYNC_SSL_SUCCESS;
   }
+
+  mbedtls_log_error(ret);
   psync_set_ssl_error(conn, ret);
   if (likely_log(ret==MBEDTLS_ERR_SSL_WANT_READ || ret==MBEDTLS_ERR_SSL_WANT_WRITE)) {
     *sslconn=conn;
     return PSYNC_SSL_NEED_FINISH;
   }
+
 err1:
   mbedtls_ssl_free(&conn->ssl);
 
