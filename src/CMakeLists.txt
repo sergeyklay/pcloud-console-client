@@ -6,25 +6,18 @@
 # the LICENSE file that was distributed with this source code.
 
 add_subdirectory(lib/pclsync)
+add_subdirectory(overlay_client)
 
-set(OVERLAY_CLIENT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/poverlay_linux")
-include_directories(${OVERLAY_CLIENT_PATH})
-
-set(pclcli_sources
-    pclcli.cpp
-    control_tools.cpp
-    "${OVERLAY_CLIENT_PATH}/overlay_client.c"
-    "${OVERLAY_CLIENT_PATH}/debug.c")
-
-add_library(pclcli STATIC ${pclcli_sources})
+add_library(pclcli STATIC pclcli.cpp control_tools.cpp)
 add_library(pcloud::pclcli ALIAS pclcli)
-unset(pclcli_sources)
 
 target_include_directories(pclcli
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync")
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
+           "${CMAKE_CURRENT_SOURCE_DIR}/overlay_client")
 
 target_link_libraries(pclcli
     PRIVATE pcloud::psync
+            pcloud::overlay_client
             CONAN_PKG::sqlite3
             ${CMAKE_THREAD_LIBS_INIT})
 
@@ -33,9 +26,6 @@ add_executable(pcloudcc main.cpp)
 target_link_libraries(pcloudcc
     PRIVATE pcloud::pclcli
             CONAN_PKG::boost)
-
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pclsync"
-    ${OVERLAY_CLIENT_PATH})
 
 set_target_properties(pcloudcc PROPERTIES
     VERSION ${PROJECT_VERSION}
