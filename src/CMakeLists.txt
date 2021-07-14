@@ -28,10 +28,6 @@ target_link_libraries(pclcli
             CONAN_PKG::sqlite3
             ${CMAKE_THREAD_LIBS_INIT})
 
-if(PCLSYNC_SSL_IMPL STREQUAL "mbedtls")
-  target_link_libraries(pclcli PRIVATE CONAN_PKG::mbedtls)
-endif()
-
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
