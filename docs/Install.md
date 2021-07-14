@@ -51,10 +51,10 @@ $ git clone https://github.com/sergeyklay/pcloud-console-client.git
 $ cd console-client
 ```
 
-Then, install project dependencies:
+Then, install Conan:
 
 ```sh
-$ pip install -r requirements.txt
+$ pip install --user -r requirements.txt
 ```
 
 Next, initialize project with Conan - this is using the `conanfile.txt`
