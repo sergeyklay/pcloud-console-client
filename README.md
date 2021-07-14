@@ -20,10 +20,8 @@ welcome!
 
 - [Installing](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Install.md)
 - [Usage](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Usage.md)
-- [Build package](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Packaging.md)
 
 ## License
 
 pCloud Console Client is open source software licensed under the
-[BSD 3-Clause Clear License](https://choosealicense.com/licenses/bsd-3-clause-clear/)
-See the LICENSE file for more information.
+BSD 3-Clause License. See the LICENSE file for more information.
