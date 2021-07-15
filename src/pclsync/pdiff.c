@@ -2453,8 +2453,9 @@ restart:
     }
     else if (sel==1) {
       sock->pending=1;
-      res=get_result(sock);
-      if (unlikely_log(!res)) {
+      res = get_result(sock);
+      if (unlikely(!res)) {
+        log_warn("read from a socket returned NULL");
         psync_timer_notify_exception();
         handle_exception(&sock, &ids, 'r');
         socks[1]=sock->sock;
