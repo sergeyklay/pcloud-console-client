@@ -17,8 +17,9 @@
 #include <sys/un.h>
 #include <stdlib.h>
 
-#include "plibs.h"
 #include "poverlay.h"
+#include "plibs.h"
+#include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
 

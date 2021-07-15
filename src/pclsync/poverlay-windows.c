@@ -22,6 +22,7 @@
 #define THREADCOUNT 12
 
 #include "poverlay.h"
+#include "logger.h"
 
 LPCWSTR PORT = TEXT("\\\\.\\pipe\\pStatusPipe");
 
@@ -49,7 +50,7 @@ void overlay_main_loop(VOID) {
   }
 
   for (;;) {
-    //log_info("Pipe Server: Main thread awaiting client connection on %s", PORT);
+    log_debug("Pipe Server: Main thread awaiting client connection on %s", PORT);
 
     dwWaitResult = WaitForSingleObject(
       ghSemaphore,   // handle to semaphore
