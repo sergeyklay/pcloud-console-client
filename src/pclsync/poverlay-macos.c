@@ -99,20 +99,21 @@ void instance_thread(void* payload) {
   }
 
   if (rc == -1) {
-    log_error("TCP/IP socket read");
+    log_error("failed to read the socket");
     close(*cl);
     return;
   } else if (rc == 0) {
-    log_debug("Message received");
+    log_info("received message from the socket");
     close(*cl);
   }
+
   request = (message *)chbuf;
   if (request) {
     get_answer_to_request(request, reply);
     if (reply) {
       rc = write(*cl, reply, reply->length);
       if (rc != reply->length)
-        log_error("TCP/IP  socket reply not sent.");
+        log_error("socket reply not sent.");
     }
   }
 
