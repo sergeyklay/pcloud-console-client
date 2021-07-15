@@ -28,7 +28,7 @@
 #ifndef _PSYNC_TASKS_H
 #define _PSYNC_TASKS_H
 
-#include "pcompiler.h"
+#include "pcloudcc/pcompiler.h"
 #include "psynclib.h"
 
 #define PSYNC_TASK_DOWNLOAD 0

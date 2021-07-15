@@ -13,8 +13,10 @@ add_library(pclcli STATIC pclcli.cpp control_tools.cpp)
 add_library(pcloud::pclcli ALIAS pclcli)
 
 target_include_directories(pclcli
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/pclsync"
-           "${CMAKE_CURRENT_SOURCE_DIR}/overlay_client")
+  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/pclsync
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/overlay_client)
 
 target_link_libraries(pclcli
     PRIVATE pcloud::psync

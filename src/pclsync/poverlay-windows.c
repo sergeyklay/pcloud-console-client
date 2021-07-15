@@ -8,7 +8,7 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 
 #ifdef P_OS_WINDOWS
 

@@ -14,7 +14,7 @@
 #include <cstring>
 
 #include "psynclib.h"
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 
 #include "pclcli.hpp"
 #include "version.hpp"

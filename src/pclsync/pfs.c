@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "pfs.h"
 #include "pfsxattr.h"
 #include "pfsfolder.h"

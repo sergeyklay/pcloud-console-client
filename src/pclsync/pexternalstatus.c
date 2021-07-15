@@ -1,6 +1,6 @@
 /* Copyright (c) 2014 pCloud Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
  *     * Neither the name of pCloud Ltd nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,14 +27,14 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "pexternalstatus.h"
 #include "pfsfolder.h"
 #include "pfstasks.h"
 #include "plibs.h"
 #include "pstatus.h"
 #include "psynclib.h"
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "pfolder.h"
 
 #define MAX_RECURS_DEPTH 31
@@ -46,8 +46,8 @@
 #endif
 
 static int sync_offline() {
-  if  (psync_status_is_offline() || 
-       (psync_status_get(PSTATUS_TYPE_ACCFULL) == PSTATUS_ACCFULL_OVERQUOTA) || 
+  if  (psync_status_is_offline() ||
+       (psync_status_get(PSTATUS_TYPE_ACCFULL) == PSTATUS_ACCFULL_OVERQUOTA) ||
        (psync_status_get(PSTATUS_TYPE_DISKFULL) == PSTATUS_DISKFULL_FULL) ||
        (psync_status_get(PSTATUS_TYPE_RUN) == PSTATUS_RUN_PAUSE))
     return 1;
@@ -58,10 +58,10 @@ static int folder_in_sync_nolock(psync_fsfolderid_t folderid) {
   psync_sql_res *res = NULL;
   psync_uint_row row;
   uint64_t result;
-  
+
   if ((folderid == 0)||(folderid == PSYNC_INVALID_FSFOLDERID))
     return 0;
-  
+
   res=psync_sql_query_nolock("select id from syncfolder where folderid = ?;");
   psync_sql_bind_uint(res, 1, folderid);
   while ((row = psync_sql_fetch_rowint(res))) {
@@ -69,9 +69,9 @@ static int folder_in_sync_nolock(psync_fsfolderid_t folderid) {
     psync_sql_free_result(res);
     return result;
   }
-  
+
   psync_sql_free_result(res);
-  
+
   res = psync_sql_query_nolock("select parentfolderid from folder where id = ?;");
   psync_sql_bind_uint(res, 1, folderid);
   while ((row = psync_sql_fetch_rowint(res))) {
@@ -80,7 +80,7 @@ static int folder_in_sync_nolock(psync_fsfolderid_t folderid) {
     return result;
   }
   psync_sql_free_result(res);
-   
+
   return 0;
 }
 
@@ -88,18 +88,18 @@ static int task_for_sync_nolock(int syncid){
   psync_sql_res *res = NULL;
   psync_uint_row row;
   uint64_t ret;
-  
+
   res=psync_sql_query_nolock("select 1 from localfile as f, task as t, localfolder as fl where t.syncid = ? and t.localitemid = f.id and f.localparentfolderid = fl.id limit 1;");
   psync_sql_bind_uint(res, 1, syncid);
   while ((row = psync_sql_fetch_rowint(res))) {
     ret = row[0];
     psync_sql_free_result(res);
     return ret;
-    
+
   }
-  
+
   psync_sql_free_result(res);
-  return 0; 
+  return 0;
 }
 
 static int fsexternal_status_folderid(psync_fsfolderid_t folder_id, int level)
@@ -110,17 +110,17 @@ static int fsexternal_status_folderid(psync_fsfolderid_t folder_id, int level)
   int syncid = 0;
   psync_uint_row row;
     int synctsk = 0;
-  
+
   if (level >= MAX_RECURS_DEPTH)
     return 0;
-  
+
   tasksp =  psync_fstask_get_folder_tasks_rdlocked(folder_id);
   if (tasksp && (tasksp->creats || tasksp->mkdirs)) {
     if (psync_status_get(PSTATUS_TYPE_ACCFULL) == PSTATUS_ACCFULL_OVERQUOTA)
       return 1;
     return 2;
   }
-  
+
   syncid = folder_in_sync_nolock(folder_id);
   if (syncid) {
     synctsk = task_for_sync_nolock(syncid);
@@ -128,8 +128,8 @@ static int fsexternal_status_folderid(psync_fsfolderid_t folder_id, int level)
       if (level  == 1) {
         if (sync_offline())
             return 1;
-        else return 2; 
-      } else {  
+        else return 2;
+      } else {
         if ((psync_sync_status_folderid(folder_id, syncid) != INSYNC)) {
           if (sync_offline())
               return 1;
@@ -147,14 +147,14 @@ static int fsexternal_status_folderid(psync_fsfolderid_t folder_id, int level)
       break;
   }
   psync_sql_free_result(res);
-  
+
   return result;
 }
 
 external_status psync_external_status_folderid(psync_fsfolderid_t folder_id)
 {
   int stat = 0;
-  
+
   if (folder_id == PSYNC_INVALID_FSFOLDERID) {
     return NOSYNC;
   }
@@ -163,13 +163,13 @@ external_status psync_external_status_folderid(psync_fsfolderid_t folder_id)
     stat = fsexternal_status_folderid(folder_id, 0);
     psync_sql_rdunlock();
   }
-  else 
+  else
     stat = 2;
-  
+
   switch (stat)
   {
     case 1: return NOSYNC; break;
-    case 2: 
+    case 2:
       if (sync_offline())
         return NOSYNC;
       else
@@ -192,7 +192,7 @@ static char *replace_sync_folder(const char *path, int *syncid /*OUT*/) {
   int i =0;
   char *ret = NULL;
   int rootlen = 0, reslen = 0;
-  
+
   psync_sql_rdlock();
   res=psync_sql_query_nolock("select localpath, id, folderid from syncfolder;");
   while ((row = psync_sql_fetch_row(res))){
@@ -213,9 +213,9 @@ static char *replace_sync_folder(const char *path, int *syncid /*OUT*/) {
         drivepath = (char *)psync_malloc(rootlen + reslen + 2); // Slash and null terminator
         memcpy(drivepath, rootpath, rootlen);
         memset(drivepath + rootlen, SLASHCHAR, 1);
-        memcpy(drivepath + rootlen + 1, rest, reslen + 1); //Copy also the null terminator 
+        memcpy(drivepath + rootlen + 1, rest, reslen + 1); //Copy also the null terminator
         //debug(D_NOTICE,"Sync folder replace result: %s", drivepath);
-        
+
         psync_free(rootpath);
         ret = drivepath;
         break;
@@ -225,10 +225,10 @@ static char *replace_sync_folder(const char *path, int *syncid /*OUT*/) {
   psync_sql_free_result(res);
   psync_sql_rdunlock();
   return ret;
-} 
+}
 
 external_status psync_sync_status_folderid(psync_fsfolderid_t folderid, int syncid) {
-  
+
   psync_sql_res *res = NULL;
   psync_uint_row row;
   uint32_t offline;
@@ -244,7 +244,7 @@ external_status psync_sync_status_folderid(psync_fsfolderid_t folderid, int sync
     if (row[0] > 0) {
       if (offline || (psync_status_get(PSTATUS_TYPE_ACCFULL) == PSTATUS_ACCFULL_OVERQUOTA))
         result = NOSYNC;
-      else 
+      else
         result = INPROG;
       psync_sql_free_result(res);
       return result;
@@ -258,20 +258,20 @@ external_status psync_sync_status_folderid(psync_fsfolderid_t folderid, int sync
     if (row[0] > 0) {
       if (offline || (psync_status_get(PSTATUS_TYPE_DISKFULL) == PSTATUS_DISKFULL_FULL))
         result = NOSYNC;
-      else 
+      else
         result = INPROG;
       break;
     }
-  
-  psync_sql_free_result(res);  
+
+  psync_sql_free_result(res);
   return result;
-  
+
 }
 
 external_status psync_sync_status_folder(const char *path, int syncid){
 psync_fsfolderid_t folderid;
 external_status result = INSYNC;
-  
+
   folderid = psync_fsfolderid_by_path(path, 0);
   if (folderid != PSYNC_INVALID_FSFOLDERID) {
     psync_sql_rdlock();
@@ -282,12 +282,12 @@ external_status result = INSYNC;
 }
 
 external_status psync_sync_status_file(const char *name, psync_fsfolderid_t folderid, int syncid) {
-  
+
   psync_sql_res *res = NULL;
   psync_uint_row row;
   uint32_t offline;
   external_status result = INSYNC;
-  
+
   psync_sql_rdlock();
   offline = psync_status_is_offline();
   //upload
@@ -300,7 +300,7 @@ external_status psync_sync_status_file(const char *name, psync_fsfolderid_t fold
     if (row[0] == 1) {
       if (offline || (psync_status_get(PSTATUS_TYPE_ACCFULL) == PSTATUS_ACCFULL_OVERQUOTA))
         result = NOSYNC;
-      else 
+      else
         result = INPROG;
       psync_sql_free_result(res);
       psync_sql_rdunlock();
@@ -316,14 +316,14 @@ external_status psync_sync_status_file(const char *name, psync_fsfolderid_t fold
     if (row[0] == 1) {
       if (offline || (psync_status_get(PSTATUS_TYPE_DISKFULL) == PSTATUS_DISKFULL_FULL))
         result = NOSYNC;
-      else 
+      else
         result = INPROG;
       psync_sql_free_result(res);
       psync_sql_rdunlock();
       return result;
     }
-    
-  psync_sql_free_result(res); 
+
+  psync_sql_free_result(res);
   // sync
   res=psync_sql_query_nolock("select 1 from file as f where f.parentfolderid = ? and f.name = ? ");
   psync_sql_bind_uint(res, 1, folderid);
@@ -335,7 +335,7 @@ external_status psync_sync_status_file(const char *name, psync_fsfolderid_t fold
       result = INPROG;
   }
   psync_sql_free_result(res);
-  psync_sql_rdunlock(); 
+  psync_sql_rdunlock();
 
   return result;
 }
@@ -346,7 +346,7 @@ external_status do_psync_external_status_file(const char *path)
   psync_fspath_t *filep;
   external_status result = INVSYNC;
   int syncid;
-  
+
   if (!path)
     return INVSYNC;
   psync_sql_rdlock();
@@ -374,7 +374,7 @@ external_status do_psync_external_status_file(const char *path)
 external_status do_psync_external_status_folder(const char *path) {
 psync_fsfolderid_t folderid;
 external_status result = INVSYNC;
-  
+
   if (!path)
     return INVSYNC;
   folderid = psync_fsfolderid_by_path(path, 0);
@@ -415,7 +415,7 @@ static void do_normalize_path(char * path) {
     if (path[i] == '\\')
       path[i] = '/';
 }
-     
+
 external_status do_psync_external_status(char *path)
 {
   char *fsroot = NULL;
@@ -424,12 +424,12 @@ external_status do_psync_external_status(char *path)
   psync_stat_t st;
   external_status result = INVSYNC;
   char *pcpath = NULL;
-  
+
   fsroot = psync_fs_getmountpoint();
   if (fsroot) {
     rootlen = strlen(fsroot);
   }
-  else 
+  else
     debug(D_WARNING, "Not mounted!!!");
   if (fsroot && rootlen && !strncmp(fsroot, path, rootlen)) {
     pcpath = path + rootlen;
@@ -449,18 +449,18 @@ external_status do_psync_external_status(char *path)
       result = do_psync_external_status_file(pcpath);
       if (syncid && (result == INVSYNC))
         result = NOSYNC;
-    } else { 
+    } else {
       result = do_psync_external_status_folder(pcpath);
        if (syncid && (result == INVSYNC))
         result = NOSYNC;
     }
   }
-  
+
   if (folder)
     free(folder);
   if (fsroot)
-    free(fsroot); 
-  
+    free(fsroot);
+
   return result;
 }
 
@@ -468,7 +468,7 @@ string_list_t *sync_get_sync_folders() {
   psync_sql_res *res = NULL;
   psync_str_row srow;
   string_list_t *result;
-  
+
   result = (string_list_t *)psync_malloc(sizeof(string_list_t));
   psync_list_init(&result->list);
   psync_sql_rdlock();
