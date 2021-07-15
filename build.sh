@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 #
-# pCloud Console Client
+# This file is part of the pCloud Console Client.
 #
-# Copyright (c) 2021 Serghei Iakovlev.
+# (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
 #
-# This source file is subject to the New BSD License that is bundled with this
-# project in the file LICENSE.
-#
-# If you did not receive a copy of the license and are unable to obtain it
-# through the world-wide-web, please send an email to egrep@protonmail.ch so
-# we can send you a copy immediately.
+# For the full copyright and license information, please view
+# the LICENSE file that was distributed with this source code.
 
 # trace ERR through pipes
 set -o pipefail
@@ -24,19 +20,19 @@ set -o nounset
 set -o errexit
 
 # Clear any cache
-rm -rf "$(pwd)/.build"
+rm -rf "$(pwd)/build"
 
-conan install . -if=.build --build=missing
+conan install . -if=build --build=missing
 
 echo "Configure client"
-cmake -S . -B .build \
+cmake -S . -B build \
   -DPCLOUD_MAINTAINER_LOGS=ON \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
-cmake --build .build --config Debug
+cmake --build build --config Debug
 
 echo "Install client"
-cmake --build .build --target install
+cmake --build build --target install

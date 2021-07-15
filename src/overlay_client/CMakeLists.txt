@@ -6,9 +6,12 @@
 # the LICENSE file that was distributed with this source code.
 
 # Add definition for overlay_client library
-add_library(overlay_client STATIC overlay_client.c debug.c)
+add_library(overlay_client STATIC overlay_client.c)
 add_library(pcloud::overlay_client ALIAS overlay_client)
 
 if(APPLE)
   target_compile_definitions(overlay_client PRIVATE P_OS_MACOSX)
 endif()
+
+target_link_libraries(overlay_client
+  PRIVATE pcloud::logger)
