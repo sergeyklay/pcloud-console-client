@@ -1,32 +1,16 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef _PSYNC_LIBS_H
-#define _PSYNC_LIBS_H
+#ifndef PCLOUD_PCLSYNC_PLIBS_H_
+#define PCLOUD_PCLSYNC_PLIBS_H_
 
 #include "pcompiler.h"
 #include "pcompat.h"
@@ -96,7 +80,7 @@
 #define pthread_mutex_lock(mutex) \
   do {\
     int __mutex_result=pthread_mutex_lock(mutex);\
-    if (unlikely(__mutex_result)){\
+    if (unlikely(__mutex_result)) {\
       debug(D_CRITICAL, "pthread_mutex_lock returned %d", __mutex_result);\
       abort();\
     }\
@@ -104,7 +88,7 @@
 #define pthread_mutex_unlock(mutex) \
   do {\
     int __mutex_result=pthread_mutex_unlock(mutex);\
-    if (unlikely(__mutex_result)){\
+    if (unlikely(__mutex_result)) {\
       debug(D_CRITICAL, "pthread_mutex_unlock returned %d", __mutex_result);\
       abort();\
     }\
@@ -343,7 +327,7 @@ const char *psync_lstring_expected(const char *file, const char *function, int u
 double psync_err_real_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) PSYNC_COLD;
 
 /* needs 12 characters of buffer space on top of the length of the prefix */
-static inline void psync_get_string_id(char *dst, const char *prefix, uint64_t id){
+static inline void psync_get_string_id(char *dst, const char *prefix, uint64_t id) {
   size_t plen;
   plen=strlen(prefix);
   dst=(char *)memcpy(dst, prefix, plen)+plen;
@@ -355,7 +339,7 @@ static inline void psync_get_string_id(char *dst, const char *prefix, uint64_t i
 }
 
 /* needs 24 characters of buffer space on top of the length of the prefix */
-static inline void psync_get_string_id2(char *dst, const char *prefix, uint64_t id1, uint64_t id2){
+static inline void psync_get_string_id2(char *dst, const char *prefix, uint64_t id1, uint64_t id2) {
   size_t plen;
   plen=strlen(prefix);
   dst=(char *)memcpy(dst, prefix, plen)+plen;
@@ -371,14 +355,14 @@ static inline void psync_get_string_id2(char *dst, const char *prefix, uint64_t 
   *dst=0;
 }
 
-static inline size_t psync_strlcpy(char *dst, const char *src, size_t size){
+static inline size_t psync_strlcpy(char *dst, const char *src, size_t size) {
   size_t len;
   len=strlen(src);
-  if (likely_log(len<size)){
+  if (likely_log(len<size)) {
     memcpy(dst, src, len+1);
     return len;
   }
-  else if (likely_log(size)){
+  else if (likely_log(size)) {
     memcpy(dst, src, size-1);
     dst[size-1]=0;
     return size-1;
@@ -387,4 +371,4 @@ static inline size_t psync_strlcpy(char *dst, const char *src, size_t size){
     return 0;
 }
 
-#endif
+#endif  /* PCLOUD_PCLSYNC_PLIBS_H_ */

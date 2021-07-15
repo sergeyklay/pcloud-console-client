@@ -1,29 +1,18 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stddef.h>
 
 #include "psettings.h"
 #include "plibs.h"
@@ -33,10 +22,7 @@
 #include "pdatabase.h"
 #include "plocks.h"
 #include "pnetlibs.h"
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stddef.h>
+#include "logger.h"
 
 #define return_error(err) do {psync_error=err; return -1;} while (0)
 
@@ -126,13 +112,13 @@ static int transaction_failed=0;
 static psync_list tran_callbacks;
 
 
-char *psync_strdup(const char *str){
+char *psync_strdup(const char *str) {
   size_t len;
   len=strlen(str)+1;
   return (char *)memcpy(psync_new_cnt(char, len), str, len);
 }
 
-char *psync_strnormalize_filename(const char *str){
+char *psync_strnormalize_filename(const char *str) {
   size_t len, i;
   char *ptr;
   len=strlen(str)+1;
@@ -142,14 +128,14 @@ char *psync_strnormalize_filename(const char *str){
   return ptr;
 }
 
-char *psync_strndup(const char *str, size_t len){
+char *psync_strndup(const char *str, size_t len) {
   char *ptr;
   ptr=(char *)memcpy(psync_new_cnt(char, len+1), str, len);
   ptr[len]=0;
   return ptr;
 }
 
-char *psync_strcat(const char *str, ...){
+char *psync_strcat(const char *str, ...) {
   size_t i, size, len;
   const char *strs[64];
   size_t lengths[64];
@@ -162,7 +148,7 @@ char *psync_strcat(const char *str, ...){
   lengths[0]=len;
   size=len+1;
   i=1;
-  while ((ptr=va_arg(ap, const char *))){
+  while ((ptr=va_arg(ap, const char *))) {
     assert(i<ARRAY_SIZE(strs));
     len=strlen(ptr);
     lengths[i]=len;
@@ -171,7 +157,7 @@ char *psync_strcat(const char *str, ...){
   }
   va_end(ap);
   ptr2=ptr3=(char *)psync_malloc(size);
-  for (size=0; size<i; size++){
+  for (size=0; size<i; size++) {
     memcpy(ptr2, strs[size], lengths[size]);
     ptr2+=lengths[size];
   }
@@ -179,7 +165,7 @@ char *psync_strcat(const char *str, ...){
   return ptr3;
 }
 
-int psync_slprintf(char *str, size_t size, const char *format, ...){
+int psync_slprintf(char *str, size_t size, const char *format, ...) {
   va_list ap;
   int ret;
   va_start(ap, format);
@@ -190,7 +176,7 @@ int psync_slprintf(char *str, size_t size, const char *format, ...){
   return ret;
 }
 
-unsigned char *psync_base32_encode(const unsigned char *str, size_t length, size_t *ret_length){
+unsigned char *psync_base32_encode(const unsigned char *str, size_t length, size_t *ret_length) {
   static const unsigned char *table=(const unsigned char *)"ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   unsigned char *result;
   unsigned char *p;
@@ -202,8 +188,8 @@ unsigned char *psync_base32_encode(const unsigned char *str, size_t length, size
   bits=0;
   buff=0; // don't really have to initialize this one, but a compiler that will detect that this is safe is yet to be born
 
-  while (length){
-    if (bits<5){
+  while (length) {
+    if (bits<5) {
       buff=(buff<<8)|(*str++);
       length--;
       bits+=8;
@@ -212,8 +198,8 @@ unsigned char *psync_base32_encode(const unsigned char *str, size_t length, size
     *p++=table[0x1f&(buff>>bits)];
   }
 
-  while (bits){
-    if (bits<5){
+  while (bits) {
+    if (bits<5) {
       buff<<=(5-bits);
       bits=5;
     }
@@ -226,7 +212,7 @@ unsigned char *psync_base32_encode(const unsigned char *str, size_t length, size
   return result;
 }
 
-unsigned char *psync_base32_decode(const unsigned char *str, size_t length, size_t *ret_length){
+unsigned char *psync_base32_decode(const unsigned char *str, size_t length, size_t *ret_length) {
   unsigned char *result, *p;
   uint32_t bits, buff;
   unsigned char ch;
@@ -234,7 +220,7 @@ unsigned char *psync_base32_decode(const unsigned char *str, size_t length, size
   p=result;
   bits=0;
   buff=0;
-  while (length){
+  while (length) {
     ch=*str++;
     length--;
     if (ch>='A' && ch<='Z')
@@ -247,7 +233,7 @@ unsigned char *psync_base32_decode(const unsigned char *str, size_t length, size
     }
     buff=(buff<<5)+ch;
     bits+=5;
-    if (bits>=8){
+    if (bits>=8) {
       bits-=8;
       *p++=buff>>bits;
     }
@@ -257,7 +243,7 @@ unsigned char *psync_base32_decode(const unsigned char *str, size_t length, size
   return result;
 }
 
-unsigned char *psync_base64_encode(const unsigned char *str, size_t length, size_t *ret_length){
+unsigned char *psync_base64_encode(const unsigned char *str, size_t length, size_t *ret_length) {
   const unsigned char *current = str;
   unsigned char *p;
   unsigned char *result;
@@ -265,7 +251,7 @@ unsigned char *psync_base64_encode(const unsigned char *str, size_t length, size
   result=(unsigned char *)psync_malloc(((length+2)/3)*4+1);
   p=result;
 
-  while(length>2){
+  while(length>2) {
     *p++=base64_table[current[0] >> 2];
     *p++=base64_table[((current[0] & 0x03) << 4) + (current[1] >> 4)];
     *p++=base64_table[((current[1] & 0x0f) << 2) + (current[2] >> 6)];
@@ -274,9 +260,9 @@ unsigned char *psync_base64_encode(const unsigned char *str, size_t length, size
     length-=3;
   }
 
-  if (length!=0){
+  if (length!=0) {
     *p++=base64_table[current[0] >> 2];
-    if (length>1){
+    if (length>1) {
       *p++=base64_table[((current[0] & 0x03) << 4) + (current[1] >> 4)];
       *p++=base64_table[(current[1] & 0x0f) << 2];
     }
@@ -289,7 +275,7 @@ unsigned char *psync_base64_encode(const unsigned char *str, size_t length, size
   return result;
 }
 
-unsigned char *psync_base64_decode(const unsigned char *str, size_t length, size_t *ret_length){
+unsigned char *psync_base64_decode(const unsigned char *str, size_t length, size_t *ret_length) {
   const unsigned char *current = str;
   unsigned char *result;
   size_t i=0, j=0;
@@ -297,7 +283,7 @@ unsigned char *psync_base64_decode(const unsigned char *str, size_t length, size
 
   result=(unsigned char *)psync_malloc((length+3)/4*3+1);
 
-  while (length-- > 0){
+  while (length-- > 0) {
     ch=base64_reverse_table[*current++];
     if (ch==-1)
      continue;
@@ -328,7 +314,7 @@ unsigned char *psync_base64_decode(const unsigned char *str, size_t length, size
   return result;
 }
 
-int psync_is_valid_utf8(const char *str){
+int psync_is_valid_utf8(const char *str) {
   static const int8_t trailing[]={
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -350,7 +336,7 @@ int psync_is_valid_utf8(const char *str){
   int8_t t;
   while (*str) {
     t=trailing[(unsigned char)*str++];
-    if (unlikely(t)){
+    if (unlikely(t)) {
       if (t<0)
         return 0;
       while (t--)
@@ -361,38 +347,38 @@ int psync_is_valid_utf8(const char *str){
   return 1;
 }
 
-void psync_sql_err_callback(void *ptr, int code, const char *msg){
-  debug(D_WARNING, "database warning %d: %s", code, msg);
+void psync_sql_err_callback(void *ptr, int code, const char *msg) {
+  log_warn("database warning %d: %s", code, msg);
 }
 
-static void psync_sql_wal_checkpoint(){
+static void psync_sql_wal_checkpoint() {
   int code;
   psync_sql_lock();
   psync_sql_unlock();
-  if (pthread_mutex_trylock(&psync_db_checkpoint_mutex)){
-    debug(D_NOTICE, "checkpoint already in progress");
+  if (pthread_mutex_trylock(&psync_db_checkpoint_mutex)) {
+    log_info("checkpoint already in progress");
     return;
   }
-  debug(D_NOTICE, "checkpointing database");
+  log_info("checkpointing database");
   code=sqlite3_wal_checkpoint(psync_db, NULL);
-  while (code==SQLITE_LOCKED){
+  while (code==SQLITE_LOCKED) {
     psync_milisleep(2);
     code=sqlite3_wal_checkpoint(psync_db, NULL);
   }
   pthread_mutex_unlock(&psync_db_checkpoint_mutex);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_CRITICAL, "sqlite3_wal_checkpoint returned error %d", code);
+    log_fatal("sqlite3_wal_checkpoint returned error %d", code);
   else
-    debug(D_NOTICE, "checkpoint finished");
+    log_info("checkpoint finished");
 }
 
-static int psync_sql_wal_hook(void *ptr, sqlite3 *db, const char *name, int numpages){
+static int psync_sql_wal_hook(void *ptr, sqlite3 *db, const char *name, int numpages) {
   if (numpages>=PSYNC_DB_CHECKPOINT_AT_PAGES)
     psync_run_thread("checkpoint charlie", psync_sql_wal_checkpoint);
   return SQLITE_OK;
 }
 
-int psync_sql_connect(const char *db){
+int psync_sql_connect(const char *db) {
   static int initmutex=1;
   pthread_mutexattr_t mattr;
   psync_stat_t st;
@@ -403,17 +389,22 @@ int psync_sql_connect(const char *db){
   assert(sqlite3_libversion_number()==SQLITE_VERSION_NUMBER);
   assert(!strcmp(sqlite3_sourceid(), SQLITE_SOURCE_ID));
   assert(!strcmp(sqlite3_libversion(), SQLITE_VERSION));
-  debug(D_NOTICE, "Using sqlite version %s source %s", sqlite3_libversion(), sqlite3_sourceid());
-  if (!sqlite3_threadsafe()){
-    debug(D_CRITICAL, "sqlite is compiled without thread support");
+
+  log_info(
+      "Using sqlite version %s source %s",
+      sqlite3_libversion(),
+      sqlite3_sourceid()
+  );
+  if (!sqlite3_threadsafe()) {
+    log_fatal("sqlite is compiled without thread support");
     return -1;
   }
   if (psync_stat(db, &st)!=0)
     initdbneeded=1;
 
   code=sqlite3_open(db, &psync_db);
-  if (likely(code==SQLITE_OK)){
-    if (initmutex){
+  if (likely(code==SQLITE_OK)) {
+    if (initmutex) {
       psync_rwlock_init(&psync_db_lock);
       pthread_mutexattr_init(&mattr);
       pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
@@ -427,20 +418,28 @@ int psync_sql_connect(const char *db){
     psync_sql_statement(PSYNC_DATABASE_CONFIG);
     if (initdbneeded==1)
       return psync_sql_statement(PSYNC_DATABASE_STRUCTURE);
-    else if (psync_sql_statement("DELETE FROM setting WHERE id='justcheckingiflocked'")){
-      debug(D_ERROR, "database is locked");
+    else if (psync_sql_statement("DELETE FROM setting WHERE id='justcheckingiflocked'")) {
+      log_error("database is locked");
       sqlite3_close(psync_db);
       psync_rwlock_destroy(&psync_db_lock);
       return -1;
     }
 
     dbver=psync_sql_cellint("SELECT value FROM setting WHERE id='dbversion'", 0);
-    if (dbver<PSYNC_DATABASE_VERSION){
+    if (dbver<PSYNC_DATABASE_VERSION) {
       uint64_t i;
-      debug(D_NOTICE, "database version %d detected, upgrading to %d", (int)dbver, (int)PSYNC_DATABASE_VERSION);
+      log_info(
+          "database version %d detected, upgrading to %d",
+          (int)dbver,
+          (int)PSYNC_DATABASE_VERSION
+      );
       for (i=dbver; i<PSYNC_DATABASE_VERSION; i++)
-        if (psync_sql_statement(psync_db_upgrade[i])){
-          debug(D_ERROR, "error running statement %s on sqlite %s", psync_db_upgrade[i], sqlite3_libversion());
+        if (psync_sql_statement(psync_db_upgrade[i])) {
+          log_error(
+              "error running statement %s on sqlite %s",
+              psync_db_upgrade[i],
+              sqlite3_libversion()
+          );
           if (IS_DEBUG)
             return_error(PERROR_DATABASE_OPEN);
         }
@@ -449,23 +448,23 @@ int psync_sql_connect(const char *db){
     return 0;
   }
   else{
-    debug(D_CRITICAL, "could not open sqlite database %s: %d", db, code);
+    log_fatal("could not open sqlite database %s: %d", db, code);
     return -1;
   }
 }
 
-int psync_sql_close(){
+int psync_sql_close() {
   int code, tries;
   tries=0;
-  while (1){
+  while (1) {
     code=sqlite3_close(psync_db);
-    if (code==SQLITE_BUSY){
+    if (code==SQLITE_BUSY) {
       psync_cache_clean_all();
       tries++;
-      if (tries>100){
+      if (tries>100) {
         psync_milisleep_nosqlcheck(tries-90);
-        if (tries>200){
-          debug(D_ERROR, "failed to close database");
+        if (tries>200) {
+          log_error("failed to close database");
           break;
         }
       }
@@ -474,47 +473,47 @@ int psync_sql_close(){
       break;
   }
   psync_db=NULL;
-  if (unlikely(code!=SQLITE_OK)){
-    debug(D_CRITICAL, "error when closing database: %d", code);
+  if (unlikely(code!=SQLITE_OK)) {
+    log_fatal("error when closing database: %d", code);
     code=sqlite3_close_v2(psync_db);
-    if (unlikely(code!=SQLITE_OK)){
-      debug(D_CRITICAL, "error when closing database even with sqlite3_close_v2: %d", code);
+    if (unlikely(code!=SQLITE_OK)) {
+      log_fatal("error when closing database even with sqlite3_close_v2: %d", code);
       return -1;
     }
   }
   return 0;
 }
 
-int psync_sql_reopen(const char *path){
+int psync_sql_reopen(const char *path) {
   sqlite3 *db;
   int code;
-  debug(D_NOTICE, "reopening database %s", path);
+  log_info("reopening database %s", path);
   code=sqlite3_open(path, &db);
-  if (likely(code==SQLITE_OK)){
+  if (likely(code==SQLITE_OK)) {
     code=sqlite3_wal_checkpoint(db, NULL);
-    if (unlikely(code!=SQLITE_OK)){
-      debug(D_CRITICAL, "sqlite3_wal_checkpoint returned error %d", code);
+    if (unlikely(code!=SQLITE_OK)) {
+      log_fatal("sqlite3_wal_checkpoint returned error %d", code);
       sqlite3_close(db);
       return -1;
     }
     code=sqlite3_close(db);
-    if (unlikely(code!=SQLITE_OK)){
-      debug(D_CRITICAL, "sqlite3_close returned error %d", code);
+    if (unlikely(code!=SQLITE_OK)) {
+      log_fatal("sqlite3_close returned error %d", code);
       return -1;
     }
     return 0;
   }
   else{
-    debug(D_CRITICAL, "could not open sqlite dabase %s: %d", path, code);
+    log_fatal("could not open sqlite dabase %s: %d", path, code);
     return -1;
   }
 }
 
-void psync_sql_checkpoint_lock(){
+void psync_sql_checkpoint_lock() {
   pthread_mutex_lock(&psync_db_checkpoint_mutex);
 }
 
-void psync_sql_checkpoint_unlock(){
+void psync_sql_checkpoint_unlock() {
   pthread_mutex_unlock(&psync_db_checkpoint_mutex);
 }
 
@@ -540,9 +539,16 @@ static pthread_t wrlocker;
 static psync_list rdlocks=PSYNC_LIST_STATIC_INIT(rdlocks);
 static pthread_mutex_t rdmutex=PTHREAD_MUTEX_INITIALIZER;
 
-static void record_wrlock(const char *file, unsigned line){
-  if (unlikely(rdlock)){
-    debug(D_BUG, "trying to get write lock at %s:%u, but read lock is already taken at %s:%u, aborting", file, line, rdlock->file, rdlock->line);
+static void record_wrlock(const char *file, unsigned line) {
+  if (unlikely(rdlock)) {
+    log_error(
+        "trying to get write lock at %s:%u, but read lock is already taken at %s:%u, aborting",
+        file,
+        line,
+        rdlock->file,
+        rdlock->line
+    );
+
     senddebug("trying to get write lock at %s:%u, but read lock is already taken at %s:%u, aborting", file, line, rdlock->file, rdlock->line);
     abort();
   }
@@ -555,7 +561,7 @@ static void record_wrlock(const char *file, unsigned line){
   wrlocker=pthread_self();
 }
 
-static void record_wrunlock(){
+static void record_wrunlock() {
   sendassert(pthread_equal(pthread_self(), wrlocker));
   sendassert(wrlocked);
   assert(pthread_equal(pthread_self(), wrlocker));
@@ -563,7 +569,7 @@ static void record_wrunlock(){
   wrlocked=0;
 }
 
-static void record_rdlock(const char *file, unsigned line, struct timespec *tm){
+static void record_rdlock(const char *file, unsigned line, struct timespec *tm) {
   rd_lock_data *lock;
   lock=psync_new(rd_lock_data);
   lock->file=file;
@@ -576,7 +582,7 @@ static void record_rdlock(const char *file, unsigned line, struct timespec *tm){
   rdlock=lock;
 }
 
-static rd_lock_data *record_rdunlock(){
+static rd_lock_data *record_rdunlock() {
   rd_lock_data *lock;
   assert(rdlock);
   lock=rdlock;
@@ -589,18 +595,30 @@ static rd_lock_data *record_rdunlock(){
 
 static void time_format(time_t tm, unsigned long ns, char *result);
 
-void psync_sql_dump_locks(){
+void psync_sql_dump_locks() {
   rd_lock_data *lock;
   char dttime[36];
-  if (wrlocked){
+  if (wrlocked) {
     time_format(sqllockstart.tv_sec, sqllockstart.tv_nsec, dttime);
-    debug(D_ERROR, "write lock taken by thread %s from %s:%u at %s", wrlockthread, wrlockfile, wrlockline, dttime);
+    log_error(
+        "write lock taken by thread %s from %s:%u at %s",
+        wrlockthread,
+        wrlockfile,
+        wrlockline,
+        dttime
+    );
     senddebug("write lock taken by thread %s from %s:%u at %s", wrlockthread, wrlockfile, wrlockline, dttime);
   }
   pthread_mutex_lock(&rdmutex);
-  psync_list_for_each_element(lock, &rdlocks, rd_lock_data, list){
+  psync_list_for_each_element(lock, &rdlocks, rd_lock_data, list) {
     time_format(lock->tm.tv_sec, lock->tm.tv_nsec, dttime);
-    debug(D_ERROR, "read lock taken by thread %s from %s:%u at %s", lock->thread, lock->file, lock->line, dttime);
+    log_error(
+        "read lock taken by thread %s from %s:%u at %s",
+        lock->thread,
+        lock->file,
+        lock->line,
+        dttime
+    );
     senddebug("read lock taken by thread %s from %s:%u at %s", lock->thread, lock->file, lock->line, dttime);
   }
   pthread_mutex_unlock(&rdmutex);
@@ -609,31 +627,31 @@ void psync_sql_dump_locks(){
 #endif
 
 #if IS_DEBUG
-int psync_sql_do_trylock(const char *file, unsigned line){
+int psync_sql_do_trylock(const char *file, unsigned line) {
   if (psync_rwlock_trywrlock(&psync_db_lock))
     return -1;
-  if (++sqllockcnt==1){
+  if (++sqllockcnt==1) {
     psync_nanotime(&sqllockstart);
     record_wrlock(file, line);
   }
   return 0;
 }
 #else
-int psync_sql_trylock(){
+int psync_sql_trylock() {
   return psync_rwlock_trywrlock(&psync_db_lock);
 }
 #endif
 
 #if IS_DEBUG
-void psync_sql_do_lock(const char *file, unsigned line){
-  if (psync_rwlock_trywrlock(&psync_db_lock)){
+void psync_sql_do_lock(const char *file, unsigned line) {
+  if (psync_rwlock_trywrlock(&psync_db_lock)) {
     struct timespec start, end;
     unsigned long msec;
     psync_nanotime(&start);
     memcpy(&end, &start, sizeof(end));
     end.tv_sec+=PSYNC_DEBUG_LOCK_TIMEOUT;
-    if (psync_rwlock_timedwrlock(&psync_db_lock, &end)){
-      debug(D_BUG, "sql write lock timed out called from %s:%u", file, line);
+    if (psync_rwlock_timedwrlock(&psync_db_lock, &end)) {
+      log_error("sql write lock timed out called from %s:%u", file, line);
       senddebug("sql write lock timed out called from %s:%u", file, line);
       psync_sql_dump_locks();
       abort();
@@ -641,33 +659,38 @@ void psync_sql_do_lock(const char *file, unsigned line){
     psync_nanotime(&end);
     msec=(end.tv_sec-start.tv_sec)*1000+end.tv_nsec/1000000-start.tv_nsec/1000000;
     if (msec>=5)
-      debug(D_WARNING, "waited %lu milliseconds for database write lock", msec);
+      log_warn("waited %lu milliseconds for database write lock", msec);
     assert(sqllockcnt==0);
     sqllockcnt++;
     memcpy(&sqllockstart, &end, sizeof(struct timespec));
     record_wrlock(file, line);
   }
-  else if (++sqllockcnt==1){
+  else if (++sqllockcnt==1) {
     psync_nanotime(&sqllockstart);
     record_wrlock(file, line);
   }
 }
 #else
-void psync_sql_lock(){
+void psync_sql_lock() {
   psync_rwlock_wrlock(&psync_db_lock);
 }
 #endif
 
-void psync_sql_unlock(){
+void psync_sql_unlock() {
 #if IS_DEBUG
   assert(sqllockcnt>0);
-  if (--sqllockcnt==0){
+  if (--sqllockcnt==0) {
     struct timespec end;
     unsigned long msec;
     psync_nanotime(&end);
     msec=(end.tv_sec-sqllockstart.tv_sec)*1000+end.tv_nsec/1000000-sqllockstart.tv_nsec/1000000;
     if (msec>=10)
-      debug(D_WARNING, "held database write lock for %lu milliseconds taken from %s:%u", msec, wrlockfile, wrlockline);
+      log_warn(
+          "held database write lock for %lu milliseconds taken from %s:%u",
+          msec,
+          wrlockfile,
+          wrlockline
+      );
     record_wrunlock();
     psync_rwlock_unlock(&psync_db_lock);
   }
@@ -679,15 +702,15 @@ void psync_sql_unlock(){
 }
 
 #if IS_DEBUG
-void psync_sql_do_rdlock(const char *file, unsigned line){
-  if (psync_rwlock_tryrdlock(&psync_db_lock)){
+void psync_sql_do_rdlock(const char *file, unsigned line) {
+  if (psync_rwlock_tryrdlock(&psync_db_lock)) {
     struct timespec start, end;
     unsigned long msec;
     psync_nanotime(&start);
     memcpy(&end, &start, sizeof(end));
     end.tv_sec+=PSYNC_DEBUG_LOCK_TIMEOUT;
-    if (psync_rwlock_timedrdlock(&psync_db_lock, &end)){
-      debug(D_BUG, "sql read lock timed out, called from %s:%u", file, line);
+    if (psync_rwlock_timedrdlock(&psync_db_lock, &end)) {
+      log_error("sql read lock timed out, called from %s:%u", file, line);
       senddebug("sql read lock timed out, called from %s:%u", file, line);
       psync_sql_dump_locks();
       abort();
@@ -695,29 +718,29 @@ void psync_sql_do_rdlock(const char *file, unsigned line){
     psync_nanotime(&end);
     msec=(end.tv_sec-start.tv_sec)*1000+end.tv_nsec/1000000-start.tv_nsec/1000000;
     if (msec>=5)
-      debug(D_WARNING, "waited %lu milliseconds for database read lock", msec);
+      log_warn("waited %lu milliseconds for database read lock", msec);
     sqlrdlockcnt++;
     memcpy(&sqlrdlockstart, &end, sizeof(struct timespec));
     record_rdlock(file, line, &sqlrdlockstart);
   }
-  else if (++sqlrdlockcnt==1){
+  else if (++sqlrdlockcnt==1) {
     psync_nanotime(&sqlrdlockstart);
     record_rdlock(file, line, &sqlrdlockstart);
   }
 }
 #else
-void psync_sql_rdlock(){
+void psync_sql_rdlock() {
   psync_rwlock_rdlock(&psync_db_lock);
 }
 #endif
 
-void psync_sql_rdunlock(){
+void psync_sql_rdunlock() {
 #if IS_DEBUG
-  if (unlikely(sqlrdlockcnt==0)){
+  if (unlikely(sqlrdlockcnt==0)) {
     psync_sql_unlock();
     return;
   }
-  if (--sqlrdlockcnt==0){
+  if (--sqlrdlockcnt==0) {
     struct timespec end;
     unsigned long msec;
     rd_lock_data *lock;
@@ -726,7 +749,12 @@ void psync_sql_rdunlock(){
     lock=record_rdunlock();
     msec=(end.tv_sec-sqlrdlockstart.tv_sec)*1000+end.tv_nsec/1000000-sqlrdlockstart.tv_nsec/1000000;
     if (msec>=20)
-      debug(D_WARNING, "held database read lock for %lu milliseconds taken at %s:%u", msec, lock->file, lock->line);
+      log_warn(
+          "held database read lock for %lu milliseconds taken at %s:%u",
+          msec,
+          lock->file,
+          lock->line
+      );
     psync_free(lock);
   }
   else
@@ -736,19 +764,19 @@ void psync_sql_rdunlock(){
 #endif
 }
 
-int psync_sql_has_waiters(){
+int psync_sql_has_waiters() {
   return psync_rwlock_num_waiters(&psync_db_lock)>0;
 }
 
-int psync_sql_isrdlocked(){
+int psync_sql_isrdlocked() {
   return psync_rwlock_holding_rdlock(&psync_db_lock);
 }
 
-int psync_sql_islocked(){
+int psync_sql_islocked() {
   return psync_rwlock_holding_lock(&psync_db_lock);
 }
 
-int psync_sql_tryupgradelock(){
+int psync_sql_tryupgradelock() {
 #if IS_DEBUG
   if (psync_rwlock_holding_wrlock(&psync_db_lock))
     return 0;
@@ -770,18 +798,18 @@ int psync_sql_tryupgradelock(){
 #endif
 }
 
-int psync_sql_sync(){
+int psync_sql_sync() {
   int code;
   pthread_mutex_lock(&psync_db_checkpoint_mutex);
   code=sqlite3_wal_checkpoint(psync_db, NULL);
-  if (unlikely(code==SQLITE_BUSY || code==SQLITE_LOCKED)){
+  if (unlikely(code==SQLITE_BUSY || code==SQLITE_LOCKED)) {
     psync_sql_lock();
     code=sqlite3_wal_checkpoint(psync_db, NULL);
     psync_sql_unlock();
   }
   pthread_mutex_unlock(&psync_db_checkpoint_mutex);
-  if (unlikely(code!=SQLITE_OK)){
-    debug(D_CRITICAL, "sqlite3_wal_checkpoint returned error %d", code);
+  if (unlikely(code!=SQLITE_OK)) {
+    log_fatal("sqlite3_wal_checkpoint returned error %d", code);
     return -1;
   }
   else
@@ -789,12 +817,13 @@ int psync_sql_sync(){
 }
 
 #if IS_DEBUG
-int psync_sql_do_statement(const char *sql, const char *file, unsigned line){
+int psync_sql_do_statement(const char *sql, const char *file, unsigned line) {
   char *errmsg;
   int code;
+  log_debug("SQL: %s", sql);
   psync_sql_do_lock(file, line);
 #else
-int psync_sql_statement(const char *sql){
+int psync_sql_statement(const char *sql) {
   char *errmsg;
   int code;
   psync_sql_lock();
@@ -805,9 +834,15 @@ int psync_sql_statement(const char *sql){
     return 0;
   else{
 #if IS_DEBUG
-    debug(D_ERROR, "error running sql statement: %s: %s called from %s:%u", sql, errmsg, file, line);
+    log_error(
+        "error running sql statement: %s: %s called from %s:%u",
+        sql,
+        errmsg,
+        file,
+        line
+    );
 #else
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, errmsg);
+    log_error("error running sql statement: %s: %s", sql, errmsg);
 #endif
     sqlite3_free(errmsg);
     return -1;
@@ -815,12 +850,12 @@ int psync_sql_statement(const char *sql){
 }
 
 #if IS_DEBUG
-int psync_sql_do_start_transaction(const char *file, unsigned line){
+int psync_sql_do_start_transaction(const char *file, unsigned line) {
   psync_sql_res *res;
   psync_sql_do_lock(file, line);
   res=psync_sql_do_prep_statement("BEGIN", file, line);
 #else
-int psync_sql_start_transaction(){
+int psync_sql_start_transaction() {
   psync_sql_res *res;
   psync_sql_lock();
   res=psync_sql_prep_statement("BEGIN");
@@ -834,7 +869,7 @@ int psync_sql_start_transaction(){
   return 0;
 }
 
-static void run_commit_callbacks(int success){
+static void run_commit_callbacks(int success) {
   tran_callback_t *cb;
   psync_list *l1, *l2;
   psync_list_for_each_safe(l1, l2, &tran_callbacks) {
@@ -847,11 +882,11 @@ static void run_commit_callbacks(int success){
   }
 }
 
-int psync_sql_commit_transaction(){
+int psync_sql_commit_transaction() {
   assert(in_transaction);
-  if (likely(!transaction_failed)){
+  if (likely(!transaction_failed)) {
     psync_sql_res *res=psync_sql_prep_statement("COMMIT");
-    if (likely(!psync_sql_run_free(res))){
+    if (likely(!psync_sql_run_free(res))) {
       run_commit_callbacks(1);
       in_transaction=0;
       psync_sql_unlock();
@@ -859,12 +894,12 @@ int psync_sql_commit_transaction(){
     }
   }
   else
-    debug(D_ERROR, "rolling back transaction as some statements failed");
+    log_error("rolling back transaction as some statements failed");
   psync_sql_rollback_transaction();
   return -1;
 }
 
-int psync_sql_rollback_transaction(){
+int psync_sql_rollback_transaction() {
   psync_sql_res *res=psync_sql_prep_statement("ROLLBACK");
   assert(in_transaction);
   psync_sql_run_free(res);
@@ -874,7 +909,7 @@ int psync_sql_rollback_transaction(){
   return 0;
 }
 
-void psync_sql_transation_add_callbacks(psync_transaction_callback_t commit_callback, psync_transaction_callback_t rollback_callback, void *ptr){
+void psync_sql_transation_add_callbacks(psync_transaction_callback_t commit_callback, psync_transaction_callback_t rollback_callback, void *ptr) {
   tran_callback_t *cb;
   assert(in_transaction);
   cb=psync_new(tran_callback_t);
@@ -893,7 +928,7 @@ typedef struct {
 
 static psync_tree *sql_tree=PSYNC_TREE_EMPTY;
 
-static void psync_sql_do_check_query_plan(const char *sql){
+static void psync_sql_do_check_query_plan(const char *sql) {
   sqlite3_stmt *stmt;
   char *exsql;
   const char *detail;
@@ -901,36 +936,36 @@ static void psync_sql_do_check_query_plan(const char *sql){
   exsql=psync_strcat("EXPLAIN QUERY PLAN ", sql, NULL);
   code=sqlite3_prepare_v2(psync_db, exsql, -1, &stmt, 0);
   psync_free(exsql);
-  if (code!=SQLITE_OK){
-    debug(D_ERROR, "EXPLAIN QUERY PLAN %s returned error: %d", sql, code);
+  if (code!=SQLITE_OK) {
+    log_error("EXPLAIN QUERY PLAN %s returned error: %d", sql, code);
     return;
   }
-  while (sqlite3_step(stmt)==SQLITE_ROW){
+  while (sqlite3_step(stmt)==SQLITE_ROW) {
     detail=(const char *)sqlite3_column_text(stmt, 3);
     if (!strncmp(detail, "SCAN TABLE", strlen("SCAN TABLE")))
-      debug(D_WARNING, "doing %s on sql %s", detail, sql);
+      log_warn("doing %s on sql %s", detail, sql);
   }
   sqlite3_finalize(stmt);
 }
 
-static psync_tree *psync_sql_new_tree_node(const char *sql){
+static psync_tree *psync_sql_new_tree_node(const char *sql) {
   psync_sql_tree_t *node;
   node=psync_new(psync_sql_tree_t);
   node->sql=sql;
   return &node->tree;
 }
 
-static void psync_sql_check_query_plan_locked(const char *sql){
+static void psync_sql_check_query_plan_locked(const char *sql) {
   psync_tree *node;
   int cmp;
-  if (!sql_tree){
+  if (!sql_tree) {
     psync_tree_add_after(&sql_tree, NULL, psync_sql_new_tree_node(sql));
     return;
   }
   node=sql_tree;
-  while (1){
+  while (1) {
     cmp=strcmp(sql, psync_tree_element(node, psync_sql_tree_t, tree)->sql);
-    if (cmp<0){
+    if (cmp<0) {
       if (node->left)
         node=node->left;
       else{
@@ -938,7 +973,7 @@ static void psync_sql_check_query_plan_locked(const char *sql){
         break;
       }
     }
-    else if (cmp>0){
+    else if (cmp>0) {
       if (node->right)
         node=node->right;
       else{
@@ -952,7 +987,7 @@ static void psync_sql_check_query_plan_locked(const char *sql){
   psync_sql_do_check_query_plan(sql);
 }
 
-static void psync_sql_check_query_plan(const char *sql){
+static void psync_sql_check_query_plan(const char *sql) {
   psync_sql_lock();
   psync_sql_check_query_plan_locked(sql);
   psync_sql_unlock();
@@ -964,20 +999,24 @@ static void psync_sql_check_query_plan(const char *sql){
 
 #endif
 
-char *psync_sql_cellstr(const char *sql){
+char *psync_sql_cellstr(const char *sql) {
   sqlite3_stmt *stmt;
   int code;
   psync_sql_check_query_plan(sql);
   psync_sql_rdlock();
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_rdunlock();
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error(
+        "error running sql statement: %s: %s",
+        sql,
+        sqlite3_errmsg(psync_db)
+    );
     sendtdebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     return NULL;
   }
   code=sqlite3_step(stmt);
-  if (code==SQLITE_ROW){
+  if (code==SQLITE_ROW) {
     char *ret;
     ret=(char *)sqlite3_column_text(stmt, 0);
     if (ret)
@@ -989,30 +1028,30 @@ char *psync_sql_cellstr(const char *sql){
   else {
     sqlite3_finalize(stmt);
     psync_sql_rdunlock();
-    if (unlikely(code!=SQLITE_DONE)){
-      debug(D_ERROR, "sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
+    if (unlikely(code!=SQLITE_DONE)) {
+      log_error("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
       sendtdebug("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
     }
     return NULL;
   }
 }
 
-int64_t psync_sql_cellint(const char *sql, int64_t dflt){
+int64_t psync_sql_cellint(const char *sql, int64_t dflt) {
   sqlite3_stmt *stmt;
   int code;
   psync_sql_check_query_plan(sql);
   psync_sql_rdlock();
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+  if (unlikely(code!=SQLITE_OK)) {
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     sendtdebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
   }
   else{
     code=sqlite3_step(stmt);
     if (code==SQLITE_ROW)
       dflt=sqlite3_column_int64(stmt, 0);
-    else if (unlikely(code!=SQLITE_DONE)){
-      debug(D_ERROR, "sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
+    else if (unlikely(code!=SQLITE_DONE)) {
+      log_error("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
       sendtdebug("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
     }
     sqlite3_finalize(stmt);
@@ -1021,27 +1060,27 @@ int64_t psync_sql_cellint(const char *sql, int64_t dflt){
   return dflt;
 }
 
-char **psync_sql_rowstr(const char *sql){
+char **psync_sql_rowstr(const char *sql) {
   sqlite3_stmt *stmt;
   int code, cnt;
   psync_sql_check_query_plan(sql);
   psync_sql_rdlock();
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_rdunlock();
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     sendtdebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     return NULL;
   }
   cnt=sqlite3_column_count(stmt);
   code=sqlite3_step(stmt);
-  if (code==SQLITE_ROW){
+  if (code==SQLITE_ROW) {
     char **arr, *nstr, *str;
     size_t l, ln;
     psync_def_var_arr(lens, size_t, cnt);
     int i;
     ln=0;
-    for (i=0; i<cnt; i++){
+    for (i=0; i<cnt; i++) {
       l=sqlite3_column_bytes(stmt, i);
       ln+=l;
       lens[i]=l;
@@ -1049,9 +1088,9 @@ char **psync_sql_rowstr(const char *sql){
     ln+=(sizeof(char *)+1)*cnt;
     arr=(char **)psync_malloc(ln);
     nstr=((char *)arr)+sizeof(char *)*cnt;
-    for (i=0; i<cnt; i++){
+    for (i=0; i<cnt; i++) {
       str=(char *)sqlite3_column_blob(stmt, i);
-      if (str){
+      if (str) {
         ln=lens[i];
         memcpy(nstr, str, ln);
         nstr[ln]=0;
@@ -1068,29 +1107,29 @@ char **psync_sql_rowstr(const char *sql){
   else {
     sqlite3_finalize(stmt);
     psync_sql_rdunlock();
-    if (unlikely(code!=SQLITE_DONE)){
-      debug(D_ERROR, "sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
+    if (unlikely(code!=SQLITE_DONE)) {
+      log_error("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
       sendtdebug("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
     }
     return NULL;
   }
 }
 
-psync_variant *psync_sql_row(const char *sql){
+psync_variant *psync_sql_row(const char *sql) {
   sqlite3_stmt *stmt;
   int code, cnt;
   psync_sql_check_query_plan(sql);
   psync_sql_rdlock();
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_rdunlock();
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     sendtdebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     return NULL;
   }
   cnt=sqlite3_column_count(stmt);
   code=sqlite3_step(stmt);
-  if (code==SQLITE_ROW){
+  if (code==SQLITE_ROW) {
     psync_variant *arr;
     char *nstr, *str;
     size_t l, ln;
@@ -1098,10 +1137,10 @@ psync_variant *psync_sql_row(const char *sql){
     int i, t;
     psync_def_var_arr(types, int, cnt);
     ln=sizeof(psync_variant)*cnt;
-    for (i=0; i<cnt; i++){
+    for (i=0; i<cnt; i++) {
       t=sqlite3_column_type(stmt, i);
       types[i]=t;
-      if (t==SQLITE_TEXT || t==SQLITE_BLOB){
+      if (t==SQLITE_TEXT || t==SQLITE_BLOB) {
         l=sqlite3_column_bytes(stmt, i);
         ln+=l+1;
         lens[i]=l;
@@ -1109,13 +1148,13 @@ psync_variant *psync_sql_row(const char *sql){
     }
     arr=(psync_variant *)psync_malloc(ln);
     nstr=((char *)arr)+sizeof(psync_variant)*cnt;
-    for (i=0; i<cnt; i++){
+    for (i=0; i<cnt; i++) {
       t=types[i];
-      if (t==SQLITE_INTEGER){
+      if (t==SQLITE_INTEGER) {
         arr[i].type=PSYNC_TNUMBER;
         arr[i].snum=sqlite3_column_int64(stmt, i);
       }
-      else if (t==SQLITE_TEXT || t==SQLITE_BLOB){
+      else if (t==SQLITE_TEXT || t==SQLITE_BLOB) {
         str=(char *)sqlite3_column_blob(stmt, i);
         ln=lens[i];
         memcpy(nstr, str, ln);
@@ -1124,7 +1163,7 @@ psync_variant *psync_sql_row(const char *sql){
         arr[i].str=nstr;
         nstr+=ln+1;
       }
-      else if (t==SQLITE_FLOAT){
+      else if (t==SQLITE_FLOAT) {
         arr[i].type=PSYNC_TREAL;
         arr[i].real=sqlite3_column_double(stmt, i);
       }
@@ -1139,8 +1178,8 @@ psync_variant *psync_sql_row(const char *sql){
   else {
     sqlite3_finalize(stmt);
     psync_sql_rdunlock();
-    if (unlikely(code!=SQLITE_DONE)){
-      debug(D_ERROR, "sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
+    if (unlikely(code!=SQLITE_DONE)) {
+      log_error("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
       sendtdebug("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
     }
     return NULL;
@@ -1148,9 +1187,9 @@ psync_variant *psync_sql_row(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query_nocache(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query_nocache(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query_nocache(const char *sql){
+psync_sql_res *psync_sql_query_nocache(const char *sql) {
 #endif
   sqlite3_stmt *stmt;
   psync_sql_res *res;
@@ -1162,13 +1201,13 @@ psync_sql_res *psync_sql_query_nocache(const char *sql){
   psync_sql_lock();
 #endif
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_unlock();
 #if IS_DEBUG
-    debug(D_ERROR, "error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
+    log_error("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
     senddebug("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
 #else
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     senddebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
 #endif
     return NULL;
@@ -1183,14 +1222,13 @@ psync_sql_res *psync_sql_query_nocache(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query(const char *sql){
+psync_sql_res *psync_sql_query(const char *sql) {
 #endif
   psync_sql_res *ret;
   ret=(psync_sql_res *)psync_cache_get(sql);
-  if (ret){
-//    debug(D_NOTICE, "got query %s from cache", sql);
+  if (ret) {
     ret->locked=SQL_WRITE_LOCK;
 #if IS_DEBUG
     psync_sql_do_lock(file, line);
@@ -1208,9 +1246,9 @@ psync_sql_res *psync_sql_query(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query_rdlock_nocache(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query_rdlock_nocache(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query_rdlock_nocache(const char *sql){
+psync_sql_res *psync_sql_query_rdlock_nocache(const char *sql) {
 #endif
   sqlite3_stmt *stmt;
   psync_sql_res *res;
@@ -1222,13 +1260,13 @@ psync_sql_res *psync_sql_query_rdlock_nocache(const char *sql){
   psync_sql_rdlock();
 #endif
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_rdunlock();
 #if IS_DEBUG
-    debug(D_ERROR, "error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
+    log_error("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
     senddebug("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
 #else
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     senddebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
 #endif
     return NULL;
@@ -1243,14 +1281,13 @@ psync_sql_res *psync_sql_query_rdlock_nocache(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query_rdlock(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query_rdlock(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query_rdlock(const char *sql){
+psync_sql_res *psync_sql_query_rdlock(const char *sql) {
 #endif
   psync_sql_res *ret;
   ret=(psync_sql_res *)psync_cache_get(sql);
-  if (ret){
-//    debug(D_NOTICE, "got query %s from cache", sql);
+  if (ret) {
     ret->locked=SQL_READ_LOCK;
 #if IS_DEBUG
     psync_sql_do_rdlock(file, line);
@@ -1268,24 +1305,24 @@ psync_sql_res *psync_sql_query_rdlock(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query_nolock_nocache(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query_nolock_nocache(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query_nolock_nocache(const char *sql){
+psync_sql_res *psync_sql_query_nolock_nocache(const char *sql) {
 #endif
   sqlite3_stmt *stmt;
   psync_sql_res *res;
   int code, cnt;
 #if IS_DEBUG
-  if (!psync_sql_islocked()){
-    debug(D_BUG, "illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
+  if (!psync_sql_islocked()) {
+    log_error("illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
     senddebug("illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
     abort();
   }
 #endif
   psync_sql_check_query_plan(sql);
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+  if (unlikely(code!=SQLITE_OK)) {
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     senddebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     return NULL;
   }
@@ -1299,21 +1336,20 @@ psync_sql_res *psync_sql_query_nolock_nocache(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_query_nolock(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_query_nolock(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_query_nolock(const char *sql){
+psync_sql_res *psync_sql_query_nolock(const char *sql) {
 #endif
   psync_sql_res *ret;
 #if IS_DEBUG
-  if (!psync_sql_islocked()){
-    debug(D_BUG, "illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
+  if (!psync_sql_islocked()) {
+    log_error("illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
     senddebug("illegal use of psync_sql_query_nolock, can only be used while holding lock, invoked from %s:%u, sql: %s", file, line, sql);
     abort();
   }
 #endif
   ret=(psync_sql_res *)psync_cache_get(sql);
-  if (ret){
-//    debug(D_NOTICE, "got query %s from cache", sql);
+  if (ret) {
     ret->locked=SQL_NO_LOCK;
     return ret;
   }
@@ -1325,7 +1361,7 @@ psync_sql_res *psync_sql_query_nolock(const char *sql){
 #endif
 }
 
-static void psync_sql_free_cache(void *ptr){
+static void psync_sql_free_cache(void *ptr) {
   psync_sql_res *res=(psync_sql_res *)ptr;
   sqlite3_finalize(res->stmt);
 #if IS_DEBUG
@@ -1334,8 +1370,8 @@ static void psync_sql_free_cache(void *ptr){
   psync_free(res);
 }
 
-static void psync_sql_res_unlock(psync_sql_res *res){
-  switch (res->locked){
+static void psync_sql_res_unlock(psync_sql_res *res) {
+  switch (res->locked) {
     case SQL_NO_LOCK:
       break;
     case SQL_READ_LOCK:
@@ -1346,13 +1382,13 @@ static void psync_sql_res_unlock(psync_sql_res *res){
       break;
 #if IS_DEBUG
     default:
-      debug(D_ERROR, "unknown value for locked %d", res->locked);
+      log_fatal("unknown value for locked %d", res->locked);
       abort();
 #endif
   }
 }
 
-void psync_sql_free_result(psync_sql_res *res){
+void psync_sql_free_result(psync_sql_res *res) {
   int code=sqlite3_reset(res->stmt);
   psync_sql_res_unlock(res);
 #if IS_DEBUG
@@ -1364,7 +1400,7 @@ void psync_sql_free_result(psync_sql_res *res){
     psync_sql_free_cache(res);
 }
 
-void psync_sql_free_result_nocache(psync_sql_res *res){
+void psync_sql_free_result_nocache(psync_sql_res *res) {
   sqlite3_finalize(res->stmt);
   psync_sql_res_unlock(res);
 #if IS_DEBUG
@@ -1374,9 +1410,9 @@ void psync_sql_free_result_nocache(psync_sql_res *res){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_prep_statement_nocache(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_prep_statement_nocache(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_prep_statement_nocache(const char *sql){
+psync_sql_res *psync_sql_prep_statement_nocache(const char *sql) {
 #endif
   sqlite3_stmt *stmt;
   psync_sql_res *res;
@@ -1388,13 +1424,13 @@ psync_sql_res *psync_sql_prep_statement_nocache(const char *sql){
   psync_sql_lock();
 #endif
   code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)){
+  if (unlikely(code!=SQLITE_OK)) {
     psync_sql_unlock();
 #if IS_DEBUG
-    debug(D_ERROR, "error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
+    log_error("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
     senddebug("error running sql statement: %s: %s called from %s:%u", sql, sqlite3_errmsg(psync_db), file, line);
 #else
-    debug(D_ERROR, "error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
+    log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
     senddebug("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
 #endif
     return NULL;
@@ -1410,14 +1446,14 @@ psync_sql_res *psync_sql_prep_statement_nocache(const char *sql){
 }
 
 #if IS_DEBUG
-psync_sql_res *psync_sql_do_prep_statement(const char *sql, const char *file, unsigned line){
+psync_sql_res *psync_sql_do_prep_statement(const char *sql, const char *file, unsigned line) {
 #else
-psync_sql_res *psync_sql_prep_statement(const char *sql){
+psync_sql_res *psync_sql_prep_statement(const char *sql) {
 #endif
   psync_sql_res *ret;
   ret=psync_cache_get(sql);
-  if (ret){
-//    debug(D_NOTICE, "got statement %s from cache", sql);
+  if (ret) {
+    log_debug("got statement %s from cache", sql);
     ret->locked=SQL_WRITE_LOCK;
 #if IS_DEBUG
     psync_sql_do_lock(file, line);
@@ -1434,41 +1470,41 @@ psync_sql_res *psync_sql_prep_statement(const char *sql){
 #endif
 }
 
-int psync_sql_reset(psync_sql_res *res){
+int psync_sql_reset(psync_sql_res *res) {
   int code=sqlite3_reset(res->stmt);
-  if (unlikely(code!=SQLITE_OK)){
-    debug(D_ERROR, "sqlite3_reset returned error: %s", sqlite3_errmsg(psync_db));
+  if (unlikely(code!=SQLITE_OK)) {
+    log_error("sqlite3_reset returned error: %s", sqlite3_errmsg(psync_db));
     return -1;
   }
   else
     return 0;
 }
 
-int psync_sql_run(psync_sql_res *res){
+int psync_sql_run(psync_sql_res *res) {
   int code=sqlite3_step(res->stmt);
-  if (unlikely(code!=SQLITE_DONE)){
-    debug(D_ERROR, "sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
+  if (unlikely(code!=SQLITE_DONE)) {
+    log_error("sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
     sendtdebug("sqlite3_step returned error (in_transaction=%d): %s: %s", in_transaction, sqlite3_errmsg(psync_db), res->sql);
     transaction_failed=1;
     if (in_transaction)
-      debug(D_BUG, "transaction query failed, this may lead to restarting transaction over and over");
+      log_error("transaction query failed, this may lead to restarting transaction over and over");
     return -1;
   }
   code=sqlite3_reset(res->stmt);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "sqlite3_reset returned error: %s", sqlite3_errmsg(psync_db));
+    log_error("sqlite3_reset returned error: %s", sqlite3_errmsg(psync_db));
   return 0;
 }
 
-int psync_sql_run_free_nocache(psync_sql_res *res){
+int psync_sql_run_free_nocache(psync_sql_res *res) {
   int code=sqlite3_step(res->stmt);
-  if (unlikely(code!=SQLITE_DONE)){
-    debug(D_ERROR, "sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
+  if (unlikely(code!=SQLITE_DONE)) {
+    log_error("sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
     sendtdebug("sqlite3_step returned error (in_transaction=%d): %s: %s", in_transaction, sqlite3_errmsg(psync_db), res->sql);
     code=-1;
     transaction_failed=1;
     if (in_transaction)
-      debug(D_BUG, "transaction query failed, this may lead to restarting transaction over and over");
+      log_error("transaction query failed, this may lead to restarting transaction over and over");
   }
   else
     code=0;
@@ -1478,15 +1514,15 @@ int psync_sql_run_free_nocache(psync_sql_res *res){
   return code;
 }
 
-int psync_sql_run_free(psync_sql_res *res){
+int psync_sql_run_free(psync_sql_res *res) {
   int code=sqlite3_step(res->stmt);
-  if (unlikely(code!=SQLITE_DONE || (code=sqlite3_reset(res->stmt))!=SQLITE_OK)){
-    debug(D_ERROR, "sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
+  if (unlikely(code!=SQLITE_DONE || (code=sqlite3_reset(res->stmt))!=SQLITE_OK)) {
+    log_error("sqlite3_step returned error: %s: %s", sqlite3_errmsg(psync_db), res->sql);
     sendtdebug("sqlite3_step returned error (in_transaction=%d): %s: %s", in_transaction, sqlite3_errmsg(psync_db), res->sql);
     sqlite3_finalize(res->stmt);
     transaction_failed=1;
     if (in_transaction)
-      debug(D_BUG, "transaction query failed, this may lead to restarting transaction over and over");
+      log_error("transaction query failed, this may lead to restarting transaction over and over");
     psync_sql_res_unlock(res);
     psync_free(res);
     return -1;
@@ -1498,63 +1534,63 @@ int psync_sql_run_free(psync_sql_res *res){
   }
 }
 
-void psync_sql_bind_int(psync_sql_res *res, int n, int64_t val){
+void psync_sql_bind_int(psync_sql_res *res, int n, int64_t val) {
   int code=sqlite3_bind_int64(res->stmt, n, val);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-void psync_sql_bind_uint(psync_sql_res *res, int n, uint64_t val){
+void psync_sql_bind_uint(psync_sql_res *res, int n, uint64_t val) {
   int code=sqlite3_bind_int64(res->stmt, n, val);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-void psync_sql_bind_double(psync_sql_res *res, int n, double val){
+void psync_sql_bind_double(psync_sql_res *res, int n, double val) {
   int code=sqlite3_bind_double(res->stmt, n, val);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-void psync_sql_bind_string(psync_sql_res *res, int n, const char *str){
+void psync_sql_bind_string(psync_sql_res *res, int n, const char *str) {
   int code=sqlite3_bind_text(res->stmt, n, str, -1, SQLITE_STATIC);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));}
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));}
 
-void psync_sql_bind_lstring(psync_sql_res *res, int n, const char *str, size_t len){
+void psync_sql_bind_lstring(psync_sql_res *res, int n, const char *str, size_t len) {
   int code=sqlite3_bind_text(res->stmt, n, str, len, SQLITE_STATIC);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-void psync_sql_bind_blob(psync_sql_res *res, int n, const char *str, size_t len){
+void psync_sql_bind_blob(psync_sql_res *res, int n, const char *str, size_t len) {
   int code=sqlite3_bind_blob(res->stmt, n, str, len, SQLITE_STATIC);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-void psync_sql_bind_null(psync_sql_res *res, int n){
+void psync_sql_bind_null(psync_sql_res *res, int n) {
   int code=sqlite3_bind_null(res->stmt, n);
   if (unlikely(code!=SQLITE_OK))
-    debug(D_ERROR, "error binding value: %s", sqlite3_errmsg(psync_db));
+    log_error("error binding value: %s", sqlite3_errmsg(psync_db));
 }
 
-psync_variant_row psync_sql_fetch_row(psync_sql_res *res){
+psync_variant_row psync_sql_fetch_row(psync_sql_res *res) {
   int code, i;
   code=sqlite3_step(res->stmt);
-  if (code==SQLITE_ROW){
-    for (i=0; i<res->column_count; i++){
+  if (code==SQLITE_ROW) {
+    for (i=0; i<res->column_count; i++) {
       code=sqlite3_column_type(res->stmt, i);
-      if (code==SQLITE_INTEGER){
+      if (code==SQLITE_INTEGER) {
         res->row[i].type=PSYNC_TNUMBER;
         res->row[i].snum=sqlite3_column_int64(res->stmt, i);
       }
-      else if (code==SQLITE_TEXT || code==SQLITE_BLOB){
+      else if (code==SQLITE_TEXT || code==SQLITE_BLOB) {
         res->row[i].type=PSYNC_TSTRING;
         res->row[i].length=sqlite3_column_bytes(res->stmt, i);
         res->row[i].str=(char *)sqlite3_column_text(res->stmt, i);
       }
-      else if (code==SQLITE_FLOAT){
+      else if (code==SQLITE_FLOAT) {
         res->row[i].type=PSYNC_TREAL;
         res->row[i].real=sqlite3_column_double(res->stmt, i);
       }
@@ -1565,16 +1601,16 @@ psync_variant_row psync_sql_fetch_row(psync_sql_res *res){
   }
   else {
     if (unlikely(code!=SQLITE_DONE))
-      debug(D_ERROR, "sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
+      log_error("sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
     return NULL;
   }
 }
 
-psync_str_row psync_sql_fetch_rowstr(psync_sql_res *res){
+psync_str_row psync_sql_fetch_rowstr(psync_sql_res *res) {
   int code, i;
   const char **strs;
   code=sqlite3_step(res->stmt);
-  if (code==SQLITE_ROW){
+  if (code==SQLITE_ROW) {
     strs=(const char **)res->row;
     for (i=0; i<res->column_count; i++)
       strs[i]=(const char *)sqlite3_column_text(res->stmt, i);
@@ -1582,16 +1618,16 @@ psync_str_row psync_sql_fetch_rowstr(psync_sql_res *res){
   }
   else {
     if (unlikely(code!=SQLITE_DONE))
-      debug(D_ERROR, "sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
+      log_error("sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
     return NULL;
   }
 }
 
-const uint64_t *psync_sql_fetch_rowint(psync_sql_res *res){
+const uint64_t *psync_sql_fetch_rowint(psync_sql_res *res) {
   int code, i;
   uint64_t *ret;
   code=sqlite3_step(res->stmt);
-  if (code==SQLITE_ROW){
+  if (code==SQLITE_ROW) {
     ret=(uint64_t *)res->row;
     for (i=0; i<res->column_count; i++)
       ret[i]=sqlite3_column_int64(res->stmt, i);
@@ -1599,12 +1635,12 @@ const uint64_t *psync_sql_fetch_rowint(psync_sql_res *res){
   }
   else {
     if (unlikely(code!=SQLITE_DONE))
-      debug(D_ERROR, "sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
+      log_error("sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
     return NULL;
   }
 }
 
-psync_full_result_int *psync_sql_fetchall_int(psync_sql_res *res){
+psync_full_result_int *psync_sql_fetchall_int(psync_sql_res *res) {
   uint64_t *data;
   psync_full_result_int *ret;
   psync_uint_t rows, cols, off, i, all;
@@ -1614,8 +1650,8 @@ psync_full_result_int *psync_sql_fetchall_int(psync_sql_res *res){
   off=0;
   all=0;
   data=NULL;
-  while ((code=sqlite3_step(res->stmt))==SQLITE_ROW){
-    if (rows>=all){
+  while ((code=sqlite3_step(res->stmt))==SQLITE_ROW) {
+    if (rows>=all) {
       all=10+all*2;
       data=(uint64_t *)psync_realloc(data, sizeof(uint64_t)*cols*all);
     }
@@ -1625,7 +1661,7 @@ psync_full_result_int *psync_sql_fetchall_int(psync_sql_res *res){
     rows++;
   }
   if (unlikely(code!=SQLITE_DONE))
-    debug(D_ERROR, "sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
+    log_error("sqlite3_step returned error: %s", sqlite3_errmsg(psync_db));
   psync_sql_free_result(res);
   ret=(psync_full_result_int *)psync_malloc(offsetof(psync_full_result_int, data)+sizeof(uint64_t)*off);
   ret->rows=rows;
@@ -1635,15 +1671,15 @@ psync_full_result_int *psync_sql_fetchall_int(psync_sql_res *res){
   return ret;
 }
 
-uint32_t psync_sql_affected_rows(){
+uint32_t psync_sql_affected_rows() {
   return sqlite3_changes(psync_db);
 }
 
-uint64_t psync_sql_insertid(){
+uint64_t psync_sql_insertid() {
   return sqlite3_last_insert_rowid(psync_db);
 }
 
-int psync_rename_conflicted_file(const char *path){
+int psync_rename_conflicted_file(const char *path) {
   char *npath;
   size_t plen, dotidx;
   psync_stat_t st;
@@ -1657,7 +1693,7 @@ int psync_rename_conflicted_file(const char *path){
   npath=(char *)psync_malloc(plen+32);
   memcpy(npath, path, dotidx);
   num=0;
-  while (1){
+  while (1) {
     if (num)
       l=psync_slprintf(npath+dotidx, 32, " (conflicted %"P_PRI_I")", num);
     else{
@@ -1665,8 +1701,8 @@ int psync_rename_conflicted_file(const char *path){
       memcpy(npath+dotidx, " (conflicted)", l);
     }
     memcpy(npath+dotidx+l, path+dotidx, plen-dotidx+1);
-    if (psync_stat(npath, &st)){
-      debug(D_NOTICE, "renaming conflict %s to %s", path, npath);
+    if (psync_stat(npath, &st)) {
+      log_info("renaming conflict %s to %s", path, npath);
       l=psync_file_rename(path, npath);
       psync_free(npath);
       return l;
@@ -1675,7 +1711,7 @@ int psync_rename_conflicted_file(const char *path){
   }
 }
 
-void psync_libs_init(){
+void psync_libs_init() {
   psync_uint_t i;
   for (i=0; i<256; i++)
     normalize_table[i]=i;
@@ -1684,14 +1720,14 @@ void psync_libs_init(){
   normalize_table['\\']='_';
 }
 
-static void run_after_sec(psync_timer_t timer, void *ptr){
+static void run_after_sec(psync_timer_t timer, void *ptr) {
   struct run_after_ptr *fp=(struct run_after_ptr *)ptr;
   psync_timer_stop(timer);
   fp->run(fp->ptr);
   psync_free(fp);
 }
 
-void psync_run_after_sec(psync_run_after_t run, void *ptr, uint32_t seconds){
+void psync_run_after_sec(psync_run_after_t run, void *ptr, uint32_t seconds) {
   struct run_after_ptr *fp;
   fp=psync_new(struct run_after_ptr);
   fp->run=run;
@@ -1699,24 +1735,24 @@ void psync_run_after_sec(psync_run_after_t run, void *ptr, uint32_t seconds){
   psync_timer_register(run_after_sec, seconds, fp);
 }
 
-static void free_after_sec(psync_timer_t timer, void *ptr){
+static void free_after_sec(psync_timer_t timer, void *ptr) {
   psync_timer_stop(timer);
   psync_free(ptr);
 }
 
-void psync_free_after_sec(void *ptr, uint32_t seconds){
+void psync_free_after_sec(void *ptr, uint32_t seconds) {
   psync_timer_register(free_after_sec, seconds, ptr);
 }
 
-int psync_match_pattern(const char *name, const char *pattern, size_t plen){
+int psync_match_pattern(const char *name, const char *pattern, size_t plen) {
   size_t i;
-  for (i=0; i<plen; i++){
-    if (pattern[i]=='*'){
+  for (i=0; i<plen; i++) {
+    if (pattern[i]=='*') {
       name+=i;
-      while (1){
+      while (1) {
         if (++i==plen)
           return 1;
-        switch (pattern[i]){
+        switch (pattern[i]) {
           case '?':
             if (!*name++)
               return 0;
@@ -1726,7 +1762,7 @@ int psync_match_pattern(const char *name, const char *pattern, size_t plen){
             name=strchr(name, pattern[i]);
             pattern+=i+1;
             plen-=i+1;
-            while (name){
+            while (name) {
               name++;
               if (psync_match_pattern(name, pattern, plen))
                 return 1;
@@ -1742,14 +1778,14 @@ int psync_match_pattern(const char *name, const char *pattern, size_t plen){
   return name[i]==0;
 }
 
-uint64_t psync_ato64(const char *str){
+uint64_t psync_ato64(const char *str) {
   uint64_t n=0;
   while (*str>='0' && *str<='9')
     n=n*10+(*str++)-'0';
   return n;
 }
 
-uint32_t psync_ato32(const char *str){
+uint32_t psync_ato32(const char *str) {
   uint32_t n=0;
   while (*str>='0' && *str<='9')
     n=n*10+(*str++)-'0';
@@ -1791,7 +1827,7 @@ struct psync_list_builder_t_{
   uint32_t *cstrcnt;
 };
 
-psync_list_builder_t *psync_list_builder_create(size_t element_size, size_t offset){
+psync_list_builder_t *psync_list_builder_create(size_t element_size, size_t offset) {
   psync_list_builder_t *builder;
   builder=psync_new(psync_list_builder_t);
   builder->element_size=element_size;
@@ -1811,8 +1847,8 @@ psync_list_builder_t *psync_list_builder_create(size_t element_size, size_t offs
   return builder;
 }
 
-static uint32_t *psync_list_bulder_push_num(psync_list_builder_t *builder){
-  if (!builder->last_numbers || builder->last_numbers->used>=sizeof(builder->last_numbers->numbers)/sizeof(uint32_t)){
+static uint32_t *psync_list_bulder_push_num(psync_list_builder_t *builder) {
+  if (!builder->last_numbers || builder->last_numbers->used>=sizeof(builder->last_numbers->numbers)/sizeof(uint32_t)) {
     psync_list_num_list *l=psync_new(psync_list_num_list);
     l->used=0;
     builder->last_numbers=l;
@@ -1821,20 +1857,20 @@ static uint32_t *psync_list_bulder_push_num(psync_list_builder_t *builder){
   return &builder->last_numbers->numbers[builder->last_numbers->used++];
 }
 
-static uint32_t psync_list_bulder_pop_num(psync_list_builder_t *builder){
+static uint32_t psync_list_bulder_pop_num(psync_list_builder_t *builder) {
   uint32_t ret;
   ret=builder->last_numbers->numbers[builder->popoff++];
-  if (builder->popoff>=builder->last_numbers->used){
+  if (builder->popoff>=builder->last_numbers->used) {
     builder->last_numbers=psync_list_element(builder->last_numbers->list.next, psync_list_num_list, list);
     builder->popoff=0;
   }
   return ret;
 }
 
-void psync_list_bulder_add_sql(psync_list_builder_t *builder, psync_sql_res *res, psync_list_builder_sql_callback callback){
+void psync_list_bulder_add_sql(psync_list_builder_t *builder, psync_sql_res *res, psync_list_builder_sql_callback callback) {
   psync_variant_row row;
-  while ((row=psync_sql_fetch_row(res))){
-    if (!builder->last_elements || builder->last_elements->used>=builder->elements_per_list){
+  while ((row=psync_sql_fetch_row(res))) {
+    if (!builder->last_elements || builder->last_elements->used>=builder->elements_per_list) {
       builder->last_elements=(psync_list_element_list *)psync_malloc(offsetof(psync_list_element_list, elements)+builder->element_size*builder->elements_per_list);
       psync_list_add_tail(&builder->element_list, &builder->last_elements->list);
       builder->last_elements->used=0;
@@ -1842,7 +1878,7 @@ void psync_list_bulder_add_sql(psync_list_builder_t *builder, psync_sql_res *res
     builder->current_element=builder->last_elements->elements+builder->last_elements->used*builder->element_size;
     builder->cstrcnt=psync_list_bulder_push_num(builder);
     *builder->cstrcnt=0;
-    while (callback(builder, builder->current_element, row)){
+    while (callback(builder, builder->current_element, row)) {
       row=psync_sql_fetch_row(res);
       if (!row)
         break;
@@ -1854,8 +1890,8 @@ void psync_list_bulder_add_sql(psync_list_builder_t *builder, psync_sql_res *res
   psync_sql_free_result(res);
 }
 
-void *psync_list_bulder_add_element(psync_list_builder_t *builder){
-  if (!builder->last_elements || builder->last_elements->used>=builder->elements_per_list){
+void *psync_list_bulder_add_element(psync_list_builder_t *builder) {
+  if (!builder->last_elements || builder->last_elements->used>=builder->elements_per_list) {
     builder->last_elements=(psync_list_element_list *)psync_malloc(offsetof(psync_list_element_list, elements)+builder->element_size*builder->elements_per_list);
     psync_list_add_tail(&builder->element_list, &builder->last_elements->list);
     builder->last_elements->used=0;
@@ -1868,18 +1904,18 @@ void *psync_list_bulder_add_element(psync_list_builder_t *builder){
   return builder->current_element;
 }
 
-void psync_list_add_lstring_offset(psync_list_builder_t *builder, size_t offset, size_t length){
+void psync_list_add_lstring_offset(psync_list_builder_t *builder, size_t offset, size_t length) {
   char **str, *s;
   psync_list_string_list *l;
   length++;
   str=(char **)(builder->current_element+offset);
   builder->stringalloc+=length;
-  if (unlikely(length>2000)){
+  if (unlikely(length>2000)) {
     l=(psync_list_string_list *)psync_malloc(sizeof(psync_list_string_list)+length);
     s=(char *)(l+1);
     psync_list_add_tail(&builder->string_list, &l->list);
   }
-  else if (!builder->last_strings || builder->last_strings->next+length>builder->last_strings->end){
+  else if (!builder->last_strings || builder->last_strings->next+length>builder->last_strings->end) {
     l=(psync_list_string_list *)psync_malloc(sizeof(psync_list_string_list)+4000);
     s=(char *)(l+1);
     l->next=s+length;
@@ -1898,11 +1934,11 @@ void psync_list_add_lstring_offset(psync_list_builder_t *builder, size_t offset,
   (*builder->cstrcnt)++;
 }
 
-void psync_list_add_string_offset(psync_list_builder_t *builder, size_t offset){
+void psync_list_add_string_offset(psync_list_builder_t *builder, size_t offset) {
   psync_list_add_lstring_offset(builder, offset, strlen(*((char **)(builder->current_element+offset))));
 }
 
-void *psync_list_builder_finalize(psync_list_builder_t *builder){
+void *psync_list_builder_finalize(psync_list_builder_t *builder) {
   char *ret, *elem, *str;
   char **pstr;
   psync_list_element_list *el;
@@ -1910,7 +1946,7 @@ void *psync_list_builder_finalize(psync_list_builder_t *builder){
   uint32_t j, scnt, offset, length;
   size_t sz;
   sz=builder->elements_offset+builder->element_size*builder->cnt+builder->stringalloc;
-  debug(D_NOTICE, "allocating %lu bytes, %lu of which for strings", (unsigned long)sz, (unsigned long)builder->stringalloc);
+  log_info("allocating %lu bytes, %lu of which for strings", (unsigned long)sz, (unsigned long)builder->stringalloc);
   ret=psync_new_cnt(char, sz);
   if (builder->elements_offset<=sizeof(builder->cnt))
     memcpy(ret, &builder->cnt, builder->elements_offset);
@@ -1922,11 +1958,11 @@ void *psync_list_builder_finalize(psync_list_builder_t *builder){
   builder->last_numbers=psync_list_element(builder->number_list.next, psync_list_num_list, list);
   builder->popoff=0;
 
-  psync_list_for_each_element(el, &builder->element_list, psync_list_element_list, list){
-    for (i=0; i<el->used; i++){
+  psync_list_for_each_element(el, &builder->element_list, psync_list_element_list, list) {
+    for (i=0; i<el->used; i++) {
       memcpy(elem, el->elements+(i*builder->element_size), builder->element_size);
       scnt=psync_list_bulder_pop_num(builder);
-      for (j=0; j<scnt; j++){
+      for (j=0; j<scnt; j++) {
         offset=psync_list_bulder_pop_num(builder);
         length=psync_list_bulder_pop_num(builder);
         pstr=(char **)(elem+offset);
@@ -1970,7 +2006,7 @@ struct psync_task_manager_t_{
   struct psync_task_t_ tasks[];
 };
 
-static void psync_task_destroy(psync_task_manager_t tm){
+static void psync_task_destroy(psync_task_manager_t tm) {
   int i;
   for (i=0; i<tm->taskcnt; i++)
     pthread_cond_destroy(&tm->tasks[i].cond);
@@ -1978,7 +2014,7 @@ static void psync_task_destroy(psync_task_manager_t tm){
   psync_free(tm);
 }
 
-static void psync_task_dec_refcnt(psync_task_manager_t tm){
+static void psync_task_dec_refcnt(psync_task_manager_t tm) {
   int refcnt;
   pthread_mutex_lock(&tm->mutex);
   refcnt=--tm->refcnt;
@@ -1987,18 +2023,18 @@ static void psync_task_dec_refcnt(psync_task_manager_t tm){
     psync_task_destroy(tm);
 }
 
-static psync_task_manager_t psync_get_manager_of_task(struct psync_task_t_ *t){
+static psync_task_manager_t psync_get_manager_of_task(struct psync_task_t_ *t) {
   return (psync_task_manager_t)(((char *)(t-t->id))-offsetof(struct psync_task_manager_t_, tasks));
 }
 
-static void psync_task_entry(void *ptr){
+static void psync_task_entry(void *ptr) {
   struct psync_task_t_ *t;
   t=(struct psync_task_t_*)ptr;
   t->callback(ptr, t->param);
   psync_task_dec_refcnt(psync_get_manager_of_task(t));
 }
 
-psync_task_manager_t psync_task_run_tasks(psync_task_callback_t const *callbacks, void *const *params, int cnt){
+psync_task_manager_t psync_task_run_tasks(psync_task_callback_t const *callbacks, void *const *params, int cnt) {
   psync_task_manager_t ret;
   struct psync_task_t_ *t;
   int i;
@@ -2007,7 +2043,7 @@ psync_task_manager_t psync_task_run_tasks(psync_task_callback_t const *callbacks
   ret->taskcnt=cnt;
   ret->refcnt=cnt+1;
   ret->waitfor=PSYNC_WAIT_NOBODY;
-  for (i=0; i<cnt; i++){
+  for (i=0; i<cnt; i++) {
     t=&ret->tasks[i];
     t->callback=callbacks[i];
     t->param=params[i];
@@ -2019,10 +2055,10 @@ psync_task_manager_t psync_task_run_tasks(psync_task_callback_t const *callbacks
   return ret;
 }
 
-void *psync_task_get_result(psync_task_manager_t tm, int id){
+void *psync_task_get_result(psync_task_manager_t tm, int id) {
   void *ret;
   pthread_mutex_lock(&tm->mutex);
-  if (tm->tasks[id].status==PSYNC_TASK_STATUS_RUNNING){
+  if (tm->tasks[id].status==PSYNC_TASK_STATUS_RUNNING) {
     do {
       tm->waitfor=id;
       pthread_cond_wait(&tm->tasks[id].cond, &tm->mutex);
@@ -2031,20 +2067,20 @@ void *psync_task_get_result(psync_task_manager_t tm, int id){
     ret=tm->tasks[id].param;
     tm->tasks[id].status=PSYNC_TASK_STATUS_DONE;
   }
-  else if (tm->tasks[id].status==PSYNC_TASK_STATUS_READY){
+  else if (tm->tasks[id].status==PSYNC_TASK_STATUS_READY) {
     ret=tm->tasks[id].param;
     tm->tasks[id].status=PSYNC_TASK_STATUS_DONE;
     pthread_cond_signal(&tm->tasks[id].cond);
   }
   else{
-    debug(D_BUG, "invalid status %d of task id %d", (int)tm->tasks[id].status, id);
+    log_error("invalid status %d of task id %d", (int)tm->tasks[id].status, id);
     ret=NULL;
   }
   pthread_mutex_unlock(&tm->mutex);
   return ret;
 }
 
-void psync_task_free(psync_task_manager_t tm){
+void psync_task_free(psync_task_manager_t tm) {
   if (tm->refcnt==1)
     psync_task_destroy(tm);
   else{
@@ -2052,7 +2088,7 @@ void psync_task_free(psync_task_manager_t tm){
     pthread_mutex_lock(&tm->mutex);
     tm->waitfor=PSYNC_WAIT_FREED;
     for (i=0; i<tm->taskcnt; i++)
-      if (tm->tasks[i].status==PSYNC_TASK_STATUS_READY){
+      if (tm->tasks[i].status==PSYNC_TASK_STATUS_READY) {
         tm->tasks[i].status=PSYNC_TASK_STATUS_RETURNED;
         pthread_cond_signal(&tm->tasks[i].cond);
       }
@@ -2063,20 +2099,20 @@ void psync_task_free(psync_task_manager_t tm){
   }
 }
 
-int psync_task_complete(void *h, void *data){
+int psync_task_complete(void *h, void *data) {
   psync_task_manager_t tm;
   struct psync_task_t_ *t;
   int ret;
   t=(struct psync_task_t_ *)h;
   tm=psync_get_manager_of_task(t);
   pthread_mutex_lock(&tm->mutex);
-  if (tm->waitfor==t->id){
+  if (tm->waitfor==t->id) {
     t->param=data;
     t->status=PSYNC_TASK_STATUS_READY;
     pthread_cond_signal(&t->cond);
     ret=0;
   }
-  else if (tm->waitfor==PSYNC_WAIT_NOBODY || tm->waitfor>=0){
+  else if (tm->waitfor==PSYNC_WAIT_NOBODY || tm->waitfor>=0) {
     t->param=data;
     t->status=PSYNC_TASK_STATUS_READY;
     do {
@@ -2090,7 +2126,7 @@ int psync_task_complete(void *h, void *data){
   else if (tm->waitfor==PSYNC_WAIT_FREED)
     ret=-1;
   else{
-    debug(D_BUG, "invalid waitfor value %d", tm->waitfor);
+    log_error("invalid waitfor value %d", tm->waitfor);
     ret=-1;
   }
   pthread_mutex_unlock(&tm->mutex);
@@ -2404,12 +2440,12 @@ void psync_qpartition(void *base, size_t cnt, size_t sort_first, size_t size, in
   }
 }
 
-void psync_try_free_memory(){
+void psync_try_free_memory() {
   sqlite3_db_release_memory(psync_db);
   psync_cache_clean_all();
 }
 
-static void time_format(time_t tm, unsigned long ns, char *result){
+static void time_format(time_t tm, unsigned long ns, char *result) {
   static const char month_names[12][4]={"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
   static const char day_names[7][4] ={"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
   struct tm dt;
@@ -2451,7 +2487,7 @@ static void time_format(time_t tm, unsigned long ns, char *result){
 }
 
 /* TODO: Duplicate */
-int psync_debug(const char *file, const char *function, int unsigned line, int unsigned level, const char *fmt, ...){
+int psync_debug(const char *file, const char *function, int unsigned line, int unsigned level, const char *fmt, ...) {
   static const struct {
     psync_uint_t level;
     const char *name;
@@ -2471,11 +2507,11 @@ int psync_debug(const char *file, const char *function, int unsigned line, int u
 #endif
   errname="BAD_ERROR_CODE";
   for (i=0; i<ARRAY_SIZE(debug_levels); i++)
-    if (debug_levels[i].level==level){
+    if (debug_levels[i].level==level) {
       errname=debug_levels[i].name;
       break;
     }
-  if (unlikely(!log)){
+  if (unlikely(!log)) {
     log=fopen(DEBUG_FILE, "a+");
     if (!log)
       return 1;
@@ -2493,26 +2529,26 @@ int psync_debug(const char *file, const char *function, int unsigned line, int u
   return 1;
 }
 
-static const char * PSYNC_CONST get_type_name(uint32_t t){
+static const char * PSYNC_CONST get_type_name(uint32_t t) {
   if (unlikely(t>=ARRAY_SIZE(psync_typenames)))
     t=0;
   return psync_typenames[t];
 }
 
-uint64_t psync_err_number_expected(const char *file, const char *function, int unsigned line, const psync_variant *v){
+uint64_t psync_err_number_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
   if (D_CRITICAL<=DEBUG_LEVEL)
     psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TNUMBER), get_type_name(v->type));
   return 0;
 }
 
-const char *psync_err_string_expected(const char *file, const char *function, int unsigned line, const psync_variant *v){
+const char *psync_err_string_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
   if (D_CRITICAL<=DEBUG_LEVEL)
     psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TSTRING), get_type_name(v->type));
   return "";
 }
 
-const char *psync_lstring_expected(const char *file, const char *function, int unsigned line, const psync_variant *v, size_t *len){
-  if (likely(v->type==PSYNC_TSTRING)){
+const char *psync_lstring_expected(const char *file, const char *function, int unsigned line, const psync_variant *v, size_t *len) {
+  if (likely(v->type==PSYNC_TSTRING)) {
     *len=v->length;
     return v->str;
   }
@@ -2524,7 +2560,7 @@ const char *psync_lstring_expected(const char *file, const char *function, int u
   }
 }
 
-double psync_err_real_expected(const char *file, const char *function, int unsigned line, const psync_variant *v){
+double psync_err_real_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
   if (D_CRITICAL<=DEBUG_LEVEL)
     psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TREAL), get_type_name(v->type));
   return 0.0;
