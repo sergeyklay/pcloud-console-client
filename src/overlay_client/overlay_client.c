@@ -17,7 +17,6 @@
 #include <netinet/in.h>
 
 #include "overlay_client.h"
-#include "debug.h"
 #include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
