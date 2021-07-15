@@ -1,35 +1,20 @@
-/* Copyright (c) 2014 Anton Titov.
- * Copyright (c) 2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2014 Anton Titov <anton@pcloud.com>
+ * (c) 2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
+#include <string.h>
 
 #include "pcrc32c.h"
 #include "pcloudcc/pcompiler.h"
 #include "plibs.h"
-#include <string.h>
+#include "logger.h"
 
 #if defined(__GNUC__) && (defined(__amd64__) || defined(__x86_64__) || defined(__i386__))
 #define CRC32_HW
@@ -356,18 +341,18 @@ static const uint64_t k2=0x9ae16a3b2f90404fULL;
 #ifdef CRC32_HW
 static int crc_hashw=0;
 
-PSYNC_NOINLINE static uint32_t psync_crc32c_sw(uint32_t crc, const void *ptr, size_t len){
+PSYNC_NOINLINE static uint32_t psync_crc32c_sw(uint32_t crc, const void *ptr, size_t len) {
 #else
-uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len){
+uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len) {
 #endif
   const char *data;
   data=(const char *)ptr;
-  while (((uintptr_t)data)%sizeof(uint32_t) && len){
+  while (((uintptr_t)data)%sizeof(uint32_t) && len) {
     CRC32C_8BIT(crc, data);
     data++;
     len--;
   }
-  while (len>=64){
+  while (len>=64) {
     len-=64;
     CRC32C_64BIT(crc, data);
     data+=8;
@@ -386,12 +371,12 @@ uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len){
     CRC32C_64BIT(crc, data);
     data+=8;
   }
-  while (len>=8){
+  while (len>=8) {
     len-=8;
     CRC32C_64BIT(crc, data);
     data+=8;
   }
-  while (len){
+  while (len) {
     len--;
     CRC32C_8BIT(crc, data);
     data++;
@@ -403,7 +388,7 @@ uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len){
 
 #if defined(CRC32_GNUC)
 
-PSYNC_NOINLINE static int psync_has_hw_crc(){
+PSYNC_NOINLINE static int psync_has_hw_crc() {
   uint32_t eax, ecx;
   eax=1;
   __asm__("cpuid"
@@ -411,9 +396,9 @@ PSYNC_NOINLINE static int psync_has_hw_crc(){
           : "a"(eax)
           : "%ebx", "%edx");
   if ((ecx>>20)&1)
-    debug(D_NOTICE, "hardware CRC32C support detected");
+    log_info("hardware CRC32C support detected");
   else
-    debug(D_NOTICE, "hardware CRC32C support not detected");
+    log_info("hardware CRC32C support not detected");
   return (ecx>>20)&1;
 }
 
@@ -423,13 +408,13 @@ PSYNC_NOINLINE static int psync_has_hw_crc(){
 
 #elif defined(CRC32_MSC)
 
-PSYNC_NOINLINE static int psync_has_hw_crc(){
+PSYNC_NOINLINE static int psync_has_hw_crc() {
   int info[4];
   __cpuid(info, 1);
   if ((info[2]>>20)&1)
-    debug(D_NOTICE, "hardware CRC32C support detected");
+    log_info("hardware CRC32C support detected");
   else
-    debug(D_NOTICE, "hardware CRC32C support not detected");
+    log_info("hardware CRC32C support not detected");
   return (info[2]>>20)&1;
 }
 
@@ -579,7 +564,7 @@ static uint32_t crc32c_shift_chunk_table1360[4][256]={
   }
 };
 
-static uint32_t crc32c_shift_chunk(uint32_t crc){
+static uint32_t crc32c_shift_chunk(uint32_t crc) {
   return crc32c_shift_chunk_table1360[0][crc&0xff]^
          crc32c_shift_chunk_table1360[1][(crc>>8)&0xff]^
          crc32c_shift_chunk_table1360[2][(crc>>16)&0xff]^
@@ -590,21 +575,21 @@ static uint32_t crc32c_shift_chunk(uint32_t crc){
 #define CRC32_WORD_SIZE 8
 #define CRC32_WORD_TYPE uint64_t
 #define CRC32_WORD_HW CRC32C_64BIT_HW
-static uint32_t psync_crc32c_hw(uint64_t crc0, const void *ptr, size_t len){
+static uint32_t psync_crc32c_hw(uint64_t crc0, const void *ptr, size_t len) {
 #else
 #define CRC32_WORD_SIZE 4
 #define CRC32_WORD_TYPE uint32_t
 #define CRC32_WORD_HW CRC32C_32BIT_HW
-static uint32_t psync_crc32c_hw(uint32_t crc0, const void *ptr, size_t len){
+static uint32_t psync_crc32c_hw(uint32_t crc0, const void *ptr, size_t len) {
 #endif
   const char *data0;
   data0=(const char *)ptr;
-  while (((uintptr_t)data0)%CRC32_WORD_SIZE && len){
+  while (((uintptr_t)data0)%CRC32_WORD_SIZE && len) {
     CRC32C_8BIT_HW(crc0, *data0);
     data0++;
     len--;
   }
-  while (len>=CRC32_PARALLEL_CHUNK*3){
+  while (len>=CRC32_PARALLEL_CHUNK*3) {
     CRC32_WORD_TYPE crc1, crc2;
     const char *end;
     len-=CRC32_PARALLEL_CHUNK*3;
@@ -621,7 +606,7 @@ static uint32_t psync_crc32c_hw(uint32_t crc0, const void *ptr, size_t len){
     crc0=crc32c_shift_chunk(crc0)^crc1;
     crc0=crc32c_shift_chunk(crc0)^crc2;
   }
-  while (len>=CRC32_WORD_SIZE*4){
+  while (len>=CRC32_WORD_SIZE*4) {
     len-=CRC32_WORD_SIZE*4;
     CRC32_WORD_HW(crc0, *((CRC32_WORD_TYPE *)data0));
     data0+=CRC32_WORD_SIZE;
@@ -632,12 +617,12 @@ static uint32_t psync_crc32c_hw(uint32_t crc0, const void *ptr, size_t len){
     CRC32_WORD_HW(crc0, *((CRC32_WORD_TYPE *)data0));
     data0+=CRC32_WORD_SIZE;
   }
-  while (len>=CRC32_WORD_SIZE){
+  while (len>=CRC32_WORD_SIZE) {
     len-=CRC32_WORD_SIZE;
     CRC32_WORD_HW(crc0, *((CRC32_WORD_TYPE *)data0));
     data0+=CRC32_WORD_SIZE;
   }
-  while (len){
+  while (len) {
     len--;
     CRC32C_8BIT_HW(crc0, *data0);
     data0++;
@@ -645,7 +630,7 @@ static uint32_t psync_crc32c_hw(uint32_t crc0, const void *ptr, size_t len){
   return crc0;
 }
 
-PSYNC_NOINLINE static uint32_t psync_crc32c_init(uint32_t crc, const void *ptr, size_t len){
+PSYNC_NOINLINE static uint32_t psync_crc32c_init(uint32_t crc, const void *ptr, size_t len) {
   crc_hashw=psync_has_hw_crc()+1;
   if (likely(crc_hashw==2))
     return psync_crc32c_hw(crc, ptr, len);
@@ -653,7 +638,7 @@ PSYNC_NOINLINE static uint32_t psync_crc32c_init(uint32_t crc, const void *ptr, 
     return psync_crc32c_sw(crc, ptr, len);
 }
 
-uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len){
+uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len) {
 #if defined(CRC32_GNUC) && defined(__SSE4_2__)
   return psync_crc32c_hw(crc, ptr, len);
 #else
@@ -673,7 +658,7 @@ uint32_t psync_crc32c(uint32_t crc, const void *ptr, size_t len){
  * https://code.google.com/p/cityhash/
  */
 
-void psync_fast_hash256_init(psync_fast_hash256_ctx *ctx){
+void psync_fast_hash256_init(psync_fast_hash256_ctx *ctx) {
 #ifdef CRC32_HW
   if (unlikely(!crc_hashw))
     crc_hashw=psync_has_hw_crc()+1;
@@ -683,7 +668,7 @@ void psync_fast_hash256_init(psync_fast_hash256_ctx *ctx){
   ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]=0;
 }
 
-void psync_fast_hash256_init_seed(psync_fast_hash256_ctx *ctx, const void *seed, size_t seedlen){
+void psync_fast_hash256_init_seed(psync_fast_hash256_ctx *ctx, const void *seed, size_t seedlen) {
   size_t i;
   psync_fast_hash256_init(ctx);
   if (seedlen>sizeof(ctx->state))
@@ -772,38 +757,38 @@ static inline uint64_t fh_shiftmix(uint64_t val) {
   return val^(val>>47);
 }
 
-static inline uint64_t fh_rotate64(uint64_t val, int shift){
+static inline uint64_t fh_rotate64(uint64_t val, int shift) {
   return shift?((val>>shift)|(val<<(64-shift))):val;
 }
 
-static inline uint64_t fh_load64(const void *ptr){
+static inline uint64_t fh_load64(const void *ptr) {
   uint64_t r;
   memcpy(&r, ptr, sizeof(uint64_t));
   return r;
 }
 
 // From CityHash/Murmur
-static uint64_t fh_hashmul3(uint64_t u, uint64_t v, uint64_t mul){
+static uint64_t fh_hashmul3(uint64_t u, uint64_t v, uint64_t mul) {
   return fh_shiftmix((fh_shiftmix((u^v)*mul)^v)*mul)*mul;
 }
 
-static uint64_t fh_hashmul2(uint64_t u, uint64_t v){
+static uint64_t fh_hashmul2(uint64_t u, uint64_t v) {
   return fh_hashmul3(u, v, 0x9ddfea08eb382d69ULL);
 }
 
-static inline uint64_t fh_crc32_64sw(uint64_t crc, uint64_t data){
+static inline uint64_t fh_crc32_64sw(uint64_t crc, uint64_t data) {
   CRC32C_64BIT_UINT(crc, data);
   return crc;
 }
 
 #ifdef CRC32_HW
 #if defined(_WIN64) || defined(__x86_64__)
-static inline uint64_t fh_crc32_64hw(uint64_t crc, uint64_t data){
+static inline uint64_t fh_crc32_64hw(uint64_t crc, uint64_t data) {
   CRC32C_64BIT_HW(crc, data);
   return crc;
 }
 #else
-static inline uint32_t fh_crc32_64hw(uint32_t crc, uint64_t data){
+static inline uint32_t fh_crc32_64hw(uint32_t crc, uint64_t data) {
   CRC32C_32BIT_HW(crc, data&0xffffffffU);
   CRC32C_32BIT_HW(crc, data>>32);
   return crc;
@@ -816,7 +801,7 @@ static void psync_fast_hash256_update_long_hw(psync_fast_hash256_ctx *ctx, const
 static void psync_fast_hash256_update_long_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len);
 static void psync_fast_hash256_update_short_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len);
 
-void psync_fast_hash256_update(psync_fast_hash256_ctx *ctx, const void *data, size_t len){
+void psync_fast_hash256_update(psync_fast_hash256_ctx *ctx, const void *data, size_t len) {
   ctx->length+=len;
   if (len+ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]<PSYNC_FAST_HASH256_BLOCK_LEN)
     psync_fast_hash256_update_short_sw(ctx, (const char *)data, len);
@@ -831,17 +816,17 @@ void psync_fast_hash256_update(psync_fast_hash256_ctx *ctx, const void *data, si
 #endif
 }
 
-PSYNC_NOINLINE static void psync_fast_hash256_update_short_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len){
+PSYNC_NOINLINE static void psync_fast_hash256_update_short_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len) {
   uint32_t l=ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1];
   ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]=l+len;
   memcpy(ctx->buff+l, cdata, len);
 }
 
 #ifdef CRC32_HW
-PSYNC_NOINLINE static void psync_fast_hash256_update_long_hw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len){
+PSYNC_NOINLINE static void psync_fast_hash256_update_long_hw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len) {
   uint64_t a, b, c, d, x, y;
   FH_LOAD_STATE();
-  if (ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]){
+  if (ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]) {
     uint32_t l=ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1];
     memcpy(ctx->buff+l, cdata, PSYNC_FAST_HASH256_BLOCK_LEN-l);
     l=PSYNC_FAST_HASH256_BLOCK_LEN-l;
@@ -849,7 +834,7 @@ PSYNC_NOINLINE static void psync_fast_hash256_update_long_hw(psync_fast_hash256_
     cdata+=l;
     ROUND_BUFF_HW();
   }
-  while (len>=PSYNC_FAST_HASH256_BLOCK_LEN){
+  while (len>=PSYNC_FAST_HASH256_BLOCK_LEN) {
     ROUND_CDATA_HW();
     len-=PSYNC_FAST_HASH256_BLOCK_LEN;
     cdata+=PSYNC_FAST_HASH256_BLOCK_LEN;
@@ -860,10 +845,10 @@ PSYNC_NOINLINE static void psync_fast_hash256_update_long_hw(psync_fast_hash256_
 }
 #endif
 
-PSYNC_NOINLINE static void psync_fast_hash256_update_long_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len){
+PSYNC_NOINLINE static void psync_fast_hash256_update_long_sw(psync_fast_hash256_ctx *ctx, const char *cdata, size_t len) {
   uint64_t a, b, c, d, x, y;
   FH_LOAD_STATE();
-  if (ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]){
+  if (ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]) {
     uint32_t l=ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1];
     memcpy(ctx->buff+l, cdata, PSYNC_FAST_HASH256_BLOCK_LEN-l);
     l=PSYNC_FAST_HASH256_BLOCK_LEN-l;
@@ -871,7 +856,7 @@ PSYNC_NOINLINE static void psync_fast_hash256_update_long_sw(psync_fast_hash256_
     cdata+=l;
     ROUND_BUFF_SW();
   }
-  while (len>=PSYNC_FAST_HASH256_BLOCK_LEN){
+  while (len>=PSYNC_FAST_HASH256_BLOCK_LEN) {
     ROUND_CDATA_SW();
     len-=PSYNC_FAST_HASH256_BLOCK_LEN;
     cdata+=PSYNC_FAST_HASH256_BLOCK_LEN;
@@ -881,7 +866,7 @@ PSYNC_NOINLINE static void psync_fast_hash256_update_long_sw(psync_fast_hash256_
   ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1]=len;
 }
 
-void psync_fast_hash256_final(void *hash, psync_fast_hash256_ctx *ctx){
+void psync_fast_hash256_final(void *hash, psync_fast_hash256_ctx *ctx) {
   uint64_t a, b, c, d, x, y, len;
   len=ctx->buff[PSYNC_FAST_HASH256_BLOCK_LEN-1];
   memcpy(ctx->buff+len, &crc32c_table[1][2], PSYNC_FAST_HASH256_BLOCK_LEN-len);
