@@ -2,7 +2,7 @@
  * This file is part of the pCloud Console Client.
  *
  * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
- * (c) 2015 Anton Titov
+ * (c) 2015 Anton Titov <anton@pcloud.com>
  * (c) 2015 pCloud Ltd
  *
  * For the full copyright and license information, please view

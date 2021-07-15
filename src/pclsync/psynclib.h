@@ -1,32 +1,16 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef _PSYNC_LIB_H
-#define _PSYNC_LIB_H
+#ifndef PCLOUD_PCLSYNC_PSYNCLIB_H_
+#define PCLOUD_PCLSYNC_PSYNCLIB_H_
 
 /* All paths are in UTF-8 regardless of the OS.
  * All functions with int return type unless specified otherwise return 0 for success
@@ -1167,7 +1151,7 @@ int psync_delete_all_links_folder(psync_folderid_t folderid, char**err);
 int psync_delete_all_links_file(psync_fileid_t fileid, char**err);
 /*
  * Creates download link for newly uploaded screenshot and the sets expiration to current date plus delay seconds. If hasdelay
- * equals 0 no expiration is set. If hasdelay and delay is 0 expiration is for one mount 
+ * equals 0 no expiration is set. If hasdelay and delay is 0 expiration is for one mount
  */
 int64_t psync_screenshot_public_link(const char *path, int hasdelay, int64_t delay, char **code /*OUT*/, char **err /*OUT*/);
 
@@ -1240,22 +1224,22 @@ psync_folderid_t psync_check_and_create_folder (const char * path);
 
 char * psync_get_token();
 
-/*Devices monitoring functions 
+/*Devices monitoring functions
  */
 
 //Adds device monitoring callback which is invoked every time a new not disabled device arrives.
 void padd_device_monitor_callback(device_event_callback callback);
-//Lists all stored devices 
+//Lists all stored devices
 pdevice_item_list_t * psync_list_devices(char **err /*OUT*/);
 //Enables device. This info is stored in the database so will be present after restart.
 void penable_device(const char* device_id);
 //Disable device
 void pdisable_device(const char* device_id);
-//Remove db information about device 
+//Remove db information about device
 void premove_device(const char* device_id);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif  /* PCLOUD_PCLSYNC_PSYNCLIB_H_ */
