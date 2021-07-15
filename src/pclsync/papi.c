@@ -1,37 +1,23 @@
-/* Copyright (c) 2013 Anton Titov.
- * Copyright (c) 2013 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013 Anton Titov <anton@pcloud.com>
+ * (c) 2013 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <string.h>
+#include <stddef.h>
 
 #include "papi.h"
 #include "psynclib.h"
 #include "plibs.h"
 #include "psettings.h"
 #include "ptimer.h"
-#include <string.h>
-#include <stddef.h>
+#include "logger.h"
 
 #define RPARAM_STR1  0
 #define RPARAM_STR2  1
@@ -102,10 +88,10 @@ static const binresult NUM_SMALL[VSMALL_NUMBER_NUM]={
 
 static uint32_t connfailures=0;
 
-psync_socket *psync_api_connect(const char *hostname, int usessl){
+psync_socket *psync_api_connect(const char *hostname, int usessl) {
   static time_t notuntil=0;
   psync_socket *ret;
-  if (psync_timer_time()>notuntil){
+  if (psync_timer_time()>notuntil) {
     ret=psync_socket_connect(hostname, usessl?PSYNC_API_PORT_SSL:PSYNC_API_PORT, usessl);
     if (ret)
       return ret;
@@ -113,7 +99,7 @@ psync_socket *psync_api_connect(const char *hostname, int usessl){
       return NULL;
     ret=psync_socket_connect(PSYNC_API_HOST, usessl?PSYNC_API_PORT_SSL:PSYNC_API_PORT, usessl);
     if (ret) {
-      debug(D_NOTICE, "failed to connect to %s, but was able to connect to %s", hostname, PSYNC_API_HOST);
+      log_info("failed to connect to %s, but was able to connect to %s", hostname, PSYNC_API_HOST);
       notuntil=psync_timer_time()+1800;
     }
     return ret;
@@ -121,11 +107,11 @@ psync_socket *psync_api_connect(const char *hostname, int usessl){
   return psync_socket_connect(PSYNC_API_HOST, usessl?PSYNC_API_PORT_SSL:PSYNC_API_PORT, usessl);
 }
 
-void psync_api_conn_fail_inc(){
+void psync_api_conn_fail_inc() {
   connfailures++;
 }
 
-void psync_api_conn_fail_reset(){
+void psync_api_conn_fail_reset() {
   if (connfailures%5==4)
     connfailures=4;
   else
@@ -135,17 +121,17 @@ void psync_api_conn_fail_reset(){
 #define _NEED_DATA(cnt) if (unlikely_log(*datalen<(cnt))) return -1
 #define ALIGN_BYTES psync_alignof(uint64_t)
 
-static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict datalen, size_t *restrict strcnt){
+static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict datalen, size_t *restrict strcnt) {
   size_t type, len;
   long cond;
   _NEED_DATA(1);
   type=**data;
   (*data)++;
   (*datalen)--;
-  if ((cond=(type>=RPARAM_SHORT_STR_BASE && type<RPARAM_SHORT_STR_BASE+VSHORT_STR_LEN)) || (type>=RPARAM_STR1 && type<=RPARAM_STR4)){
+  if ((cond=(type>=RPARAM_SHORT_STR_BASE && type<RPARAM_SHORT_STR_BASE+VSHORT_STR_LEN)) || (type>=RPARAM_STR1 && type<=RPARAM_STR4)) {
     if (cond)
       len=type-RPARAM_SHORT_STR_BASE;
-    else{
+    else {
       size_t l=type-RPARAM_STR1+1;
       _NEED_DATA(l);
       len=0;
@@ -160,8 +146,8 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     (*strcnt)++;
     return offsetof(binresult, str)+len;
   }
-  else if ((cond=(type>=RPARAM_RSTR1 && type<=RPARAM_RSTR4)) || (type>=RPARAM_SHORT_RSTR_BASE && type<RPARAM_SHORT_RSTR_BASE+VSHORT_RSTR_CNT)){
-    if (cond){
+  else if ((cond=(type>=RPARAM_RSTR1 && type<=RPARAM_RSTR4)) || (type>=RPARAM_SHORT_RSTR_BASE && type<RPARAM_SHORT_RSTR_BASE+VSHORT_RSTR_CNT)) {
+    if (cond) {
       size_t l=type-RPARAM_RSTR1+1;
       _NEED_DATA(l);
       len=0;
@@ -176,7 +162,7 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     else
       return -1;
   }
-  else if (type>=RPARAM_NUM1 && type<=RPARAM_NUM8){
+  else if (type>=RPARAM_NUM1 && type<=RPARAM_NUM8) {
     len=type-RPARAM_NUM1+1;
     _NEED_DATA(len);
     *data+=len;
@@ -187,12 +173,12 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     return 0;
   else if (type==RPARAM_BFALSE || type==RPARAM_BTRUE)
     return 0;
-  else if (type==RPARAM_ARRAY){
+  else if (type==RPARAM_ARRAY) {
     ssize_t ret, r;
     int unsigned cnt;
     cnt=0;
     ret=sizeof(binresult);
-    while (**data!=RPARAM_END){
+    while (**data!=RPARAM_END) {
       r=calc_ret_len(data, datalen, strcnt);
       if (r==-1)
         return -1;
@@ -205,12 +191,12 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     ret+=sizeof(binresult *)*cnt;
     return ret;
   }
-  else if (type==RPARAM_HASH){
+  else if (type==RPARAM_HASH) {
     ssize_t ret, r;
     int unsigned cnt;
     cnt=0;
     ret=sizeof(binresult);
-    while (**data!=RPARAM_END){
+    while (**data!=RPARAM_END) {
       r=calc_ret_len(data, datalen, strcnt);
       if (r==-1)
         return -1;
@@ -227,7 +213,7 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     ret+=sizeof(hashpair)*cnt;
     return ret;
   }
-  else if (type==RPARAM_DATA){
+  else if (type==RPARAM_DATA) {
     _NEED_DATA(8);
     *data+=8;
     *datalen-=8;
@@ -237,16 +223,16 @@ static ssize_t calc_ret_len(unsigned char **restrict data, size_t *restrict data
     return -1;
 }
 
-static binresult *do_parse_result(unsigned char **restrict indata, unsigned char **restrict odata, binresult **restrict strings, size_t *restrict nextstrid){
+static binresult *do_parse_result(unsigned char **restrict indata, unsigned char **restrict odata, binresult **restrict strings, size_t *restrict nextstrid) {
   binresult *ret;
   long cond;
   psync_uint_t type, len;
   type=**indata;
   (*indata)++;
-  if ((cond=(type>=RPARAM_SHORT_STR_BASE && type<RPARAM_SHORT_STR_BASE+VSHORT_STR_LEN)) || (type>=RPARAM_STR1 && type<=RPARAM_STR4)){
+  if ((cond=(type>=RPARAM_SHORT_STR_BASE && type<RPARAM_SHORT_STR_BASE+VSHORT_STR_LEN)) || (type>=RPARAM_STR1 && type<=RPARAM_STR4)) {
     if (cond)
       len=type-RPARAM_SHORT_STR_BASE;
-    else{
+    else {
       size_t l=type-RPARAM_STR1+1;
       len=0;
       memcpy(&len, *indata, l);
@@ -264,9 +250,9 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     *indata+=len;
     return ret;
   }
-  else if ((cond=(type>=RPARAM_RSTR1 && type<=RPARAM_RSTR4)) || (type>=RPARAM_SHORT_RSTR_BASE && type<RPARAM_SHORT_RSTR_BASE+VSHORT_RSTR_CNT)){
+  else if ((cond=(type>=RPARAM_RSTR1 && type<=RPARAM_RSTR4)) || (type>=RPARAM_SHORT_RSTR_BASE && type<RPARAM_SHORT_RSTR_BASE+VSHORT_RSTR_CNT)) {
     size_t id;
-    if (cond){
+    if (cond) {
       len=type-RPARAM_RSTR1+1;
       id=0;
       memcpy(&id, *indata, len);
@@ -276,7 +262,7 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
       id=type-RPARAM_SHORT_RSTR_BASE;
     return strings[id];
   }
-  else if (type>=RPARAM_NUM1 && type<=RPARAM_NUM8){
+  else if (type>=RPARAM_NUM1 && type<=RPARAM_NUM8) {
     ret=(binresult *)(*odata);
     *odata+=sizeof(binresult);
     ret->type=PARAM_NUM;
@@ -292,7 +278,7 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     return (binresult *)&BOOL_TRUE;
   else if (type==RPARAM_BFALSE)
     return (binresult *)&BOOL_FALSE;
-  else if (type==RPARAM_ARRAY){
+  else if (type==RPARAM_ARRAY) {
     binresult **arr;
     psync_uint_t cnt, alloc;
     ret=(binresult *)(*odata);
@@ -302,8 +288,8 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     cnt=0;
     alloc=128;
     arr=(binresult **)psync_malloc(sizeof(binresult *)*alloc);
-    while (**indata!=RPARAM_END){
-      if (cnt==alloc){
+    while (**indata!=RPARAM_END) {
+      if (cnt==alloc) {
         alloc*=2;
         arr=(binresult **)psync_realloc(arr, sizeof(binresult *)*alloc);
       }
@@ -317,7 +303,7 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     psync_free(arr);
     return ret;
   }
-  else if (type==RPARAM_HASH){
+  else if (type==RPARAM_HASH) {
     struct _hashpair *arr;
     psync_uint_t cnt, alloc;
     binresult *key;
@@ -328,14 +314,14 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     cnt=0;
     alloc=32;
     arr=(struct _hashpair *)psync_malloc(sizeof(struct _hashpair)*alloc);
-    while (**indata!=RPARAM_END){
-      if (cnt==alloc){
+    while (**indata!=RPARAM_END) {
+      if (cnt==alloc) {
         alloc*=2;
         arr=(struct _hashpair *)psync_realloc(arr, sizeof(struct _hashpair)*alloc);
       }
       key=do_parse_result(indata, odata, strings, nextstrid);
       arr[cnt].value=do_parse_result(indata, odata, strings, nextstrid);
-      if (key->type==PARAM_STR){
+      if (key->type==PARAM_STR) {
         arr[cnt].key=key->str;
         cnt++;
       }
@@ -348,7 +334,7 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
     psync_free(arr);
     return ret;
   }
-  else if (type==RPARAM_DATA){
+  else if (type==RPARAM_DATA) {
     ret=(binresult *)(*odata);
     *odata+=sizeof(binresult);
     ret->type=PARAM_DATA;
@@ -359,7 +345,7 @@ static binresult *do_parse_result(unsigned char **restrict indata, unsigned char
   return NULL;
 }
 
-static binresult *parse_result(unsigned char *data, size_t datalen){
+static binresult *parse_result(unsigned char *data, size_t datalen) {
   unsigned char *datac;
   binresult **strings;
   binresult *res;
@@ -379,14 +365,14 @@ static binresult *parse_result(unsigned char *data, size_t datalen){
   return res;
 }
 
-binresult *get_result(psync_socket *sock){
+binresult *get_result(psync_socket *sock) {
   unsigned char *data;
   binresult *res;
   uint32_t ressize;
   if (unlikely_log(psync_socket_readall(sock, &ressize, sizeof(uint32_t))!=sizeof(uint32_t)))
     return NULL;
   data=(unsigned char *)psync_malloc(ressize);
-  if (unlikely_log(psync_socket_readall(sock, data, ressize)!=ressize)){
+  if (unlikely_log(psync_socket_readall(sock, data, ressize)!=ressize)) {
     psync_free(data);
     return NULL;
   }
@@ -395,14 +381,14 @@ binresult *get_result(psync_socket *sock){
   return res;
 }
 
-binresult *get_result_thread(psync_socket *sock){
+binresult *get_result_thread(psync_socket *sock) {
   unsigned char *data;
   binresult *res;
   uint32_t ressize;
   if (unlikely_log(psync_socket_readall_thread(sock, &ressize, sizeof(uint32_t))!=sizeof(uint32_t)))
     return NULL;
   data=(unsigned char *)psync_malloc(ressize);
-  if (unlikely_log(psync_socket_readall_thread(sock, data, ressize)!=ressize)){
+  if (unlikely_log(psync_socket_readall_thread(sock, data, ressize)!=ressize)) {
     psync_free(data);
     return NULL;
   }
@@ -411,25 +397,25 @@ binresult *get_result_thread(psync_socket *sock){
   return res;
 }
 
-void async_result_reader_init(async_result_reader *reader){
+void async_result_reader_init(async_result_reader *reader) {
   reader->state=0;
   reader->bytesread=0;
   reader->bytestoread=sizeof(uint32_t);
   reader->data=(unsigned char *)&reader->respsize;
 }
 
-void async_result_reader_destroy(async_result_reader *reader){
+void async_result_reader_destroy(async_result_reader *reader) {
   if (reader->state==1)
     psync_free(reader->data);
 }
 
-int get_result_async(psync_socket *sock, async_result_reader *reader){
+int get_result_async(psync_socket *sock, async_result_reader *reader) {
   int rd;
 again:
   rd=psync_socket_read_noblock(sock, reader->data+reader->bytesread, reader->bytestoread-reader->bytesread);
   if (rd==PSYNC_SOCKET_WOULDBLOCK)
     return ASYNC_RES_NEEDMORE;
-  else if (rd==PSYNC_SOCKET_ERROR || rd==0){
+  else if (rd==PSYNC_SOCKET_ERROR || rd==0) {
     if (reader->state==1)
       psync_free(reader->data);
     async_result_reader_init(reader);
@@ -437,15 +423,15 @@ again:
     return ASYNC_RES_READY;
   }
   reader->bytesread+=rd;
-  if (reader->bytesread==reader->bytestoread){
-    if (reader->state==0){
+  if (reader->bytesread==reader->bytestoread) {
+    if (reader->state==0) {
       reader->state=1;
       reader->bytesread=0;
       reader->bytestoread=reader->respsize;
       reader->data=(unsigned char *)psync_malloc(reader->respsize);
       goto again;
     }
-    else{
+    else {
       assert(reader->state==1);
       reader->result=parse_result(reader->data, reader->respsize);
       psync_free(reader->data);
@@ -457,7 +443,7 @@ again:
     return ASYNC_RES_NEEDMORE;
 }
 
-unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, size_t additionalalloc, size_t *retlen){
+unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, size_t additionalalloc, size_t *retlen) {
   size_t i, plen;
   unsigned char *data, *sdata;
   /* 2 byte len (not included), 1 byte cmdlen, 1 byte paramcnt, cmdlen bytes cmd*/
@@ -476,7 +462,7 @@ unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binp
   sdata=data=(unsigned char *)psync_malloc(plen+2+additionalalloc);
   memcpy(data, &plen, 2);
   data+=2;
-  if (datalen!=-1){
+  if (datalen!=-1) {
     *data++=cmdlen|0x80;
     memcpy(data, &datalen, sizeof(uint64_t));
     data+=sizeof(uint64_t);
@@ -486,17 +472,17 @@ unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binp
   memcpy(data, command, cmdlen);
   data+=cmdlen;
   *data++=paramcnt;
-  for (i=0; i<paramcnt; i++){
+  for (i=0; i<paramcnt; i++) {
     *data++=(params[i].paramtype<<6)+params[i].paramnamelen;
     memcpy(data, params[i].paramname, params[i].paramnamelen);
     data+=params[i].paramnamelen;
-    if (params[i].paramtype==PARAM_STR){
+    if (params[i].paramtype==PARAM_STR) {
       memcpy(data, &params[i].opts, 4);
       data+=4;
       memcpy(data, params[i].str, params[i].opts);
       data+=params[i].opts;
     }
-    else if (params[i].paramtype==PARAM_NUM){
+    else if (params[i].paramtype==PARAM_NUM) {
       memcpy(data, &params[i].num, sizeof(uint64_t));
       data+=sizeof(uint64_t);
     }
@@ -508,20 +494,20 @@ unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binp
   return sdata;
 }
 
-binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, int readres){
+binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, int readres) {
   unsigned char *sdata;
   size_t plen;
   sdata=do_prepare_command(command, cmdlen, params, paramcnt, datalen, 0, &plen);
   if (!sdata)
     return NULL;
-  if (readres&2){
-    if (unlikely_log(psync_socket_writeall_thread(sock, sdata, plen)!=plen)){
+  if (readres&2) {
+    if (unlikely_log(psync_socket_writeall_thread(sock, sdata, plen)!=plen)) {
       psync_free(sdata);
       return NULL;
     }
   }
-  else{
-    if (unlikely_log(psync_socket_writeall(sock, sdata, plen)!=plen)){
+  else {
+    if (unlikely_log(psync_socket_writeall(sock, sdata, plen)!=plen)) {
       psync_free(sdata);
       return NULL;
     }
@@ -533,10 +519,10 @@ binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdle
     return PTR_OK;
 }
 
-const binresult *psync_do_find_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line){
+const binresult *psync_do_find_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line) {
   uint32_t i;
-  if (unlikely(!res || res->type!=PARAM_HASH)){
-    if (D_CRITICAL<=DEBUG_LEVEL){
+  if (unlikely(!res || res->type!=PARAM_HASH)) {
+    if (D_CRITICAL<=DEBUG_LEVEL) {
       const char *nm="NULL";
       if (res)
         nm=type_names[res->type];
@@ -545,10 +531,10 @@ const binresult *psync_do_find_result(const binresult *res, const char *name, ui
     return empty_types[type];
   }
   for (i=0; i<res->length; i++)
-    if (!strcmp(res->hash[i].key, name)){
+    if (!strcmp(res->hash[i].key, name)) {
       if (likely(res->hash[i].value->type==type))
         return res->hash[i].value;
-      else{
+      else {
         if (D_CRITICAL<=DEBUG_LEVEL)
           psync_debug(file, function, line, D_CRITICAL, "type error for key %s, expected %s got %s", name, type_names[type], type_names[res->hash[i].value->type]);
         return empty_types[type];
@@ -559,7 +545,7 @@ const binresult *psync_do_find_result(const binresult *res, const char *name, ui
 #if IS_DEBUG
   psync_debug(file, function, line, D_NOTICE, "dumping existing fields of the hash");
   for (i=0; i<res->length; i++)
-    switch (res->hash[i].value->type){
+    switch (res->hash[i].value->type) {
       case PARAM_HASH:
         psync_debug(file, function, line, D_NOTICE, "  %s=[hash]", res->hash[i].key);
         break;
@@ -586,10 +572,10 @@ const binresult *psync_do_find_result(const binresult *res, const char *name, ui
   return empty_types[type];
 }
 
-const binresult *psync_do_check_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line){
+const binresult *psync_do_check_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line) {
   uint32_t i;
-  if (unlikely(!res || res->type!=PARAM_HASH)){
-    if (D_CRITICAL<=DEBUG_LEVEL){
+  if (unlikely(!res || res->type!=PARAM_HASH)) {
+    if (D_CRITICAL<=DEBUG_LEVEL) {
       const char *nm="NULL";
       if (res)
         nm=type_names[res->type];
@@ -598,10 +584,10 @@ const binresult *psync_do_check_result(const binresult *res, const char *name, u
     return NULL;
   }
   for (i=0; i<res->length; i++)
-    if (!strcmp(res->hash[i].key, name)){
+    if (!strcmp(res->hash[i].key, name)) {
       if (likely(res->hash[i].value->type==type))
         return res->hash[i].value;
-      else{
+      else {
         if (D_CRITICAL<=DEBUG_LEVEL)
           psync_debug(file, function, line, D_CRITICAL, "type error for key %s, expected %s got %s", name, type_names[type], type_names[res->hash[i].value->type]);
         return NULL;

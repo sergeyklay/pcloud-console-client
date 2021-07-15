@@ -1,35 +1,20 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-#include "psynclib.h"
-#include "ptimer.h"
 #include "pcloudcc/pcompat.h"
+#include "ptimer.h"
+#include "psynclib.h"
 #include "plibs.h"
 #include "pcache.h"
+#include "logger.h"
 
 /* Maximum timeout possible is TIMER_ARRAY_SIZE^TIMER_LEVELS seconds, in the worst case
  * TIMER_LEVELS operations will be preformed for each timer to service it
@@ -64,12 +49,12 @@ static pthread_cond_t timer_cond=PTHREAD_COND_INITIALIZER;
 static uint32_t nextsecwaiters=0;
 static int timer_running=0;
 
-PSYNC_NOINLINE static void timer_sleep_detected(time_t lt){
+PSYNC_NOINLINE static void timer_sleep_detected(time_t lt) {
   struct exception_list *e;
-  debug(D_NOTICE, "sleep detected, current_time=%lu, last_current_time=%lu", (unsigned long)psync_current_time, (unsigned long)lt);
+  log_info("sleep detected, current_time=%lu, last_current_time=%lu", (unsigned long)psync_current_time, (unsigned long)lt);
   pthread_mutex_lock(&timer_ex_mutex);
   e=sleeplist;
-  while (e){
+  while (e) {
     e->func();
     e=e->next;
   }
@@ -78,7 +63,7 @@ PSYNC_NOINLINE static void timer_sleep_detected(time_t lt){
   psync_timer_notify_exception();
 }
 
-static void timer_check_upper_levels(time_t tmdiv, psync_uint_t level, psync_uint_t sh){
+static void timer_check_upper_levels(time_t tmdiv, psync_uint_t level, psync_uint_t sh) {
   psync_list *l1, *l2, *l;
   time_t m;
   m=tmdiv%TIMER_ARRAY_SIZE;
@@ -90,14 +75,14 @@ static void timer_check_upper_levels(time_t tmdiv, psync_uint_t level, psync_uin
   psync_list_init(&timerlists[level+1][m]);
 }
 
-static void timer_prepare_timers(time_t from, time_t to, psync_list *list){
+static void timer_prepare_timers(time_t from, time_t to, psync_list *list) {
   time_t i, m;
   psync_list *l1, *l2;
-  for (i=from+1; i<=to; i++){
+  for (i=from+1; i<=to; i++) {
     m=i%TIMER_ARRAY_SIZE;
     if (m==0)
       timer_check_upper_levels(i/TIMER_ARRAY_SIZE, 0, 0);
-    psync_list_for_each_safe(l1, l2, &timerlists[0][m]){
+    psync_list_for_each_safe(l1, l2, &timerlists[0][m]) {
       psync_list_element(l1, psync_timer_structure_t, list)->opts|=PTIMER_IS_RUNNING;
       psync_list_add_tail(list, l1);
     }
@@ -105,15 +90,15 @@ static void timer_prepare_timers(time_t from, time_t to, psync_list *list){
   }
 }
 
-PSYNC_NOINLINE static void timer_process_timers(psync_list *timers){
+PSYNC_NOINLINE static void timer_process_timers(psync_list *timers) {
   psync_timer_t timer;
   psync_list *l1, *l2;
   psync_list_for_each_element(timer, timers, psync_timer_structure_t, list)
     timer->call(timer, timer->param);
   pthread_mutex_lock(&timer_mutex);
-  psync_list_for_each_safe(l1, l2, timers){
+  psync_list_for_each_safe(l1, l2, timers) {
     timer=psync_list_element(l1, psync_timer_structure_t, list);
-    if (!(timer->opts&PTIMER_STOP_AFTER_RUN)){
+    if (!(timer->opts&PTIMER_STOP_AFTER_RUN)) {
       timer->opts=0;
       psync_list_del(l1);
       timer->runat=psync_current_time+timer->numsec;
@@ -124,11 +109,11 @@ PSYNC_NOINLINE static void timer_process_timers(psync_list *timers){
   psync_list_for_each_element_call(timers, psync_timer_structure_t, list, psync_free);
 }
 
-static void timer_thread(){
+static void timer_thread() {
   psync_list timers;
   time_t lt;
   lt=psync_current_time;
-  while (psync_do_run){
+  while (psync_do_run) {
     psync_list_init(&timers);
     psync_milisleep(1000);
     psync_current_time=psync_time();
@@ -141,7 +126,7 @@ static void timer_thread(){
       timer_process_timers(&timers);
     if (unlikely(psync_current_time-lt>=25))
       timer_sleep_detected(lt);
-    else if (unlikely_log(psync_current_time==lt)){
+    else if (unlikely_log(psync_current_time==lt)) {
       if (!psync_do_run)
         break;
       psync_milisleep(1000);
@@ -150,7 +135,7 @@ static void timer_thread(){
   }
 }
 
-void psync_timer_init(){
+void psync_timer_init() {
   psync_uint_t i, j;
   for (i=0; i<TIMER_LEVELS; i++)
     for (j=0; j<TIMER_ARRAY_SIZE; j++)
@@ -160,18 +145,18 @@ void psync_timer_init(){
   timer_running=1;
 }
 
-time_t psync_timer_time(){
+time_t psync_timer_time() {
   if (timer_running)
     return psync_current_time;
   else
     return psync_time(NULL);
 }
 
-void psync_timer_wake(){
+void psync_timer_wake() {
   pthread_cond_signal(&timer_cond);
 }
 
-psync_timer_t psync_timer_register(psync_timer_callback func, time_t numsec, void *param){
+psync_timer_t psync_timer_register(psync_timer_callback func, time_t numsec, void *param) {
   psync_timer_t timer;
   uint32_t i;
   time_t n;
@@ -179,15 +164,15 @@ psync_timer_t psync_timer_register(psync_timer_callback func, time_t numsec, voi
   timer->call=func;
   timer->param=param;
   n=TIMER_ARRAY_SIZE;
-  for (i=0; i<TIMER_LEVELS; i++){
+  for (i=0; i<TIMER_LEVELS; i++) {
     if (numsec<=n)
       break;
     else
       n*=TIMER_ARRAY_SIZE;
   }
-  if (unlikely(i==TIMER_LEVELS)){
+  if (unlikely(i==TIMER_LEVELS)) {
     n/=TIMER_ARRAY_SIZE;
-    debug(D_ERROR, "requested timeout %lu is larger than the maximum of %lu", (unsigned long)numsec, (unsigned long)n);
+    log_error("requested timeout %lu is larger than the maximum of %lu", (unsigned long)numsec, (unsigned long)n);
     numsec=n;
     i--;
   }
@@ -201,7 +186,7 @@ psync_timer_t psync_timer_register(psync_timer_callback func, time_t numsec, voi
   return timer;
 }
 
-int psync_timer_stop(psync_timer_t timer){
+int psync_timer_stop(psync_timer_t timer) {
   int needfree=0;
   pthread_mutex_lock(&timer_mutex);
   if (timer->opts&PTIMER_IS_RUNNING)
@@ -211,7 +196,7 @@ int psync_timer_stop(psync_timer_t timer){
     needfree=1;
   }
   pthread_mutex_unlock(&timer_mutex);
-  if (needfree){
+  if (needfree) {
     psync_free(timer);
     return 0;
   }
@@ -219,7 +204,7 @@ int psync_timer_stop(psync_timer_t timer){
     return 1;
 }
 
-void psync_timer_exception_handler(psync_exception_callback func){
+void psync_timer_exception_handler(psync_exception_callback func) {
   struct exception_list *t;
   t=psync_new(struct exception_list);
   t->next=NULL;
@@ -231,7 +216,7 @@ void psync_timer_exception_handler(psync_exception_callback func){
   pthread_mutex_unlock(&timer_ex_mutex);
 }
 
-void psync_timer_sleep_handler(psync_exception_callback func){
+void psync_timer_sleep_handler(psync_exception_callback func) {
   struct exception_list *t;
   t=psync_new(struct exception_list);
   t->next=NULL;
@@ -243,13 +228,13 @@ void psync_timer_sleep_handler(psync_exception_callback func){
   pthread_mutex_unlock(&timer_ex_mutex);
 }
 
-void psync_timer_do_notify_exception(){
+void psync_timer_do_notify_exception() {
   struct exception_list *e;
   pthread_t threadid;
   e=excepions;
   threadid=pthread_self();
   pthread_mutex_lock(&timer_ex_mutex);
-  while (e){
+  while (e) {
     if (!pthread_equal(threadid, e->threadid))
       e->func();
     e=e->next;
@@ -257,7 +242,7 @@ void psync_timer_do_notify_exception(){
   pthread_mutex_unlock(&timer_ex_mutex);
 }
 
-void psync_timer_wait_next_sec(){
+void psync_timer_wait_next_sec() {
   time_t ctime;
   pthread_mutex_lock(&timer_mutex);
   ctime=psync_current_time;
