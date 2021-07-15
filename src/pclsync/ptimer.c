@@ -27,7 +27,7 @@
 
 #include "psynclib.h"
 #include "ptimer.h"
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "plibs.h"
 #include "pcache.h"
 

@@ -28,8 +28,8 @@
 #ifndef _PSYNC_API_H
 #define _PSYNC_API_H
 
-#include "pcompat.h"
-#include "pcompiler.h"
+#include "pcloudcc/pcompat.h"
+#include "pcloudcc/pcompiler.h"
 #include <string.h>
 #include <stdint.h>
 

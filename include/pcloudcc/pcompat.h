@@ -12,7 +12,7 @@
 #ifndef _PSYNC_COMPAT_H
 #define _PSYNC_COMPAT_H
 
-#include "pcompiler.h"
+#include "pcloudcc/pcompiler.h"
 
 #if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && !defined(P_OS_BSD) && !defined(P_OS_POSIX)
 #if defined(__ANDROID__)

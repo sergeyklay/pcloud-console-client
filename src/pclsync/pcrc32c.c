@@ -27,7 +27,7 @@
 
 
 #include "pcrc32c.h"
-#include "pcompiler.h"
+#include "pcloudcc/pcompiler.h"
 #include "plibs.h"
 #include <string.h>
 
@@ -906,4 +906,3 @@ void psync_fast_hash256_final(void *hash, psync_fast_hash256_ctx *ctx){
   ctx->buff64[3]=fh_shiftmix((x-y)*k2)*k2+(c^d);;
   memcpy(hash, ctx->buff64, PSYNC_FAST_HASH256_LEN);
 }
-

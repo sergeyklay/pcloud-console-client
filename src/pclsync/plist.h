@@ -1,7 +1,7 @@
 /* Copyright (c) 2013 Anton Titov.
  * Copyright (c) 2013 pCloud Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of pCloud Ltd nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,7 +29,7 @@
 #define _PSYNC_LIST_H
 
 #include <stddef.h>
-#include "pcompiler.h"
+#include "pcloudcc/pcompiler.h"
 
 typedef struct _psync_list {
   struct _psync_list *next;
@@ -43,13 +43,13 @@ typedef int (*psync_list_compare)(const psync_list *, const psync_list *);
     (l)->next=(l);\
     (l)->prev=(l);\
   } while (0)
-  
+
 #define PSYNC_LIST_STATIC_INIT(l) {&l, &l}
-  
+
 #define psync_list_isempty(l) ((l)->next==(l))
 #define psync_list_is_head(l, e) ((l)->next==(e))
 #define psync_list_is_tail(l, e) ((l)->prev==(e))
-  
+
 static inline void psync_list_add_between(psync_list *l1, psync_list *l2, psync_list *a){
   a->next=l2;
   a->prev=l1;
@@ -67,7 +67,7 @@ static inline void psync_list_add_between(psync_list *l1, psync_list *l2, psync_
     (a)->next->prev=(a)->prev;\
     (a)->prev->next=(a)->next;\
   } while (0)
-  
+
 #define psync_list_element(a, t, n) ((t *)((char *)(a)-offsetof(t, n)))
 
 #define psync_list_for_each(a, l) for (a=(l)->next; psync_prefetch(a->next), a!=(l); a=a->next)
@@ -93,5 +93,5 @@ static inline psync_list *psync_list_remove_head(psync_list *l){
 
 void psync_list_sort(psync_list *l, psync_list_compare cmp);
 void psync_list_extract_repeating(psync_list *l1, psync_list *l2, psync_list *extracted1, psync_list *extracted2, psync_list_compare cmp);
-  
+
 #endif

@@ -28,7 +28,7 @@
 #ifndef _PSYNC_TIMER_H
 #define _PSYNC_TIMER_H
 
-#include "pcompiler.h"
+#include "pcloudcc/pcompiler.h"
 #include "plist.h"
 #include <time.h>
 #include <stdlib.h>

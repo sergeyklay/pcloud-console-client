@@ -1,7 +1,7 @@
 /* Copyright (c) 2014 Anton Titov.
  * Copyright (c) 2014 pCloud Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of pCloud Ltd nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,15 +25,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "plist.h"
 
 /* Fairly simple in-place merge sort with constant storage requirements.
- * 
+ *
  * Recursive approach might would use O(log N) storage on the stack but may
  * have better cache locality for lists that do not fit in processor cache,
  * may benefit from precise in-half splitting and can go without needless
- * iterating of the list to reach the half of it. 
+ * iterating of the list to reach the half of it.
  */
 
 void psync_list_sort(psync_list *l, psync_list_compare cmp){
@@ -133,4 +133,3 @@ void psync_list_extract_repeating(psync_list *l1, psync_list *l2, psync_list *ex
     }
   }
 }
-

@@ -1,7 +1,7 @@
 #ifndef _PSYNC_FSXATTR_H
 #define _PSYNC_FSXATTR_H
 
-#include "pcompat.h"
+#include "pcloudcc/pcompat.h"
 #include "psynclib.h"
 
 #if defined(P_OS_MACOSX)

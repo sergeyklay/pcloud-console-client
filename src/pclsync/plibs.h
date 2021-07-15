@@ -12,8 +12,8 @@
 #ifndef PCLOUD_PCLSYNC_PLIBS_H_
 #define PCLOUD_PCLSYNC_PLIBS_H_
 
-#include "pcompiler.h"
-#include "pcompat.h"
+#include "pcloudcc/pcompiler.h"
+#include "pcloudcc/pcompat.h"
 #include "psynclib.h"
 
 #include <sqlite3.h>
