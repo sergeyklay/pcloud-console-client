@@ -766,7 +766,6 @@ void psync_get_random_seed(unsigned char *seed, const void *addent, size_t aelen
   pthread_t threadid;
   unsigned char lsc[64][PSYNC_LHASH_DIGEST_LEN];
 #if defined(P_OS_POSIX)
-  log_info("in");
   struct utsname un;
   struct statvfs stfs;
   char **env;
@@ -881,13 +880,12 @@ void psync_get_random_seed(unsigned char *seed, const void *addent, size_t aelen
     psync_free(home);
   }
   if (!fast) {
-    log_info("db in");
+    log_info("getting a random seed from the database");
     psync_get_random_seed_from_db(&hctx);
-    log_info("db out");
   }
   if (aelen)
     psync_lhash_update(&hctx, addent, aelen);
-  log_info("adding bulk data");
+  log_debug("adding bulk data");
   for (i=0; i<ARRAY_SIZE(lsc); i++) {
     memcpy(&lsc[i], lastseed, PSYNC_LHASH_DIGEST_LEN);
     for (j=0; j<PSYNC_LHASH_DIGEST_LEN; j++)
@@ -904,9 +902,8 @@ void psync_get_random_seed(unsigned char *seed, const void *addent, size_t aelen
   }
   psync_lhash_final(seed, &hctx);
   memcpy(lastseed, seed, PSYNC_LHASH_DIGEST_LEN);
-  log_info("storing in db");
+  log_info("storing a random see in the database");
   psync_store_seed_in_db(seed);
-  log_info("out");
 }
 
 static int psync_wait_socket_writable_microsec(psync_socket_t sock, long sec, long usec) {
