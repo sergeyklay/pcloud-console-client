@@ -30,8 +30,8 @@ void overlay_main_loop()
   struct sockaddr_un addr;
   int fd,cl;
 
-  if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    log_error"Unix socket error failed to open %s", mysoc);
+  if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+    log_error("Unix socket error failed to open %s", mysoc);
     return;
   }
 
