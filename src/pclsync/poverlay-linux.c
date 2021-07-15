@@ -30,7 +30,7 @@ void overlay_main_loop()
   int fd,cl;
 
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    //debug(D_NOTICE, "Unix socket error failed to open %s", mysoc);
+    log_error"Unix socket error failed to open %s", mysoc);
     return;
   }
 
@@ -41,18 +41,18 @@ void overlay_main_loop()
   unlink(mysoc);
 
   if (bind(fd, (struct sockaddr*)&addr,  strlen(mysoc) + sizeof(addr.sun_family)) == -1) {
-    debug(D_ERROR,"Unix socket bind error");
+    log_error("Unix socket bind error");
     return;
   }
 
   if (listen(fd, 5) == -1) {
-    debug(D_ERROR,"Unix socket listen error");
+    log_error("Unix socket listen error");
     return;
   }
 
   while (1) {
     if ( (cl = accept(fd, NULL, NULL)) == -1) {
-      debug(D_ERROR,"Unix socket accept error");
+      log_error("Unix socket accept error");
       continue;
     }
     psync_run_thread1(
@@ -81,21 +81,21 @@ void instance_thread(void* lpvParam)
 
   while ( (rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
     bytes_read += rc;
-    //debug(D_ERROR, "Read %u bytes: %u %s", bytes_read, rc, curbuf );
+    log_error( "Read %u bytes: %u %s", bytes_read, rc, curbuf );
     curbuf = curbuf + rc;
-    if (bytes_read > 12){
+    if (bytes_read > 12) {
       request = (message *)chbuf;
       if(request->length == bytes_read)
         break;
     }
   }
   if (rc == -1) {
-    //debug(D_ERROR,"Unix socket read");
+    log_error("Unix socket read");
     close(*cl);
     return;
   }
   else if (rc == 0) {
-    //debug(D_NOTICE,"Message received");
+    log_info("Message received");
     close(*cl);
   }
   request = (message *)chbuf;
@@ -104,15 +104,13 @@ void instance_thread(void* lpvParam)
     if (reply ) {
       rc = write(*cl,reply,reply->length);
       if (rc != reply->length)
-        debug(D_ERROR,"Unix socket reply not sent.");
+        log_error("Unix socket reply not sent.");
 
     }
   }
   if (cl) {
     close(*cl);
   }
-  //debug(D_NOTICE, "InstanceThread exitting.\n");
-  return;
 };
 
 #endif //defined(P_OS_LINUX) || definef(P_OS_MACOSX) || defined(P_OS_BSD)

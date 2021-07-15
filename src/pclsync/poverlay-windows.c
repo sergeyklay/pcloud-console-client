@@ -25,8 +25,7 @@
 
 LPCWSTR PORT = TEXT("\\\\.\\pipe\\pStatusPipe");
 
-void overlay_main_loop(VOID)
-{
+void overlay_main_loop(VOID) {
   BOOL   fConnected = FALSE;
   HANDLE hPipe = INVALID_HANDLE_VALUE;
   HANDLE ghSemaphore;
@@ -44,20 +43,17 @@ void overlay_main_loop(VOID)
     MAX_SEM_COUNT,  // maximum count
     NULL);          // unnamed semaphore
 
-  if (ghSemaphore == NULL)
-  {
-    printf("CreateSemaphore error: %d\n", GetLastError());
+  if (ghSemaphore == NULL) {
+    printf("CreateSemaphore error: %d", GetLastError());
     return 1;
   }
 
-  for (;;)
-  {
-    //debug(D_NOTICE, "\nPipe Server: Main thread awaiting client connection on %s\n", PORT);
+  for (;;) {
+    //log_info("Pipe Server: Main thread awaiting client connection on %s", PORT);
 
     dwWaitResult = WaitForSingleObject(
       ghSemaphore,   // handle to semaphore
-      INFINITE);           // zero-second time-out interval
-
+      INFINITE);     // zero-second time-out interval
 
     hPipe = CreateNamedPipe(
       PORT,                     // pipe name
@@ -71,18 +67,16 @@ void overlay_main_loop(VOID)
       0,                        // client time-out
       NULL);                    // default security attribute
 
-    if (hPipe == INVALID_HANDLE_VALUE)
-    {
-      //debug(D_NOTICE, "CreateNamedPipe failed, GLE=%d.\n", GetLastError());
+    if (hPipe == INVALID_HANDLE_VALUE) {
+      log_debug("CreateNamedPipe failed, GLE=%d", GetLastError());
       return;
     }
 
     fConnected = ConnectNamedPipe(hPipe, NULL) ?
     TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
 
-    if (fConnected)
-    {
-      //debug(D_NOTICE, "Client connected, creating a processing thread.\n");
+    if (fConnected) {
+      log_info("Client connected, creating a processing thread");
 
       // Create a thread for this client.
       psync_run_thread1(
@@ -97,9 +91,9 @@ void overlay_main_loop(VOID)
     if (!ReleaseSemaphore(
       ghSemaphore,  // handle to semaphore
       1,            // increase count by one
-      NULL))       // not interested in previous count
-    {
-      debug(D_WARNING,"ReleaseSemaphore error: %d\n", GetLastError());
+      NULL)        // not interested in previous count
+    ) {
+      log_warn("ReleaseSemaphore error: %d", GetLastError());
     }
 
   }
@@ -108,29 +102,24 @@ void overlay_main_loop(VOID)
   return;
 }
 
-void instance_thread(LPVOID lpvParam)
-{
+void instance_thread(LPVOID lpvParam) {
   DWORD cbBytesRead = 0, cbWritten = 0;
   BOOL fSuccess = FALSE;
   HANDLE hPipe = NULL;
   char  chBuf[POVERLAY_BUFSIZE];
 
-  message* request = NULL; //(message*)psync_malloc(POVERLAY_BUFSIZE);
+  message* request = NULL;
   message* reply = (message*)psync_malloc(POVERLAY_BUFSIZE);
- // memset(request,0,sizeof(request));
   memset(reply, 0, POVERLAY_BUFSIZE);
-  if (lpvParam == NULL)
-  {
-    debug(D_ERROR, "InstanceThread got an unexpected NULL value in lpvParam.\n");
+  if (lpvParam == NULL) {
+    log_error("InstanceThread got an unexpected NULL value in lpvParam.");
     return;
   }
 
-  // debug(D_NOTICE, "InstanceThread created, receiving and processing messages.\n");
+  log_info("InstanceThread created, receiving and processing messages.");
   hPipe = (HANDLE)lpvParam;
-  while (1)
-  {
-    do
-    {
+  while (1) {
+    do {
       fSuccess = ReadFile(
         hPipe,    // pipe handle
         chBuf,    // buffer to receive reply
@@ -142,19 +131,15 @@ void instance_thread(LPVOID lpvParam)
         break;
     } while (!fSuccess);  // repeat loop if ERROR_MORE_DATA
 
-    if (!fSuccess || cbBytesRead == 0)
-    {
-      if (GetLastError() == ERROR_BROKEN_PIPE){
-        //debug(D_NOTICE, "InstanceThread: client disconnected.\n");
-      }
-      else{
-        //debug(D_NOTICE, "InstanceThread ReadFile failed, GLE=%d.\n", GetLastError());
+    if (!fSuccess || cbBytesRead == 0) {
+      if (GetLastError() == ERROR_BROKEN_PIPE) {
+        log_info("InstanceThread: client disconnected.");
       }
       break;
     }
     message *request = (message *)chBuf;
 
-    //debug(D_NOTICE, "bytes received  %d buffer[%s]\n", cbBytesRead, chBuf);
+    log_debug("bytes received  %d buffer[%s]", cbBytesRead, chBuf);
     get_answer_to_request(request, reply);
     fSuccess = WriteFile(
       hPipe,        // handle to pipe
@@ -163,19 +148,17 @@ void instance_thread(LPVOID lpvParam)
       &cbWritten,   // number of bytes written
       NULL);        // not overlapped I/O
 
-    if (!fSuccess || reply->length != cbWritten)
-    {
-      //debug(D_NOTICE, "InstanceThread WriteFile failed, GLE=%d.\n", GetLastError());
+    if (!fSuccess || reply->length != cbWritten) {
+      log_debug("InstanceThread WriteFile failed, GLE=%d", GetLastError());
       break;
     }
   }
+
   FlushFileBuffers(hPipe);
   DisconnectNamedPipe(hPipe);
   CloseHandle(hPipe);
   psync_free(request);
   psync_free(reply);
-  //debug(D_NOTICE, "InstanceThread exitting.\n");
-  return;
 }
 
 #endif  /* P_OS_WINDOWS */

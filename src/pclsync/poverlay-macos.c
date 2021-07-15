@@ -21,21 +21,19 @@
 
 #include "poverlay.h"
 #include "plibs.h"
+#include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
 
-
-
 uint32_t myport = 8989;
 
-void overlay_main_loop()
-{
+void overlay_main_loop() {
   struct sockaddr_in addr;
   int fd,cl;
   const int enable = 1;
 
-  if ( (fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-    //debug(D_NOTICE, "TCP/IP socket error failed to create socket on port %u", (unsigned int)myport);
+  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    log_error("TCP/IP socket error failed to create socket on port %u", (unsigned int)myport);
     return;
   }
 
@@ -45,23 +43,23 @@ void overlay_main_loop()
   addr.sin_port = htons(myport);
 
   if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
-    debug(D_ERROR,"setsockopt(SO_REUSEADDR) failed");
+    log_error("setsockopt(SO_REUSEADDR) failed");
     return;
   }
 
   if (bind(fd, (struct sockaddr*)&addr,  sizeof(addr)) == -1) {
-    debug(D_ERROR,"TCP/IP socket bind error");
+    log_error("TCP/IP socket bind error");
     return;
   }
 
   if (listen(fd, 5) == -1) {
-    debug(D_ERROR,"TCP/IP socket listen error");
+    log_error("TCP/IP socket listen error");
     return;
   }
 
   while (1) {
     if ( (cl = accept(fd, NULL, NULL)) == -1) {
-      debug(D_ERROR,"TCP/IP socket accept error");
+      log_error("TCP/IP socket accept error");
       continue;
     }
     psync_run_thread1(
@@ -88,9 +86,9 @@ void instance_thread(void* lpvParam)
 
   cl = (int *)lpvParam;
 
-  while ( (rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
+  while ((rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
     bytes_read += rc;
-    //debug(D_NOTICE, "Read %u bytes: %u %s", bytes_read, rc, curbuf );
+    log_debug("Read %u bytes: %u %s", bytes_read, rc, curbuf );
     curbuf = curbuf + rc;
     if (bytes_read > 12){
       request = (message *)chbuf;
@@ -99,12 +97,12 @@ void instance_thread(void* lpvParam)
     }
   }
   if (rc == -1) {
-    debug(D_ERROR,"TCP/IP socket read");
+    log_error("TCP/IP socket read");
     close(*cl);
     return;
   }
   else if (rc == 0) {
-    //debug(D_NOTICE,"Message received");
+    log_debug("Message received");
     close(*cl);
   }
   request = (message *)chbuf;
@@ -113,15 +111,12 @@ void instance_thread(void* lpvParam)
     if (reply ) {
       rc = write(*cl,reply,reply->length);
       if (rc != reply->length)
-        debug(D_ERROR,"TCP/IP  socket reply not sent.");
-
+        log_error("TCP/IP  socket reply not sent.");
     }
   }
   if (cl) {
     close(*cl);
   }
-  //debug(D_NOTICE, "InstanceThread exitting.\n");
-  return;
 };
 
 #endif /* defined(P_OS_LINUX) || defined(P_OS_MACOSX) || defined(P_OS_BSD) */
