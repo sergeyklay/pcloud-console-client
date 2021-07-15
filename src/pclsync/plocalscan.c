@@ -1,31 +1,18 @@
-/* Copyright (c) 2014 Anton Titov.
- * Copyright (c) 2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
+#include <string.h>
+
 #include "plocalscan.h"
+#include "pcallbacks.h"
 #include "plocalnotify.h"
 #include "ptimer.h"
 #include "pstatus.h"
@@ -35,10 +22,9 @@
 #include "ptasks.h"
 #include "pupload.h"
 #include "pfolder.h"
-#include "pcallbacks.h"
 #include "ppathstatus.h"
 #include "prunratelimit.h"
-#include <string.h>
+#include "logger.h"
 
 typedef struct {
   psync_list list;
@@ -110,16 +96,16 @@ static void scanner_set_syncs_to_list(psync_list *lst){
   while ((row=psync_sql_fetch_row(res))){
     lp=psync_get_lstring(row[2], &lplen);
     if (unlikely(psync_stat(lp, &st))){
-      debug(D_WARNING, "could not stat local folder %s, ignoring sync", lp);
+      log_warn("could not stat local folder %s, ignoring sync", lp);
       continue;
     }
     if (unlikely(syncmp && !psync_filename_cmpn(syncmp, lp, strlen(syncmp)))){
-      debug(D_WARNING, "folder %s is on pCloudDrive mounted as %s, ignoring sync", lp, syncmp);
+      log_warn("folder %s is on pCloudDrive mounted as %s, ignoring sync", lp, syncmp);
       continue;
     }
     deviceid=psync_get_number(row[4]);
     if (unlikely(deviceid!=psync_stat_device(&st))){
-      debug(D_WARNING, "folder %s deviceid is different, ignoring", lp);
+      log_warn("folder %s deviceid is different, ignoring", lp);
       continue;
     }
     l=(sync_list *)psync_malloc(offsetof(sync_list, localpath)+lplen+1);
@@ -189,7 +175,7 @@ static void scanner_db_folder_to_list(psync_syncid_t syncid, psync_folderid_t lo
   while ((row=psync_sql_fetch_row(res))){
     name=psync_get_lstring(row[5], &namelen);
     if (unlikely(psync_is_lname_to_ignore(name, namelen))){
-      debug(D_NOTICE, "found a name %s matching ignore pattern in localfolder, will try to delete", name);
+      log_info("found a name %s matching ignore pattern in localfolder, will try to delete", name);
       try_delete_localfolder(psync_get_number(row[0]));
       continue;
     }
@@ -212,7 +198,7 @@ static void scanner_db_folder_to_list(psync_syncid_t syncid, psync_folderid_t lo
   while ((row=psync_sql_fetch_row(res))){
     name=psync_get_lstring(row[5], &namelen);
     if (unlikely(psync_is_lname_to_ignore(name, namelen))){
-      debug(D_NOTICE, "found a name %s matching ignore pattern in localfile, will try to delete", name);
+      log_info("found a name %s matching ignore pattern in localfile, will try to delete", name);
       try_delete_localfile(psync_get_number(row[0]));
       continue;
     }
@@ -259,10 +245,10 @@ static void add_new_element(const sync_folderlist *e, psync_folderid_t folderid,
   if (psync_is_name_to_ignore(e->name))
     return;
   if (!psync_is_valid_utf8(e->name)){
-    debug(D_WARNING, "ignoring %s with invalid UTF8 name %s", e->isfolder?"folder":"file", e->name);
+    log_warn("ignoring %s with invalid UTF8 name %s", e->isfolder?"folder":"file", e->name);
     return;
   }
-  debug(D_NOTICE, "found new %s %s", e->isfolder?"folder":"file", e->name);
+  log_info("found new %s %s", e->isfolder?"folder":"file", e->name);
   c=copy_folderlist_element(e, folderid, localfolderid, syncid, synctype);
   if (e->isfolder)
     add_element_to_scan_list(SCAN_LIST_NEWFOLDERS, c);
@@ -272,7 +258,7 @@ static void add_new_element(const sync_folderlist *e, psync_folderid_t folderid,
 
 static void add_deleted_element(const sync_folderlist *e, psync_folderid_t folderid, psync_folderid_t localfolderid, psync_syncid_t syncid, psync_synctype_t synctype){
   sync_folderlist *c;
-  debug(D_NOTICE, "found deleted %s %s", e->isfolder?"folder":"file", e->name);
+  log_info("found deleted %s %s", e->isfolder?"folder":"file", e->name);
   c=copy_folderlist_element(e, folderid, localfolderid, syncid, synctype);
   if (e->isfolder)
     add_element_to_scan_list(SCAN_LIST_DELFOLDERS, c);
@@ -281,7 +267,7 @@ static void add_deleted_element(const sync_folderlist *e, psync_folderid_t folde
 }
 
 static void add_modified_file(const sync_folderlist *e, const sync_folderlist *dbe, psync_folderid_t folderid, psync_folderid_t localfolderid, psync_syncid_t syncid, psync_synctype_t synctype){
-  debug(D_NOTICE, "found modified file %s on disk: size=%llu mtime=%llu inode=%llu in db: size=%llu mtime=%llu inode=%llu", e->name,
+  log_info("found modified file %s on disk: size=%llu mtime=%llu inode=%llu in db: size=%llu mtime=%llu inode=%llu", e->name,
         (long long unsigned)e->size, (long long unsigned)e->mtimenat, (long long unsigned)e->inode,
         (long long unsigned)dbe->size, (long long unsigned)dbe->mtimenat, (long long unsigned)dbe->inode);
   add_element_to_scan_list(SCAN_LIST_MODFILES, copy_folderlist_element(e, folderid, localfolderid, syncid, synctype));
@@ -293,7 +279,7 @@ static void scanner_scan_folder(const char *localpath, psync_folderid_t folderid
   sync_folderlist *l, *fdisk, *fdb;
   char *subpath;
   int cmp;
-//  debug(D_NOTICE, "scanning folder %s", localpath);
+//  log_info("scanning folder %s", localpath);
   if (unlikely_log(scanner_local_folder_to_list(localpath, &disklist)))
     return;
   scanner_db_folder_to_list(syncid, localfolderid, &dblist);
@@ -313,12 +299,12 @@ static void scanner_scan_folder(const char *localpath, psync_folderid_t folderid
           add_modified_file(fdisk, fdb, folderid, localfolderid, syncid, synctype);
         if (fdisk->isfolder && fdisk->deviceid!=fdb->deviceid){
           if (fdisk->deviceid==deviceid){
-            debug(D_NOTICE, "deviceid of localfolder %s %lu is different, skipping", fdisk->name, (unsigned long)fdisk->localid);
+            log_info("deviceid of localfolder %s %lu is different, skipping", fdisk->name, (unsigned long)fdisk->localid);
             fdisk->localid=0;
           }
           else {
             psync_sql_res *res;
-            debug(D_NOTICE, "updating deviceid of localfolder %s %lu", fdisk->name, (unsigned long)fdisk->localid);
+            log_info("updating deviceid of localfolder %s %lu", fdisk->name, (unsigned long)fdisk->localid);
             res=psync_sql_prep_statement("UPDATE localfolder SET deviceid=? WHERE id=?");
             psync_sql_bind_uint(res, 1, fdisk->deviceid);
             psync_sql_bind_uint(res, 2, fdisk->localid);
@@ -411,7 +397,7 @@ static void scan_rename_file(sync_folderlist *rnfr, sync_folderlist *rnto){
   psync_folderid_t old_parentfolderid;
   psync_syncid_t old_syncid;
   int filetoupload;
-  debug(D_NOTICE, "file renamed from %s to %s", rnfr->name, rnto->name);
+  log_info("file renamed from %s to %s", rnfr->name, rnto->name);
   res=psync_sql_query_nolock("SELECT syncid, localparentfolderid FROM localfile WHERE id=?");
   psync_sql_bind_uint(res, 1, rnfr->localid);
   if ((row=psync_sql_fetch_rowint(res))) {
@@ -446,7 +432,7 @@ static void scan_rename_file(sync_folderlist *rnfr, sync_folderlist *rnto){
 static void scan_upload_file(sync_folderlist *fl){
   psync_sql_res *res;
   psync_fileid_t localfileid;
-  debug(D_NOTICE, "file created %s", fl->name);
+  log_info("file created %s", fl->name);
   /* it is possible that files that are reported as new are already uploading
    * -- is it? when? how? and with what localid?
   psync_delete_upload_tasks_for_file(fl->localid);
@@ -470,7 +456,7 @@ static void scan_upload_file(sync_folderlist *fl){
 
 static void scan_upload_modified_file(sync_folderlist *fl){
   psync_sql_res *res;
-  debug(D_NOTICE, "file modified %s (%lu)", fl->name, (unsigned long)fl->localid);
+  log_info("file modified %s (%lu)", fl->name, (unsigned long)fl->localid);
   psync_delete_upload_tasks_for_file(fl->localid);
   res=psync_sql_prep_statement("UPDATE localfile SET size=?, inode=?, mtime=?, mtimenative=? WHERE id=?");
   psync_sql_bind_uint(res, 1, fl->size);
@@ -489,7 +475,7 @@ static void scan_delete_file(sync_folderlist *fl){
   psync_fileid_t fileid;
   psync_folderid_t localparentfolderid;
   psync_syncid_t syncid;
-  debug(D_NOTICE, "file deleted %s", fl->name);
+  log_info("file deleted %s", fl->name);
   // it is also possible to use fl->remoteid, but the file might have just been uploaded by the upload thread
   res=psync_sql_query("SELECT fileid, syncid, localparentfolderid FROM localfile WHERE id=?");
   psync_sql_bind_uint(res, 1, fl->localid);
@@ -535,10 +521,10 @@ static void scan_create_folder(sync_folderlist *fl){
     psync_sql_bind_string(res, 3, fl->name);
     if ((row=psync_sql_fetch_rowint(res))){
       localfolderid=row[0];
-      debug(D_NOTICE, "folder created %s, exists in localfolder,  localid %lu", fl->name, (unsigned long)localfolderid);
+      log_info("folder created %s, exists in localfolder,  localid %lu", fl->name, (unsigned long)localfolderid);
     }
     else
-      debug(D_NOTICE, "folder created %s, exists in localfolder", fl->name);
+      log_info("folder created %s, exists in localfolder", fl->name);
     psync_sql_free_result(res);
     res=psync_sql_prep_statement("UPDATE localfolder SET inode=?, deviceid=?, mtime=?, mtimenative=?, flags=0 WHERE syncid=? AND localparentfolderid=? AND name=?");
     psync_sql_bind_uint(res, 1, fl->inode);
@@ -552,7 +538,7 @@ static void scan_create_folder(sync_folderlist *fl){
     goto hasfolder;
   }
   localfolderid=psync_sql_insertid();
-  debug(D_NOTICE, "folder created %s localid %lu", fl->name, (unsigned long)localfolderid);
+  log_info("folder created %s localid %lu", fl->name, (unsigned long)localfolderid);
   fl->localid=localfolderid;
   res=psync_sql_prep_statement("REPLACE INTO syncedfolder (syncid, localfolderid, synctype) VALUES (?, ?, ?)");
   psync_sql_bind_uint(res, 1, fl->syncid);
@@ -579,12 +565,12 @@ hasfolder:
 static void scan_created_folder(sync_folderlist *fl){
   char *localpath;
   if (fl->localid==0){
-    debug(D_WARNING, "local folder %s does not have localid", fl->name);
+    log_warn("local folder %s does not have localid", fl->name);
     return;
   }
   localpath=psync_local_path_for_local_folder(fl->localid, fl->syncid, NULL);
   if (likely_log(localpath)){
-    debug(D_NOTICE, "scanning just created folder %s localid %lu name %s", localpath, (unsigned long)fl->localid, fl->name);
+    log_info("scanning just created folder %s localid %lu name %s", localpath, (unsigned long)fl->localid, fl->name);
     scanner_scan_folder(localpath, 0, fl->localid, fl->syncid, fl->synctype, fl->deviceid);
     psync_free(localpath);
   }
@@ -612,7 +598,7 @@ static void scan_rename_folder(sync_folderlist *rnfr, sync_folderlist *rnto){
   psync_sql_res *res;
   psync_uint_row row;
 //  char *localpath;
-  debug(D_NOTICE, "folder renamed from %s to %s", rnfr->name, rnto->name);
+  log_info("folder renamed from %s to %s", rnfr->name, rnto->name);
   res=psync_sql_query_nolock("SELECT syncid, localparentfolderid FROM localfolder WHERE id=?");
   psync_sql_bind_uint(res, 1, rnfr->localid);
   if ((row=psync_sql_fetch_rowint(res))) {
@@ -620,7 +606,7 @@ static void scan_rename_folder(sync_folderlist *rnfr, sync_folderlist *rnto){
     psync_sql_free_result(res);
   } else {
     psync_sql_free_result(res);
-    debug(D_NOTICE, "localfolderid %u not found in localfolder", (unsigned)rnfr->localid);
+    log_info("localfolderid %u not found in localfolder", (unsigned)rnfr->localid);
     // This can prorably happen if we race with a task to delete the folder that comes from the download thread.
     // In any case it is safe not to do anything as we are going to restart the scan anyway
     return;
@@ -637,7 +623,7 @@ static void scan_rename_folder(sync_folderlist *rnfr, sync_folderlist *rnto){
   psync_sql_bind_uint(res, 3, rnfr->localid);
   psync_sql_run_free(res);
   if (unlikely(rnfr->syncid!=rnto->syncid)){
-    debug(D_NOTICE, "folder %s moved from syncid %u to syncid %u", rnfr->name, (unsigned)rnfr->syncid, (unsigned)rnto->syncid);
+    log_info("folder %s moved from syncid %u to syncid %u", rnfr->name, (unsigned)rnfr->syncid, (unsigned)rnto->syncid);
     update_syncid_rec(rnfr->localid, rnto->syncid);
   }
   psync_task_rename_remote_folder(rnfr->syncid, rnto->syncid, rnfr->localid, rnto->localparentfolderid, rnto->name);
@@ -687,7 +673,7 @@ static void scan_delete_folder(sync_folderlist *fl){
   int tries;
   tries=0;
 retry:
-  debug(D_NOTICE, "folder deleted %s", fl->name);
+  log_info("folder deleted %s", fl->name);
   res=psync_sql_query("SELECT folderid FROM localfolder WHERE id=?");
   psync_sql_bind_uint(res, 1, fl->localid);
   if (likely_log(row=psync_sql_fetch_rowint(res)))
@@ -778,7 +764,7 @@ restart:
       goto restart;
     }
     pthread_mutex_unlock(&scan_mutex);
-    debug(D_NOTICE, "run checks");
+    log_info("run checks");
     i=0;
     psync_list_extract_repeating(&scan_lists[SCAN_LIST_DELFOLDERS],
                                 &scan_lists[SCAN_LIST_NEWFOLDERS],
