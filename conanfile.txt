@@ -15,6 +15,7 @@ mbedtls/2.25.0
 boost/1.76.0
 openssl/1.1.1k
 sqlite3/3.36.0
+log.c/cci.20200620
 
 [options]
 boost:bzip2=False

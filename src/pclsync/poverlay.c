@@ -17,11 +17,11 @@ int overlays_running = 1;
 int callbacks_running = 1;
 
 #if defined(P_OS_WINDOWS)
-# include "poverlay-windows.c"
+#include "poverlay-windows.c"
 #elif defined(P_OS_LINUX)
-# include "poverlay-linux.c"
+#include "poverlay-linux.c"
 #elif defined(P_OS_MACOSX)
-# include "poverlay-macos.c"
+#include "poverlay-macos.c"
 #else
 void overlay_main_loop(VOID) {}
 void instance_thread(LPVOID) {}

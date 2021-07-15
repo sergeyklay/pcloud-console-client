@@ -1,15 +1,11 @@
-// pCloud Console Client
+// This file is part of the pCloud Console Client.
 //
-// Copyright (c) 2021 Serghei Iakovlev.
-// Copyright (c) 2013-2016 Anton Titov.
-// Copyright (c) 2013-2016 pCloud Ltd.
+// (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+// (c) 2013-2016 Anton Titov <anton@pcloud.com>
+// (c) 2013-2016 pCloud Ltd
 //
-// This source file is subject to the New BSD License that is bundled with this
-// project in the file LICENSE.
-//
-// If you did not receive a copy of the license and are unable to obtain it
-// through the world-wide-web, please send an email to egrep@protonmail.ch so
-// we can send you a copy immediately.
+// For the full copyright and license information, please view
+// the LICENSE file that was distributed with this source code.
 
 #include <iostream>
 #include <boost/program_options.hpp>
@@ -62,8 +58,8 @@ int main(int argc, char **argv) {
 
     for (int i = 1; i < argc;++i)
       memset(argv[i],0,strlen(argv[i]));
-    if (daemon){
-      strncpy(argv[0], "pCloudDriveDeamon", strlen(argv[0]));
+    if (daemon) {
+      strncpy(argv[0], "pCloudDriveDaemon", strlen(argv[0]));
     } else {
       strncpy(argv[0], "pCloudDrive", strlen(argv[0]));
     }

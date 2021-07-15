@@ -1,0 +1,66 @@
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+#ifndef PCLOUD_LOGGER_H_
+#define PCLOUD_LOGGER_H_
+
+#include <string.h>
+#include <pthread.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <log.h>
+
+#define PCLOUD_LOG_LEVEL LOG_DEBUG
+
+#ifndef PCLOUD_MAINTAINER_LOGS
+#define PCLOUD_MAINTAINER_LOGS false
+#endif
+
+#ifndef PCLOUD_LOG_FILE
+#define PCLOUD_LOG_FILE NULL
+#endif
+
+#ifndef PCLOUD_PROJECT_DIR
+#define PCLOUD_PROJECT_DIR "@PROJECT_SOURCE_DIR@"
+#endif
+
+#define REL_PATH ( \
+    strstr(__FILE__, PCLOUD_PROJECT_DIR) && strlen(__FILE__)  + 1 > strlen(PCLOUD_PROJECT_DIR) \
+                      ? strstr(__FILE__, PCLOUD_PROJECT_DIR) + strlen(PCLOUD_PROJECT_DIR) + 1  \
+                      : __FILE__                                                               \
+ )
+
+#undef log_trace
+#undef log_debug
+#undef log_info
+#undef log_warn
+#undef log_error
+#undef log_fatal
+
+/* Redefine macro to use relative paths */
+#define log_trace(...) log_log(LOG_TRACE, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_debug(...) log_log(LOG_DEBUG, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_info(...)  log_log(LOG_INFO, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_warn(...)  log_log(LOG_WARN, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_error(...) log_log(LOG_ERROR, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_fatal(...) log_log(LOG_FATAL, REL_PATH, __LINE__, __VA_ARGS__)
+
+pthread_mutex_t MUTEX_LOG;
+
+void log_lock(bool lock, void *udata);
+void setup_logging();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* PCLOUD_LOGGER_H_ */

@@ -1,15 +1,11 @@
-// pCloud Console Client
+// This file is part of the pCloud Console Client.
 //
-// Copyright (c) 2021 Serghei Iakovlev.
-// Copyright (c) 2013-2016 Anton Titov.
-// Copyright (c) 2013-2016 pCloud Ltd.
+// (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+// (c) 2013-2016 Anton Titov <anton@pcloud.com>
+// (c) 2013-2016 pCloud Ltd
 //
-// This source file is subject to the New BSD License that is bundled with this
-// project in the file LICENSE.
-//
-// If you did not receive a copy of the license and are unable to obtain it
-// through the world-wide-web, please send an email to egrep@protonmail.ch so
-// we can send you a copy immediately.
+// For the full copyright and license information, please view
+// the LICENSE file that was distributed with this source code.
 
 #include <iostream>
 #include <string>
@@ -22,6 +18,7 @@
 
 #include "pclcli.hpp"
 #include "version.hpp"
+#include "logger.h"
 
 namespace cc = console_client;
 namespace clib = cc::clibrary;
@@ -227,7 +224,11 @@ int clib::pclcli::init() {
   // const std::string client_name = " Console Client v3.0.0";
   // std::string software_string = exec("lsb_release -ds");
   // psync_set_software_string(software_string.append(client_name).c_str());
+  if (pthread_mutex_init(&MUTEX_LOG, nullptr) == 0) {
+    log_set_lock(log_lock, &MUTEX_LOG);
+  }
 
+  setup_logging();
   psync_set_software_string(PCLSYNC_VERSION_FULL);
   if (setup_crypto_ && crypto_pass_.empty())
     return 3;
@@ -294,4 +295,6 @@ clib::pclcli::pclcli():
   setup_crypto_(false),
   status_callback_{} {}
 
-clib::pclcli::~pclcli() = default;
+clib::pclcli::~pclcli() {
+  pthread_mutex_destroy(&MUTEX_LOG);
+};

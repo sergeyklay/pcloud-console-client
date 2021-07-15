@@ -91,8 +91,10 @@ recognized during the project configuration phase:
 | ---------------------------- |---------------------------------------------------------------------|-------------------------------------------------------------------|
 | `PCLOUD_WARNINGS_AS_ERRORS`  | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
 | `PCLOUD_TLS_IMPL`            | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
-| `CMAKE_BUILD_TYPE`           | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | This directory is prepended onto all install directories.         |
-| `CMAKE_INSTALL_PREFIX`       | Any path.                                                           | This directory is prepended onto all install directories.         |
+| `PCLOUD_MAINTAINER_LOGS`     | `ON`, `OFF`                                                         | Enable maintainer logs.                                           |
+| `PCLOUD_MAINTAINER_LOG_FILE` | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
+| `CMAKE_BUILD_TYPE`           | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
+| `CMAKE_INSTALL_PREFIX`       | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
 
 #### Switching build modes in CMake
 

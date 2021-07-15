@@ -1,32 +1,18 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2016 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2016 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef _PSYNC_FS_H
-#define _PSYNC_FS_H
+#ifndef PCLOUD_PCLSYNC_PFS_H_
+#define PCLOUD_PCLSYNC_PFS_H_
+
+#include <pthread.h>
 
 #include "psynclib.h"
 #include "ptree.h"
@@ -40,8 +26,6 @@
 #include "pcrc32c.h"
 #include "ptimer.h"
 #include "plibs.h"
-#include <pthread.h>
-
 
 #if defined(P_OS_POSIX)
 #define psync_fs_need_per_folder_refresh() psync_fs_need_per_folder_refresh_f()
@@ -140,8 +124,8 @@ typedef struct {
 #if IS_DEBUG && (defined(P_OS_LINUX) || defined(P_OS_WINDOWS))
 #define psync_fs_lock_file(of) psync_fs_do_lock_file(of, __FILE__, __LINE__)
 
-static inline void psync_fs_do_lock_file(psync_openfile_t *of, const char *file, unsigned long line){
-  if (unlikely(pthread_mutex_trylock(&of->mutex))){
+static inline void psync_fs_do_lock_file(psync_openfile_t *of, const char *file, unsigned long line) {
+  if (unlikely(pthread_mutex_trylock(&of->mutex))) {
     struct timespec tm;
     psync_nanotime(&tm);
     tm.tv_sec+=60;
@@ -155,14 +139,13 @@ static inline void psync_fs_do_lock_file(psync_openfile_t *of, const char *file,
   of->lockline=line;
 }
 #else
-static inline void psync_fs_lock_file(psync_openfile_t *of){
+static inline void psync_fs_lock_file(psync_openfile_t *of) {
   pthread_mutex_lock(&of->mutex);
 }
 #endif
 
 int psync_fs_crypto_err_to_errno(int cryptoerr);
 int psync_fs_update_openfile(uint64_t taskid, uint64_t writeid, psync_fileid_t newfileid, uint64_t hash, uint64_t size, time_t ctime);
-//void psync_fs_uploading_openfile(uint64_t taskid);
 int psync_fs_rename_openfile_locked(psync_fsfileid_t fileid, psync_fsfolderid_t folderid, const char *name);
 void psync_fs_mark_openfile_deleted(uint64_t taskid);
 int64_t psync_fs_get_file_writeid(uint64_t taskid);
@@ -181,4 +164,4 @@ void psync_fs_refresh_folder(psync_folderid_t folderid);
 void psync_fs_pause_until_login();
 void psync_fs_clean_tasks();
 
-#endif
+#endif  /* PCLOUD_PCLSYNC_PFS_H_ */

@@ -51,6 +51,7 @@ static void time_format(time_t tm, char *result){
   memcpy(result, " +0000", 7); // copies the null byte
 }
 
+/* TODO: Duplicate */
 void pc_debug(const char *file, const char *function, int unsigned line, int unsigned level, const char *fmt, ...){
   static const struct {
     int unsigned level;
