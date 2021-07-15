@@ -141,3 +141,15 @@ Remember to initialize you account first by running:
 ```sh
 $ pcloudcc -u example@myemail.com -p -s
 ```
+
+## EU region users
+
+In order to connect to the EU region api server the environment variable
+`PCLOUD_REGION_EU` has to be set, e.g. like this:
+
+```sh
+$ PCLOUD_REGION_EU=true pcloudcc -u example@myemail.com -p -s -n
+```
+
+Users with accounts in the EU region will get an login failed error
+when connection to the US server and vice versa.

@@ -19,6 +19,7 @@ releases, in reverse chronological order.
 * Install build and run time dependencies using Conan.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
 * Provide ability to enable maintainer logs using `log.c` library.
+* Added possibility to use EU region servers.
 
 ### Bugfix
 

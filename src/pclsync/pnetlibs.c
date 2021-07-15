@@ -96,8 +96,8 @@ dispatch_semaphore_t api_pool_sem;
 sem_t                api_pool_sem;
 #endif
 
-char apiserver[64]=PSYNC_API_HOST;
-static char apikey[68]="API:"PSYNC_API_HOST;
+char apiserver[64] = "";
+static char apikey[68] = "";
 
 static uint32_t hash_func(const char *key) {
   uint32_t c, hash;
