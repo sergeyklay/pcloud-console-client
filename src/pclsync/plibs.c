@@ -1453,7 +1453,6 @@ psync_sql_res *psync_sql_prep_statement(const char *sql) {
   psync_sql_res *ret;
   ret=psync_cache_get(sql);
   if (ret) {
-    log_debug("got statement %s from cache", sql);
     ret->locked=SQL_WRITE_LOCK;
 #if IS_DEBUG
     psync_sql_do_lock(file, line);
