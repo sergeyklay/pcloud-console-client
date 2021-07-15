@@ -26,7 +26,7 @@
 
 LPCWSTR PORT = TEXT("\\\\.\\pipe\\pStatusPipe");
 
-void overlay_main_loop(VOID) {
+void overlay_main_loop() {
   BOOL   fConnected = FALSE;
   HANDLE hPipe = INVALID_HANDLE_VALUE;
   HANDLE ghSemaphore;
@@ -83,7 +83,7 @@ void overlay_main_loop(VOID) {
       psync_run_thread1(
         "Pipe request handle routine",
         instance_thread,    // thread proc
-        (LPVOID)hPipe     // thread parameter
+        (void*)hPipe     // thread parameter
         );
     }
     else
@@ -96,14 +96,12 @@ void overlay_main_loop(VOID) {
     ) {
       log_warn("ReleaseSemaphore error: %d", GetLastError());
     }
-
   }
 
   CloseHandle(ghSemaphore);
-  return;
 }
 
-void instance_thread(LPVOID lpvParam) {
+void instance_thread(void* payload) {
   DWORD cbBytesRead = 0, cbWritten = 0;
   BOOL fSuccess = FALSE;
   HANDLE hPipe = NULL;
@@ -112,13 +110,13 @@ void instance_thread(LPVOID lpvParam) {
   message* request = NULL;
   message* reply = (message*)psync_malloc(POVERLAY_BUFSIZE);
   memset(reply, 0, POVERLAY_BUFSIZE);
-  if (lpvParam == NULL) {
-    log_error("InstanceThread got an unexpected NULL value in lpvParam.");
+  if (payload == NULL) {
+    log_error("InstanceThread got an unexpected NULL value in payload.");
     return;
   }
 
   log_info("InstanceThread created, receiving and processing messages.");
-  hPipe = (HANDLE)lpvParam;
+  hPipe = (HANDLE)payload;
   while (1) {
     do {
       fSuccess = ReadFile(

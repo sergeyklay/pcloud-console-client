@@ -11,14 +11,6 @@
 #ifndef PCLOUD_PCLSYNC_POVERLAY_H_
 #define PCLOUD_PCLSYNC_POVERLAY_H_
 
-#ifndef VOID
-#define VOID void
-#endif
-
-#ifndef LPVOID
-#define LPVOID void*
-#endif
-
 #include "psynclib.h"
 
 typedef struct _message {
@@ -30,9 +22,9 @@ typedef struct _message {
 extern int overlays_running;
 extern int callbacks_running;
 
-void overlay_main_loop(VOID);
-void instance_thread(LPVOID);
-void get_answer_to_request(message *request /*IN*/, message *replay/*OUT*/);
+void overlay_main_loop();
+void instance_thread(void* payload);
+void get_answer_to_request(message *request, message *replay);
 void psync_stop_overlays();
 void psync_start_overlays();
 void psync_stop_overlay_callbacks();

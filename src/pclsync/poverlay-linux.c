@@ -10,7 +10,7 @@
 
 #include "pcloudcc/pcompat.h"
 
-#if defined(P_OS_LINUX) || defined(P_OS_MACOSX) || defined(P_OS_BSD)
+#ifdef P_OS_LINUX
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -25,8 +25,7 @@
 
 char *mysoc = "/tmp/pcloud_unix_soc.sock";
 
-void overlay_main_loop()
-{
+void overlay_main_loop() {
   struct sockaddr_un addr;
   int fd,cl;
 
@@ -41,7 +40,7 @@ void overlay_main_loop()
 
   unlink(mysoc);
 
-  if (bind(fd, (struct sockaddr*)&addr,  strlen(mysoc) + sizeof(addr.sun_family)) == -1) {
+  if (bind(fd, (struct sockaddr*)&addr, strlen(mysoc) + sizeof(addr.sun_family)) == -1) {
     log_error("Unix socket bind error");
     return;
   }
@@ -59,14 +58,12 @@ void overlay_main_loop()
     psync_run_thread1(
       "Pipe request handle routine",
       instance_thread,    // thread proc
-      (LPVOID)&cl     // thread parameter
+      (void*)&cl     // thread parameter
       );
   }
-
-  return;
 }
 
-void instance_thread(void* lpvParam)
+void instance_thread(void* payload)
 {
   int *cl, rc;
   char  chbuf[POVERLAY_BUFSIZE];
@@ -78,7 +75,7 @@ void instance_thread(void* lpvParam)
   memset(reply, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
 
-  cl = (int *)lpvParam;
+  cl = (int *)payload;
 
   while ( (rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
     bytes_read += rc;
@@ -114,4 +111,4 @@ void instance_thread(void* lpvParam)
   }
 };
 
-#endif //defined(P_OS_LINUX) || definef(P_OS_MACOSX) || defined(P_OS_BSD)
+#endif  /* P_OS_LINUX */

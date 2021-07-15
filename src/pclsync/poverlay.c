@@ -20,11 +20,11 @@ int callbacks_running = 1;
 #include "poverlay-windows.c"
 #elif defined(P_OS_LINUX)
 #include "poverlay-linux.c"
-#elif defined(P_OS_MACOSX)
+#elif defined(P_OS_MACOSX) || defined(P_OS_BSD)
 #include "poverlay-macos.c"
 #else
-void overlay_main_loop(VOID) {}
-void instance_thread(LPVOID) {}
+void overlay_main_loop(void) {}
+void instance_thread(void* payload) {}
 #endif  /* P_OS_WINDOWS */
 
 poverlay_callback * callbacks;
