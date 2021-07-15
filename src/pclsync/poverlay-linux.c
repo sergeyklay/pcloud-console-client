@@ -12,11 +12,13 @@
 
 #ifdef P_OS_LINUX
 
-#include <stdlib.h>
+#include <stdio.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <stdlib.h>
 
 #include "poverlay.h"
+#include "psynclib.h"
 #include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
@@ -24,12 +26,12 @@
 #define POVERLAY_SOCKET   "pcloud.sock"
 
 static char * create_socket_path() {
-  int n;
   char *path = (char *)psync_malloc(FILENAME_MAX + 1);
   if (!path) {
     return NULL;
   }
 
+  int n;
   const char *runtime_dir = getenv("XDG_RUNTIME_DIR");
   if (runtime_dir) {
     n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
