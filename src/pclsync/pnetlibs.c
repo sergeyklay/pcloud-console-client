@@ -2470,6 +2470,9 @@ int psync_send_debug(int thread, const char *file, const char *function, int uns
 }
 
 void psync_netlibs_init() {
+  sprintf(apiserver, "%s", PSYNC_API_HOST);
+  sprintf(apikey, "API:%s", apiserver);
+
   psync_timer_register(psync_netlibs_timer, 1, NULL);
 #ifdef __APPLE__
   dispatch_semaphore_t *sem = &api_pool_sem;

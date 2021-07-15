@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef _PSYNC_COMPAT_H
-#define _PSYNC_COMPAT_H
+#ifndef PCLOUDCC_PCOMPAT_H_
+#define PCLOUDCC_PCOMPAT_H_
 
 #include "pcloudcc/pcompiler.h"
 
@@ -516,4 +516,4 @@ int psync_get_page_size();
 
 void psync_rebuild_icons();
 
-#endif
+#endif /* PCLOUDCC_PCOMPAT_H_ */
