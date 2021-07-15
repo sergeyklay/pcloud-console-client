@@ -12,3 +12,6 @@ add_library(pcloud::overlay_client ALIAS overlay_client)
 if(APPLE)
   target_compile_definitions(overlay_client PRIVATE P_OS_MACOSX)
 endif()
+
+target_link_libraries(overlay_client
+  PRIVATE pcloud::logger)
