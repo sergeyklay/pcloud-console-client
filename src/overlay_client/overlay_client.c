@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <netinet/in.h>
 
+#include "pcloudcc/pcompat.h"
 #include "overlay_client.h"
 #include "logger.h"
 
