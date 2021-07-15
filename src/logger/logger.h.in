@@ -11,7 +11,6 @@
 #define PCLOUD_LOGGER_H_
 
 #include <string.h>
-#include <pthread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,8 +52,6 @@ extern "C" {
 #define log_warn(...)  log_log(LOG_WARN, REL_PATH, __LINE__, __VA_ARGS__)
 #define log_error(...) log_log(LOG_ERROR, REL_PATH, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LOG_FATAL, REL_PATH, __LINE__, __VA_ARGS__)
-
-pthread_mutex_t MUTEX_LOG;
 
 void log_lock(bool lock, void *udata);
 void setup_logging();
