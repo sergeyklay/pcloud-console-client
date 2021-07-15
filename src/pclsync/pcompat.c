@@ -1988,14 +1988,14 @@ static int psync_socket_readall_ssl(psync_socket *sock, void *buff, int num) {
   while (br<num) {
     psync_socket_try_write_buffer(sock);
     r=psync_ssl_read(sock->ssl, (char *)buff+br, num-br);
-    if (r==PSYNC_SSL_FAIL) {
-      if (likely_log(psync_ssl_errno==PSYNC_SSL_ERR_WANT_READ || psync_ssl_errno==PSYNC_SSL_ERR_WANT_WRITE)) {
+    if (r == PSYNC_SSL_FAIL) {
+      if (likely(psync_ssl_errno == PSYNC_SSL_ERR_WANT_READ || psync_ssl_errno == PSYNC_SSL_ERR_WANT_WRITE)) {
         if (wait_sock_ready_for_ssl(sock->sock))
           return -1;
         else
           continue;
-      }
-      else{
+      } else {
+        log_warn("psync_ssl_errno is on unexpected state: %d", psync_ssl_errno);
         psync_sock_set_err(P_CONNRESET);
         return -1;
       }
