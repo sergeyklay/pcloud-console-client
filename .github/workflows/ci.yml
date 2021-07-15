@@ -129,7 +129,7 @@ jobs:
         run: >-
           conan
           install .
-          --install-folder .build
+          --install-folder build
           --profile ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.version }}-${{ matrix.build-type }}
           --build missing
 
@@ -137,15 +137,15 @@ jobs:
         run: >-
           cmake
           -S .
-          -B .build
+          -B build
           -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
           -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
 
       - name: Build client
-        run: cmake --build .build --config ${{ matrix.build-type }}
+        run: cmake --build build --config ${{ matrix.build-type }}
 
       - name: Install client
-        run: cmake --build .build --config ${{ matrix.build-type }} --target install
+        run: cmake --build build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
         run: install/bin/pcloudcc --help

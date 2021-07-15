@@ -61,23 +61,23 @@ Next, initialize project with Conan - this is using the `conanfile.txt`
 specifying that Conan should integrate with CMake:
 
 ```sh
-$ conan install . -if=.build --build=missing
+$ conan install . -if=build --build=missing
 ```
 
-This example establishes out-of-source `.build/` folder, so that source folder
+This example establishes out-of-source `build/` directory, so that source folder
 is not polluted. For a detailed instruction on how to use and customize conan
 please refer [here](https://docs.conan.io/en/latest/getting_started.html).
 
 Next, generate the build files using CMake:
 
 ```sh
-$ cmake -S . -B .build
+$ cmake -S . -B build
 ```
 
 Finally, build project:
 
 ```sh
-$ cmake --build .build
+$ cmake --build build
 ```
 
 ### Configure flags
@@ -121,10 +121,10 @@ phase, and then specify at build phase, e.g.:
 
 ```sh
 # Configure client
-cmake -S . -B .build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
 # Build client
-cmake --build .build --config Release
+cmake --build build --config Release
 ```
 
 ## Install
@@ -132,7 +132,7 @@ cmake --build .build --config Release
 To install client after the build stage simple use `install` target:
 
 ```sh
-$ sudo cmake --build .build --target install
+$ sudo cmake --build build --target install
 ```
 
 To install client in a non-standard location you'll need to change the
@@ -141,11 +141,11 @@ at client configure time as follows:
 
 ```sh
 $ # Configure build
-$ cmake -S . -B .build -DCMAKE_INSTALL_PREFIX=~/.local
+$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=~/.local
 
 # Build client
-$ cmake --build .build
+$ cmake --build build
 
 # Install client (this will use custom prefix now)
-$ cmake --build .build --target install
+$ cmake --build build --target install
 ```

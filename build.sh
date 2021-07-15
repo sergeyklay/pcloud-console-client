@@ -24,19 +24,19 @@ set -o nounset
 set -o errexit
 
 # Clear any cache
-rm -rf "$(pwd)/.build"
+rm -rf "$(pwd)/build"
 
-conan install . -if=.build --build=missing
+conan install . -if=build --build=missing
 
 echo "Configure client"
-cmake -S . -B .build \
+cmake -S . -B build \
   -DPCLOUD_MAINTAINER_LOGS=ON \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
-cmake --build .build --config Debug
+cmake --build build --config Debug
 
 echo "Install client"
-cmake --build .build --target install
+cmake --build build --target install
