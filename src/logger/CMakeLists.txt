@@ -11,6 +11,9 @@ add_library(pcloud::logger ALIAS logger)
 
 target_include_directories(logger PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
+configure_file("${CMAKE_CURRENT_LIST_DIR}/logger.h.in"
+  "${CMAKE_CURRENT_LIST_DIR}/logger.h")
+
 option(PCLOUD_MAINTAINER_LOGS "Enable maintainer logs" OFF)
 if (PCLOUD_MAINTAINER_LOGS)
   target_compile_definitions(logger

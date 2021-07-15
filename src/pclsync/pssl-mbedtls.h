@@ -19,6 +19,7 @@
 #include <mbedtls/aes.h>
 
 #include "plibs.h"
+#include "logger.h"
 
 #define PSYNC_INVALID_RSA NULL
 #define PSYNC_INVALID_SYM_KEY NULL
@@ -61,6 +62,12 @@ typedef mbedtls_aes_context *psync_aes256_decoder;
 #define PSYNC_AES_HW
 #define PSYNC_AES_HW_MSC
 #endif
+
+#define mbedtls_log_error(errnum) do {              \
+  char error_buf[100];                              \
+  mbedtls_strerror(errnum, error_buf, 100);         \
+  log_error("mbedtls[%d]: %s", errnum, error_buf);  \
+} while (0)
 
 #ifdef PSYNC_AES_HW
 extern uint32_t psync_ssl_hw_aes;
