@@ -19,11 +19,6 @@
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
 /.build
 
-# Configuration artifacts
-/src/version.hpp
-/src/lib/mbedtls/Makefile
-/src/lib/mbedtls/library/Makefile
-
 # Build artifacts
 *.o
 *.a
