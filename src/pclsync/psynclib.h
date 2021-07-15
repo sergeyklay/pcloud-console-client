@@ -1184,8 +1184,6 @@ pcontacts_list_t *psync_list_myteams();
 
 int psync_account_teamshare(psync_folderid_t folderid, const char *name, psync_teamid_t teamid, const char *message, uint32_t permissions, char **err);
 
-
-
 /* psync_register_account_events_callback Registers a callback to be notified upon invalidation of the account cache information.
  * Different notifications are:
  * Links, team, team users emails, contacts or all.
@@ -1195,26 +1193,8 @@ void psync_register_account_events_callback(paccount_cache_callback_t callback);
 void psync_get_current_userid(psync_userid_t* /*OUT*/ ret);
 void psync_get_folder_ownerid(psync_folderid_t folderid, psync_userid_t* /*OUT*/ ret);
 
-/* Callback to be registered to be called from file manager extension.
- */
-
-typedef int (*poverlay_callback)(const char* path, void *rep);
-
-/* Registers file manager extension callback that will be called when packet with id equals to the give one had arrived from extension.
- * The id must be over or equal to 20 or -1 will be returned. There is a hard coded maximum of menu items on some OS-s so maximum of 15 ids are available.
- * Value of -2 is returned when id grater then 35 and 0 returned on success.
- *
- * WARNING this functions are not thread-safe. Use them in single thread or synchronize.
- */
-
-int psync_add_overlay_callback(int id, poverlay_callback callback);
-void psync_stop_overlays();
-void psync_start_overlays();
-void psync_stop_overlay_callbacks();
-void psync_start_overlay_callbacks();
 
 int psync_setlanguage(const char *language, char **err);
-
 
 // Update crypto status information from userinfo.
 void psync_update_cryptostatus();

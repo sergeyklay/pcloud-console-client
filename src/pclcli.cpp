@@ -13,8 +13,9 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "psynclib.h"
 #include "pcloudcc/pcompat.h"
+#include "poverlay.h"
+#include "psynclib.h"
 
 #include "pclcli.hpp"
 #include "version.hpp"
