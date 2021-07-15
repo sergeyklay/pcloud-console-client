@@ -14,7 +14,6 @@
 #include <cstring>
 
 #include "pcloudcc/pcompat.h"
-#include "poverlay.h"
 #include "psynclib.h"
 
 #include "pclcli.hpp"

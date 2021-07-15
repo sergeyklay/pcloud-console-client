@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "paccountevents.h"
 
 typedef uint64_t psync_folderid_t;
@@ -1193,6 +1194,25 @@ void psync_register_account_events_callback(paccount_cache_callback_t callback);
 void psync_get_current_userid(psync_userid_t* /*OUT*/ ret);
 void psync_get_folder_ownerid(psync_folderid_t folderid, psync_userid_t* /*OUT*/ ret);
 
+
+/*! \brief The file manager extension callback.
+ *
+ * Callback to be registered to be called from file manager extension.
+ */
+typedef int (*poverlay_callback)(const char *path, void *rep);
+
+/*! \brief Register a file manager callback.
+ *
+ * Registers file manager extension callback that will be called when packet
+ * with id equals to the give one had arrived from extension.  The id must be
+ * over or equal to 20 or -1 will be returned.  There is a hard coded maximum
+ * of menu items on some OS-s so maximum of 15 ids are available.  Value of -2
+ * is returned when id grater then 35 and 0 returned on success.
+ *
+ * \warning These function are not thread-safe. Use them in single thread or
+ *          synchronize.
+ */
+int psync_add_overlay_callback(int id, poverlay_callback callback);
 
 int psync_setlanguage(const char *language, char **err);
 
