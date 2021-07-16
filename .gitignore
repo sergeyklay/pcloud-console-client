@@ -14,7 +14,10 @@
 
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
 /build
+/build-*
 
-# Build artifacts
-*.o
-*.a
+# Ignore codecoverage stuff
+*.profraw
+*.gcov
+*.gcno
+*.gcda

@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PFS_H_
-#define PCLOUD_PCLSYNC_PFS_H_
+#ifndef PCLOUD_PSYNC_PFS_H_
+#define PCLOUD_PSYNC_PFS_H_
 
 #include <pthread.h>
 
@@ -164,4 +164,4 @@ void psync_fs_refresh_folder(psync_folderid_t folderid);
 void psync_fs_pause_until_login();
 void psync_fs_clean_tasks();
 
-#endif  /* PCLOUD_PCLSYNC_PFS_H_ */
+#endif  /* PCLOUD_PSYNC_PFS_H_ */

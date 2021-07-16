@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PCALLBACKS_H_
-#define PCLOUD_PCLSYNC_PCALLBACKS_H_
+#ifndef PCLOUD_PSYNC_PCALLBACKS_H_
+#define PCLOUD_PSYNC_PCALLBACKS_H_
 
 #include "psynclib.h"
 
@@ -23,4 +23,4 @@ void psync_send_event_by_path(psync_eventtype_t eventid, psync_syncid_t syncid, 
 void psync_send_eventid(psync_eventtype_t eventid);
 void psync_send_eventdata(psync_eventtype_t eventid, void *eventdata);
 
-#endif  /* PCLOUD_PCLSYNC_PCALLBACKS_H_ */
+#endif  /* PCLOUD_PSYNC_PCALLBACKS_H_ */

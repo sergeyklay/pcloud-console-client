@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PCRC32_H_
-#define PCLOUD_PCLSYNC_PCRC32_H_
+#ifndef PCLOUD_PSYNC_PCRC32_H_
+#define PCLOUD_PSYNC_PCRC32_H_
 
 #include <stdint.h>
 #include <stddef.h>
@@ -43,4 +43,4 @@ void psync_fast_hash256_init_seed(psync_fast_hash256_ctx *ctx, const void *seed,
 void psync_fast_hash256_update(psync_fast_hash256_ctx *ctx, const void *data, size_t len);
 void psync_fast_hash256_final(void *hash, psync_fast_hash256_ctx *ctx);
 
-#endif  /* PCLOUD_PCLSYNC_PCRC32_H_ */
+#endif  /* PCLOUD_PSYNC_PCRC32_H_ */

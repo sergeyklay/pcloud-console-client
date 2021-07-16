@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PTIMER_H_
-#define PCLOUD_PCLSYNC_PTIMER_H_
+#ifndef PCLOUD_PSYNC_PTIMER_H_
+#define PCLOUD_PSYNC_PTIMER_H_
 
 #include <time.h>
 #include <stdlib.h>
@@ -53,4 +53,4 @@ void psync_timer_wait_next_sec();
     psync_timer_do_notify_exception();      \
   } while (0)
 
-#endif  /* PCLOUD_PCLSYNC_PTIMER_H_ */
+#endif  /* PCLOUD_PSYNC_PTIMER_H_ */

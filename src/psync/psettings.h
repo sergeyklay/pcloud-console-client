@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PSETTINGS_H_
-#define PCLOUD_PCLSYNC_PSETTINGS_H_
+#ifndef PCLOUD_PSYNC_PSETTINGS_H_
+#define PCLOUD_PSYNC_PSETTINGS_H_
 
 #include <stdint.h>
 #include <stdio.h>
@@ -272,4 +272,4 @@ int psync_setting_set_uint(psync_settingid_t settingid, uint64_t value);
 const char *psync_setting_get_string(psync_settingid_t settingid) PSYNC_PURE;
 int psync_setting_set_string(psync_settingid_t settingid, const char *value);
 
-#endif  /* PCLOUD_PCLSYNC_PSETTINGS_H_ */
+#endif  /* PCLOUD_PSYNC_PSETTINGS_H_ */

@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PNETLIBS_H_
-#define PCLOUD_PCLSYNC_PNETLIBS_H_
+#ifndef PCLOUD_PSYNC_PNETLIBS_H_
+#define PCLOUD_PSYNC_PNETLIBS_H_
 
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
@@ -141,4 +141,4 @@ int psync_send_debug(int thread, const char *file, const char *function, int uns
 
 int psync_do_run_command_res(const char *cmd, size_t cmdlen, const binparam *params, size_t paramscnt, char **err);
 
-#endif  /* PCLOUD_PCLSYNC_PNETLIBS_H_ */
+#endif  /* PCLOUD_PSYNC_PNETLIBS_H_ */

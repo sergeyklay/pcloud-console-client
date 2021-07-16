@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PDIFF_H_
-#define PCLOUD_PCLSYNC_PDIFF_H_
+#ifndef PCLOUD_PSYNC_PDIFF_H_
+#define PCLOUD_PSYNC_PDIFF_H_
 
 #include "papi.h"
 #include "paccountevents.h"
@@ -27,4 +27,4 @@ void psync_diff_delete_folder(const binresult *meta);
 
 void do_register_account_events_callback(paccount_cache_callback_t callback);
 
-#endif  /* PCLOUD_PCLSYNC_PDIFF_H_ */
+#endif  /* PCLOUD_PSYNC_PDIFF_H_ */

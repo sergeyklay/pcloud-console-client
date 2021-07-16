@@ -8,8 +8,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PFSXATTR_H_
-#define PCLOUD_PCLSYNC_PFSXATTR_H_
+#ifndef PCLOUD_PSYNC_PFSXATTR_H_
+#define PCLOUD_PSYNC_PFSXATTR_H_
 
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
@@ -34,4 +34,4 @@ void psync_fs_task_to_folder(uint64_t taskid, psync_folderid_t folderid);
 void psync_fs_static_to_task(uint64_t statictaskid, uint64_t taskid);
 void psync_fs_file_to_task(psync_fileid_t fileid, uint64_t taskid);
 
-#endif  /* PCLOUD_PCLSYNC_PFSXATTR_H_ */
+#endif  /* PCLOUD_PSYNC_PFSXATTR_H_ */

@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PLOCALSCAN_H_
-#define PCLOUD_PCLSYNC_PLOCALSCAN_H_
+#ifndef PCLOUD_PSYNC_PLOCALSCAN_H_
+#define PCLOUD_PSYNC_PLOCALSCAN_H_
 
 void psync_localscan_init();
 void psync_wake_localscan();
@@ -18,4 +18,4 @@ void psync_restart_localscan();
 void psync_stop_localscan();
 void psync_resume_localscan();
 
-#endif  /* PCLOUD_PCLSYNC_PLOCALSCAN_H_ */
+#endif  /* PCLOUD_PSYNC_PLOCALSCAN_H_ */

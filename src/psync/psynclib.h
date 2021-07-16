@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PSYNCLIB_H_
-#define PCLOUD_PCLSYNC_PSYNCLIB_H_
+#ifndef PCLOUD_PSYNC_PSYNCLIB_H_
+#define PCLOUD_PSYNC_PSYNCLIB_H_
 
 /* All paths are in UTF-8 regardless of the OS.
  * All functions with int return type unless specified otherwise return 0 for success
@@ -1242,4 +1242,4 @@ void premove_device(const char* device_id);
 }
 #endif
 
-#endif  /* PCLOUD_PCLSYNC_PSYNCLIB_H_ */
+#endif  /* PCLOUD_PSYNC_PSYNCLIB_H_ */

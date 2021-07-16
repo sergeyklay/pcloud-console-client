@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PP2P_H_
-#define PCLOUD_PCLSYNC_PP2P_H_
+#ifndef PCLOUD_PSYNC_PP2P_H_
+#define PCLOUD_PSYNC_PP2P_H_
 
 #include "psynclib.h"
 
@@ -18,4 +18,4 @@ void psync_p2p_init();
 void psync_p2p_change();
 int psync_p2p_check_download(psync_fileid_t fileid, const unsigned char *filehashhex, uint64_t fsize, const char *filename);
 
-#endif  /* PCLOUD_PCLSYNC_PP2P_H_ */
+#endif  /* PCLOUD_PSYNC_PP2P_H_ */

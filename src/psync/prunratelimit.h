@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PRUNRATELIMIT_H_
-#define PCLOUD_PCLSYNC_PRUNRATELIMIT_H_
+#ifndef PCLOUD_PSYNC_PRUNRATELIMIT_H_
+#define PCLOUD_PSYNC_PRUNRATELIMIT_H_
 
 #include <stdint.h>
 
@@ -18,4 +18,4 @@ typedef void (*psync_run_ratelimit_callback0)();
 
 void psync_run_ratelimited(const char *name, psync_run_ratelimit_callback0 call, uint32_t minintervalsec, int runinthread);
 
-#endif  /* PCLOUD_PCLSYNC_PRUNRATELIMIT_H_ */
+#endif  /* PCLOUD_PSYNC_PRUNRATELIMIT_H_ */

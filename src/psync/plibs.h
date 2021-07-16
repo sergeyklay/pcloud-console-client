@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PLIBS_H_
-#define PCLOUD_PCLSYNC_PLIBS_H_
+#ifndef PCLOUD_PSYNC_PLIBS_H_
+#define PCLOUD_PSYNC_PLIBS_H_
 
 #include "pcloudcc/psync/compiler.h"
 #include "pcloudcc/psync/compat.h"
@@ -361,4 +361,4 @@ static inline size_t psync_strlcpy(char *dst, const char *src, size_t size) {
     return 0;
 }
 
-#endif  /* PCLOUD_PCLSYNC_PLIBS_H_ */
+#endif  /* PCLOUD_PSYNC_PLIBS_H_ */

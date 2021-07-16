@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_
-#define PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_
+#ifndef PCLOUD_PSYNC_PSSL_MBEDTLS_H_
+#define PCLOUD_PSYNC_PSSL_MBEDTLS_H_
 
 #include <stdint.h>
 #include <mbedtls/sha1.h>
@@ -146,4 +146,4 @@ static inline void psync_aes256_decode_4blocks_consec_xor(psync_aes256_decoder e
     ((unsigned long *)dst)[i]^=((unsigned long *)bxor)[i];
 }
 #endif  /* PSYNC_AES_HW */
-#endif  /* PCLOUD_PCLSYNC_PSSL_MBEDTLS_H_ */
+#endif  /* PCLOUD_PSYNC_PSSL_MBEDTLS_H_ */
