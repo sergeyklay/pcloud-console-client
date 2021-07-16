@@ -15,8 +15,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "pcloudcc/compiler.h"
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/psync/compat.h"
 
 #define PSYNC_LIB_VERSION "1.6.0"
 

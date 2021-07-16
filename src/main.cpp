@@ -10,15 +10,15 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 
+#include "pcloudcc/version.hpp"
 #include "pclcli.hpp"
 #include "control_tools.hpp"
-#include "version.hpp"
 
 namespace po = boost::program_options;
 namespace ct = control_tools;
 
 int main(int argc, char **argv) {
-  std::cout << PCLSYNC_VERSION_FULL << std::endl;
+  std::cout << PCLOUD_VERSION_FULL << std::endl;
 
   std::string username;
   std::string password;

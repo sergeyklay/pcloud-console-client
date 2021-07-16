@@ -9,10 +9,10 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUDCC_PCOMPAT_H_
-#define PCLOUDCC_PCOMPAT_H_
+#ifndef PCLOUDCC_PSYNC_COMPAT_H_
+#define PCLOUDCC_PSYNC_COMPAT_H_
 
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 
 #if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && !defined(P_OS_BSD) && !defined(P_OS_POSIX)
 #if defined(__ANDROID__)
@@ -516,4 +516,4 @@ int psync_get_page_size();
 
 void psync_rebuild_icons();
 
-#endif /* PCLOUDCC_PCOMPAT_H_ */
+#endif /* PCLOUDCC_PSYNC_COMPAT_H_ */

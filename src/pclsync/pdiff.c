@@ -11,7 +11,7 @@
 
 #include <ctype.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "pdiff.h"
 #include "pstatus.h"
 #include "psettings.h"

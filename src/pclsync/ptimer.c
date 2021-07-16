@@ -9,7 +9,7 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "ptimer.h"
 #include "psynclib.h"
 #include "plibs.h"

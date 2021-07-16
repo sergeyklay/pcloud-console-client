@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "pfsxattr.h"
 #include "plibs.h"
 #include "pfsfolder.h"

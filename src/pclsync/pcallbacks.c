@@ -11,7 +11,7 @@
 
 #include <string.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "pcallbacks.h"
 #include "plibs.h"
 #include "plist.h"

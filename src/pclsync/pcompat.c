@@ -15,7 +15,7 @@
 #include <stddef.h>
 #include <time.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 
 #ifdef P_OS_LINUX
 #include <sys/sysinfo.h>
