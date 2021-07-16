@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PFSCRYPTO_H_
-#define PCLOUD_PCLSYNC_PFSCRYPTO_H_
+#ifndef PCLOUD_PSYNC_PFSCRYPTO_H_
+#define PCLOUD_PSYNC_PFSCRYPTO_H_
 
 #include "pfs.h"
 #include "pcloudcrypto.h"
@@ -49,4 +49,4 @@ void psync_fs_crypto_get_auth_sector_off(psync_crypto_sectorid_t sectorid, uint3
 
 void psync_fs_crypto_check_logs();
 
-#endif  /* PCLOUD_PCLSYNC_PFSCRYPTO_H_ */
+#endif  /* PCLOUD_PSYNC_PFSCRYPTO_H_ */

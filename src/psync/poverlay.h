@@ -8,8 +8,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_POVERLAY_H_
-#define PCLOUD_PCLSYNC_POVERLAY_H_
+#ifndef PCLOUD_PSYNC_POVERLAY_H_
+#define PCLOUD_PSYNC_POVERLAY_H_
 
 typedef struct message_ {
   uint32_t type;
@@ -41,4 +41,4 @@ int psync_ovr_callbacks_running();
 
 void init_overlay_callbacks();
 
-#endif  /* PCLOUD_PCLSYNC_POVERLAY_H_ */
+#endif  /* PCLOUD_PSYNC_POVERLAY_H_ */

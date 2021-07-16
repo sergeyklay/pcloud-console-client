@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PFSTASKS_H_
-#define PCLOUD_PCLSYNC_PFSTASKS_H_
+#ifndef PCLOUD_PSYNC_PFSTASKS_H_
+#define PCLOUD_PSYNC_PFSTASKS_H_
 
 #include "pfsfolder.h"
 #include "ptree.h"
@@ -151,4 +151,4 @@ void psync_fstask_add_banned_folders();
 void psync_fstask_dump_state();
 #endif
 
-#endif  /* PCLOUD_PCLSYNC_PFSTASKS_H_ */
+#endif  /* PCLOUD_PSYNC_PFSTASKS_H_ */

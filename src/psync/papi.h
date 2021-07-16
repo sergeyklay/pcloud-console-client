@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PAPI_H_
-#define PCLOUD_PCLSYNC_PAPI_H_
+#ifndef PCLOUD_PSYNC_PAPI_H_
+#define PCLOUD_PSYNC_PAPI_H_
 
 #include <string.h>
 #include <stdint.h>
@@ -102,4 +102,4 @@ binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdle
 const binresult *psync_do_find_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line) PSYNC_NONNULL(2) PSYNC_PURE;
 const binresult *psync_do_check_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line)  PSYNC_NONNULL(2) PSYNC_PURE;
 
-#endif  /* PCLOUD_PCLSYNC_PAPI_H_ */
+#endif  /* PCLOUD_PSYNC_PAPI_H_ */

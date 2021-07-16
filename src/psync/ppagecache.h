@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUD_PCLSYNC_PPAGECACHE_H_
-#define PCLOUD_PCLSYNC_PPAGECACHE_H_
+#ifndef PCLOUD_PSYNC_PPAGECACHE_H_
+#define PCLOUD_PSYNC_PPAGECACHE_H_
 
 #include "pfs.h"
 
@@ -39,4 +39,4 @@ void psync_pagecache_reopen_read_cache();
 void psync_pagecache_clean_read_cache();
 int psync_pagecache_move_cache(const char *path);
 
-#endif  /* PCLOUD_PCLSYNC_PPAGECACHE_H_ */
+#endif  /* PCLOUD_PSYNC_PPAGECACHE_H_ */
