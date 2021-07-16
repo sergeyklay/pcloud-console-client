@@ -808,58 +808,52 @@ dl.section {
 }
 
 dl.note {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #D0C000;
 }
 
 dl.warning, dl.attention {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #FF0000;
 }
 
 dl.pre, dl.post, dl.invariant {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #00D000;
 }
 
 dl.deprecated {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #505050;
 }
 
 dl.todo {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #00C0E0;
 }
 
 dl.test {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #3030E0;
 }
 
 dl.bug {
-    margin-left:-7px;
     padding-left: 3px;
     border-left:4px solid;
     border-color: #C08050;
 }
 
+dl.section dt,
 dl.section dd {
+    margin-left: 6px;
     margin-bottom: 6px;
 }
-
 
 #projectlogo {
     text-align: center;
