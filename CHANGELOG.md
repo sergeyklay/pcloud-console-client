@@ -51,3 +51,4 @@ releases, in reverse chronological order.
 * Reworked creation of overlay socket on Linux. Now the client will try to
   create a socket in `XDG_RUNTIME_DIR` or `TMPDIR`. The `/tmp` will be used
   if there are no such environment variables.
+* Removed useless logs. Were removed macro from the `PRINT_RETURN` family.

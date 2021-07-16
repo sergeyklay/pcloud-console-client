@@ -123,7 +123,7 @@ int psync_ssl_init() {
   log_info("hardware AES is not supported for this compiler");
 #endif
   if (pthread_mutex_init(&psync_mbed_rng.mutex, NULL))
-    return PRINT_RETURN(-1);
+    return -1;
 
   mbedtls_entropy_init(&psync_mbed_entropy);
   psync_get_random_seed(seed, seed, sizeof(seed), 0);
@@ -141,7 +141,7 @@ int psync_ssl_init() {
       0
   );
   if (seed_status != 0) {
-    return PRINT_RETURN(-1);
+    return -1;
   }
 
   mbedtls_x509_crt_init(&psync_mbed_trusted_certs_x509);
@@ -375,7 +375,7 @@ err1:
   mbedtls_ssl_free(&conn->ssl);
 
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_connect_finish(void *sslconn, const char *hostname) {
@@ -399,7 +399,7 @@ int psync_ssl_connect_finish(void *sslconn, const char *hostname) {
 fail:
   mbedtls_ssl_free(&conn->ssl);
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_shutdown(void *sslconn) {

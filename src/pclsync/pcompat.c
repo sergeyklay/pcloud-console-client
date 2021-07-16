@@ -1522,7 +1522,7 @@ static int wait_sock_ready_for_ssl(psync_socket_t sock) {
     log_warn("socket timeouted");
     psync_sock_set_err(P_TIMEDOUT);
   }
-  return PRINT_RETURN_CONST(SOCKET_ERROR);
+  return SOCKET_ERROR;
 }
 
 psync_socket *psync_socket_connect(const char *host, int unsigned port, int ssl) {

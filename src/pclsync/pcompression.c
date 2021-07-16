@@ -174,7 +174,7 @@ int psync_deflate_write(psync_deflate_t *def, const void *data, int len, int flu
     return PSYNC_DEFLATE_ERROR;
   }
   if (def->flushbuff || psync_deflate_set_out_buff(def))
-    return PRINT_RETURN_CONST(PSYNC_DEFLATE_FULL);
+    return PSYNC_DEFLATE_FULL;
   def->stream.next_in=(unsigned char *)data;
   def->stream.avail_in=len;
   ret=psync_deflate_call_compressor(def, flush, 1);
@@ -219,7 +219,7 @@ int psync_deflate_read(psync_deflate_t *def, void *data, int len){
           return PSYNC_DEFLATE_NODATA;
         case Z_STREAM_ERROR:
         case Z_DATA_ERROR:
-          return PRINT_RETURN_CONST(PSYNC_DEFLATE_ERROR);
+          return PSYNC_DEFLATE_ERROR;
         case Z_STREAM_END:
           def->flags|=FLAG_STREAM_END;
         default:

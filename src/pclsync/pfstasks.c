@@ -309,16 +309,16 @@ int psync_fstask_mkdir(psync_fsfolderid_t folderid, const char *name, uint32_t f
     psync_sql_free_result(res);
     if (row && !psync_fstask_find_rmdir(folder, name, 0)) {
       psync_fstask_release_folder_tasks_locked(folder);
-      return -PRINT_RETURN_CONST(EEXIST);
+      return -EEXIST;
     }
   }
   if ((task=psync_fstask_find_mkdir(folder, name, 0))) {
     depend=task->flags;
     psync_fstask_release_folder_tasks_locked(folder);
     if (depend&PSYNC_FOLDER_FLAG_INVISIBLE)
-      return -PRINT_RETURN_CONST(EACCES);
+      return -EACCES;
     else
-      return -PRINT_RETURN_CONST(EEXIST);
+      return -EEXIST;
   }
   ctime=psync_timer_time();
   if (folderflags&PSYNC_FOLDER_FLAG_ENCRYPTED) {

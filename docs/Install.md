@@ -87,14 +87,15 @@ For example, to enable the feature called `FEATURE` use `-DFEATURE=ON` and to
 disable the feature use `-DFEATURE=OFF`. Below are the special flags that are
 recognized during the project configuration phase:
 
-| Feature                      | Possible Value                                                      | Description                                                       |
-| ---------------------------- |---------------------------------------------------------------------|-------------------------------------------------------------------|
-| `PCLOUD_WARNINGS_AS_ERRORS`  | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
-| `PCLOUD_TLS_IMPL`            | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
-| `PCLOUD_MAINTAINER_LOGS`     | `ON`, `OFF`                                                         | Enable maintainer logs.                                           |
-| `PCLOUD_MAINTAINER_LOG_FILE` | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
-| `CMAKE_BUILD_TYPE`           | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
-| `CMAKE_INSTALL_PREFIX`       | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
+| Feature                        | Possible Value                                                      | Description                                                       |
+| ------------------------------ |---------------------------------------------------------------------|-------------------------------------------------------------------|
+| `PCLOUD_WARNINGS_AS_ERRORS`    | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
+| `PCLOUD_TLS_IMPL`              | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
+| `PCLOUD_MAINTAINER_LOGS`       | `ON`, `OFF`                                                         | Enable maintainer logs.                                           |
+| `PCLOUD_MAINTAINER_LOG_FILE`   | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
+| `PCLOUD_MAINTAINER_LOGS_LEVEL` | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
+| `CMAKE_BUILD_TYPE`             | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
+| `CMAKE_INSTALL_PREFIX`         | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
 
 #### Switching build modes in CMake
 

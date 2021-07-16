@@ -698,12 +698,12 @@ static int psync_fs_getrootattr(struct FUSE_STAT *stbuf) {
   }\
 } while (0)
 
-#define CHECK_LOGIN_RDLOCKED() do {\
-  if (unlikely(waitingforlogin)) {\
-    psync_sql_rdunlock();\
-    log_info("returning EACCES for not logged in");\
-    return -EACCES;\
-  }\
+#define CHECK_LOGIN_RDLOCKED() do { \
+  if (unlikely(waitingforlogin)) { \
+    psync_sql_rdunlock(); \
+    log_debug("returning EACCES for not logged in"); \
+    return -EACCES; \
+  } \
 } while (0)
 
 static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
@@ -713,10 +713,13 @@ static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
   psync_fstask_folder_t *folder;
   psync_fstask_creat_t *cr;
   int crr;
+
   psync_fs_set_thread_name();
-//  log_info("getattr %s", path);
-  if (path[1]==0 && path[0]=='/')
+  log_trace("trying get attributes for %s", path);
+
+  if (path[1] == 0 && path[0] == '/')
     return psync_fs_getrootattr(stbuf);
+
   psync_sql_rdlock();
   CHECK_LOGIN_RDLOCKED();
   fpath=psync_fsfolder_resolve_path(path);
@@ -782,7 +785,8 @@ static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
   psync_free(fpath);
   if (row || !crr)
     return 0;
-  log_info("returning ENOENT for %s", path);
+
+  log_debug("returning ENOENT for %s, path not found", path);
   return -ENOENT;
 }
 
@@ -820,15 +824,15 @@ static int psync_fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   if (unlikely_log(folderid==PSYNC_INVALID_FSFOLDERID)) {
     psync_sql_rdunlock();
     if (psync_fsfolder_crypto_error())
-      return PRINT_RETURN(-psync_fs_crypto_err_to_errno(psync_fsfolder_crypto_error()));
+      return -psync_fs_crypto_err_to_errno(psync_fsfolder_crypto_error());
     else
-      return -PRINT_RETURN_CONST(ENOENT);
+      return -ENOENT;
   }
   if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED) {
     dec=psync_cloud_crypto_get_folder_decoder(folderid);
     if (psync_crypto_is_error(dec)) {
       psync_sql_rdunlock();
-      return PRINT_RETURN(-psync_fs_crypto_err_to_errno(psync_crypto_to_error(dec)));
+      return -psync_fs_crypto_err_to_errno(psync_crypto_to_error(dec));
     }
   }
   else
@@ -894,7 +898,7 @@ static int psync_fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   psync_sql_rdunlock();
   if (dec)
     psync_cloud_crypto_release_folder_decoder(folderid, dec);
-  return PRINT_RETURN(0);
+  return 0;
 }
 
 static psync_openfile_t *psync_fs_create_file(psync_fsfileid_t fileid, psync_fsfileid_t remotefileid, uint64_t size, uint64_t hash, int lock,
@@ -1165,7 +1169,7 @@ static int psync_fs_open(const char *path, struct fuse_file_info *fi) {
     ret=psync_fsfolder_crypto_error();
     if (ret) {
       ret=-psync_fs_crypto_err_to_errno(ret);
-      return PRINT_RETURN(ret);
+      return ret;
     }
     else{
       log_info("returning ENOENT for %s, folder not found", path);
@@ -1471,7 +1475,7 @@ static int psync_fs_creat(const char *path, mode_t mode, struct fuse_file_info *
     ret=psync_fsfolder_crypto_error();
     if (ret) {
       ret=psync_fs_crypto_err_to_errno(ret);
-      return PRINT_RETURN(-ret);
+      return -ret;
     }
     else{
       log_info("returning ENOENT for %s, folder not found", path);
@@ -1499,7 +1503,7 @@ static int psync_fs_creat(const char *path, mode_t mode, struct fuse_file_info *
       psync_fstask_release_folder_tasks_locked(folder);
       psync_sql_unlock();
       psync_free(fpath);
-      return -PRINT_RETURN_CONST(PSYNC_FS_ERR_CRYPTO_EXPIRED);
+      return -PSYNC_FS_ERR_CRYPTO_EXPIRED;
     }
     encsymkey=psync_cloud_crypto_get_new_encoded_and_plain_key(0, &encsymkeylen, &symkey);
     if (unlikely_log(psync_crypto_is_error(encsymkey))) {
@@ -1969,7 +1973,7 @@ PSYNC_NOINLINE static int psync_fs_reopen_file_for_writing(psync_openfile_t *of)
   if (of->encrypted) {
     if (unlikely(psync_crypto_isexpired())) {
       psync_sql_unlock();
-      return -PRINT_RETURN_CONST(PSYNC_FS_ERR_CRYPTO_EXPIRED);
+      return -PSYNC_FS_ERR_CRYPTO_EXPIRED;
     }
     size=psync_fs_crypto_crypto_size(of->initialsize);
     encsymkey=psync_cloud_crypto_get_file_encoded_key(of->fileid, of->hash, &encsymkeylen);
@@ -2086,9 +2090,9 @@ PSYNC_NOINLINE static int psync_fs_reopen_static_file_for_writing(psync_openfile
   if (unlikely_log(ret))
     return ret;
   if (psync_file_pwrite(of->datafile, of->staticdata, of->currentsize, 0)!=of->currentsize)
-    ret=-PRINT_RETURN_CONST(EIO);
+    ret = -EIO;
   else
-    ret=1;
+    ret = 1;
   return ret;
 }
 
@@ -2686,7 +2690,8 @@ finish:
   psync_sql_unlock();
   psync_free(fold_path);
   psync_free(fnew_path);
-  return PRINT_RETURN_FORMAT(ret, " for rename from %s to %s", old_path, new_path);
+  log_debug("return %d for rename from %s to %s", (int)ret, old_path, new_path);
+  return ret;
 err_enoent:
   if (folder)
     psync_fstask_release_folder_tasks_locked(folder);
@@ -2700,7 +2705,7 @@ err_enoent:
 static int psync_fs_statfs(const char *path, struct statvfs *stbuf) {
   uint64_t q, uq;
   psync_fs_set_thread_name();
-  log_debug("statfs %s", path);
+  log_trace("statfs %s", path);
   if (waitingforlogin)
     return -EACCES;
 /* TODO:
@@ -2904,9 +2909,9 @@ retry:
     return psync_fs_crypto_ftruncate(of, size);
   else{
     if (psync_fs_modfile_check_size_ok(of, size))
-      ret=-PRINT_RETURN_CONST(EIO);
+      ret = -EIO;
     else if (of->currentsize!=size && (psync_file_seek(of->datafile, size, P_SEEK_SET)==-1 || psync_file_truncate(of->datafile)))
-      ret=-PRINT_RETURN_CONST(EIO);
+      ret = -EIO;
     else{
       ret=0;
       of->currentsize=size;
@@ -2924,7 +2929,8 @@ static int psync_fs_ftruncate(const char *path, fuse_off_t size, struct fuse_fil
   psync_fs_lock_file(of);
   ret=psync_fs_ftruncate_of_locked(of, size);
   pthread_mutex_unlock(&of->mutex);
-  return PRINT_RETURN_FORMAT(ret, " for ftruncate of %s to %lu", path, (unsigned long)size);
+  log_debug("return %d for ftruncate of %s to %lu", (int)ret, path, (unsigned long)size);
+  return ret;
 }
 
 static int psync_fs_truncate(const char *path, fuse_off_t size) {

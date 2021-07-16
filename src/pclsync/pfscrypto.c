@@ -630,7 +630,7 @@ static int psync_fs_write_auth_tree_to_log(psync_openfile_t *of, psync_crypto_of
     if (lastsect/PSYNC_CRYPTO_HASH_TREE_SECTORS!=sect->sectorid/PSYNC_CRYPTO_HASH_TREE_SECTORS) {
       ret=psync_fs_crypto_switch_sectors(of, lastsect, sect->sectorid, authsect, offsets);
       if (ret)
-        return PRINT_RETURN(ret);
+        return ret;
     }
     memcpy(authsect[0][sect->sectorid%PSYNC_CRYPTO_HASH_TREE_SECTORS], sect->auth, PSYNC_CRYPTO_AUTH_SIZE);
     lastsect=sect->sectorid;
@@ -638,9 +638,9 @@ static int psync_fs_write_auth_tree_to_log(psync_openfile_t *of, psync_crypto_of
   }
   ret=psync_fs_crypto_switch_sectors(of, lastsect, PSYNC_CRYPTO_INVALID_SECTORID, authsect, offsets);
   if (ret)
-    return PRINT_RETURN(ret);
+    return ret;
   if (offsets->needmasterauth && (ret=psync_fs_crypto_write_master_auth(of, authsect, offsets)))
-    return PRINT_RETURN(ret);
+    return ret;
   log_info("wrote tree to log, lastsectorid=%u, currentsize=%lu", (unsigned)lastsect, (unsigned long)of->currentsize);
   return 0;
 }
@@ -946,11 +946,16 @@ static int psync_fs_crypto_do_finalize_log(psync_openfile_t *of, int fullsync) {
   }
   psync_tree_for_each_element_call_safe(of->sectorsinlog, psync_sector_inlog_t, tree, psync_free);
   of->sectorsinlog=PSYNC_TREE_EMPTY;
-  ret=psync_fs_crypto_log_flush_and_process(of, flog, 0, 1);
+  ret = psync_fs_crypto_log_flush_and_process(of, flog, 0, 1);
   psync_file_delete(flog);
   psync_free(olog);
   psync_free(flog);
-  return PRINT_NEG_RETURN(ret);
+
+  if (ret < 0) {
+    log_warn("psync_fs_crypto_log_flush_and_process returned %d", (int)(ret));
+  }
+
+  return ret;
 }
 
 static int psync_fs_crypto_finalize_log(psync_openfile_t *of, int fullsync) {
@@ -1087,7 +1092,7 @@ static int psync_fs_newfile_fillzero(psync_openfile_t *of, uint64_t size, uint64
   }
   return 0;
 fail:
-  return PRINT_RETURN(ret);
+  return ret;
 }
 
 static int psync_fs_crypto_write_newfile_locked_nu(psync_openfile_t *of, const char *buf, uint64_t size, uint64_t offset, int checkextender) {
