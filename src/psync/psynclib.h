@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "paccountevents.h"
+#include "pcloudcc/psync/accountevents.h"
 
 typedef uint64_t psync_folderid_t;
 typedef uint64_t psync_fileid_t;

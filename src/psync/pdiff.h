@@ -12,8 +12,8 @@
 #ifndef PCLOUD_PSYNC_PDIFF_H_
 #define PCLOUD_PSYNC_PDIFF_H_
 
+#include "pcloudcc/psync/accountevents.h"
 #include "papi.h"
-#include "paccountevents.h"
 
 void psync_diff_init();
 void psync_diff_lock();

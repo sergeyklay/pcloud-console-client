@@ -72,9 +72,9 @@ void do_register_account_events_callback(paccount_cache_callback_t callback) {
 
 static void psync_notify_cache_change(psync_changetype_t event) {
   paccount_cache_callback_t callback;
-  psync_changetype_t *chtype=psync_new(psync_changetype_t);
-  *chtype=event;
-  callback=psync_cache_callback;
+  psync_changetype_t *chtype = psync_new(psync_changetype_t);
+  *chtype = event;
+  callback = psync_cache_callback;
   if (callback)
     psync_run_thread1("cache start callback", callback, chtype);
   else
