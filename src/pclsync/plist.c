@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "plist.h"
 
 /* Fairly simple in-place merge sort with constant storage requirements.

@@ -28,7 +28,7 @@
 #ifndef _PSYNC_FILEOPS_H
 #define _PSYNC_FILEOPS_H
 
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 #include "papi.h"
 #include "psettings.h"
 #include "psynclib.h"

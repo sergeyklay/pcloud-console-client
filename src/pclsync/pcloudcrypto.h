@@ -28,7 +28,7 @@
 #ifndef _PCLOUD_CRYPTO_H
 #define _PCLOUD_CRYPTO_H
 
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 #include "pfs.h"
 #include "pcrypto.h"
 #include "papi.h"

@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "pcrc32c.h"
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 #include "plibs.h"
 #include "logger.h"
 

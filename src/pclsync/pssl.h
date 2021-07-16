@@ -28,8 +28,8 @@
 #ifndef _PSYNC_SSL_H
 #define _PSYNC_SSL_H
 
-#include "pcloudcc/compiler.h"
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/psync/compat.h"
 
 #define PSYNC_AES256_BLOCK_SIZE 16
 #define PSYNC_AES256_KEY_SIZE 32

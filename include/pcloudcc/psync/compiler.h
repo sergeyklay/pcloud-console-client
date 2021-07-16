@@ -9,8 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUDCC_PCOMPILER_H_
-#define PCLOUDCC_PCOMPILER_H_
+#ifndef PCLOUDCC_PSYNC_COMPILER_H_
+#define PCLOUDCC_PSYNC_COMPILER_H_
 
 #if defined(_MSC_VER)
 #include <mmintrin.h>
@@ -134,4 +134,4 @@
 #define psync_alignof(t) offsetof(struct {char a; t b;}, b)
 #endif
 
-#endif /* PCLOUDCC_PCOMPILER_H_ */
+#endif /* PCLOUDCC_PSYNC_COMPILER_H_ */

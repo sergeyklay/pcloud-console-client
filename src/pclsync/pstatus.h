@@ -28,7 +28,7 @@
 #ifndef _PSYNC_STATUS_H
 #define _PSYNC_STATUS_H
 
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 #include <stdint.h>
 
 #define PSTATUS_NUM_STATUSES 6

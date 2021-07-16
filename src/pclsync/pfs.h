@@ -21,7 +21,7 @@
 #include "psettings.h"
 #include "pfsfolder.h"
 #include "pfstasks.h"
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "pcrypto.h"
 #include "pcrc32c.h"
 #include "ptimer.h"

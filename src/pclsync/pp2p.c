@@ -11,7 +11,7 @@
 
 #include <string.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "psettings.h"
 #include "plibs.h"
 #include "ptimer.h"

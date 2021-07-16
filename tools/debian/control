@@ -11,4 +11,4 @@ Package: pcloudcc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: pCloud Console Client.
- A simple Linux console client for pCloud cloud storage.
+ A simple console client for pCloud cloud storage.

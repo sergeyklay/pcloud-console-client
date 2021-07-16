@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <netinet/in.h>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "overlay_client.h"
 #include "logger.h"
 

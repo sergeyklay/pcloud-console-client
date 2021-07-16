@@ -28,7 +28,7 @@
 #ifndef _PSYNC_DATABASE_H
 #define _PSYNC_DATABASE_H
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include <sqlite3.h>
 
 #if defined(SQLITE_VERSION_NUMBER) && SQLITE_VERSION_NUMBER>=3008002

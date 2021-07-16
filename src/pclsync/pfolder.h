@@ -28,7 +28,7 @@
 #ifndef _PSYNC_FOLDER_H
 #define _PSYNC_FOLDER_H
 
-#include "pcloudcc/compiler.h"
+#include "pcloudcc/psync/compiler.h"
 #include "psynclib.h"
 
 #define PSYNC_INVALID_FOLDERID ((psync_folderid_t)-1)

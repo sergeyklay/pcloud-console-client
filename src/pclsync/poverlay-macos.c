@@ -8,7 +8,7 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 
 #if defined(P_OS_MACOSX) || defined(P_OS_BSD)
 

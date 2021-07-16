@@ -13,11 +13,11 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "pcloudcc/compat.h"
+#include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
 
+#include "pcloudcc/version.hpp"
 #include "pclcli.hpp"
-#include "version.hpp"
 #include "logger.h"
 
 namespace cc = console_client;
@@ -232,7 +232,7 @@ int clib::pclcli::init() {
   }
 
   setup_logging();
-  psync_set_software_string(PCLSYNC_VERSION_FULL);
+  psync_set_software_string(PCLOUD_VERSION_FULL);
   if (setup_crypto_ && crypto_pass_.empty())
     return 3;
 

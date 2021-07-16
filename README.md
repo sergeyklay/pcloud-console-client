@@ -1,7 +1,7 @@
 <h1 align="center">
     pCloud Console Client
 </h1>
-<p align="center">A simple Linux console client for <a href="https://pcloud.com">pCloud</a> cloud storage.</p>
+<p align="center">A simple console client for <a href="https://pcloud.com">pCloud</a> cloud storage.</p>
 <p align="center">
     <a href="https://github.com/sergeyklay/pcloud-console-client/actions?workflow=CI">
         <img src="https://github.com/sergeyklay/pcloud-console-client/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI Status" />
