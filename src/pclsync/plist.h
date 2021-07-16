@@ -29,7 +29,7 @@
 #define _PSYNC_LIST_H
 
 #include <stddef.h>
-#include "pcloudcc/pcompiler.h"
+#include "pcloudcc/compiler.h"
 
 typedef struct _psync_list {
   struct _psync_list *next;

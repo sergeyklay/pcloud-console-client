@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "psynclib.h"
 
 #include "pclcli.hpp"

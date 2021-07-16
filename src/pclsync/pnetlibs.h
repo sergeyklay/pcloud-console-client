@@ -12,7 +12,7 @@
 #ifndef PCLOUD_PCLSYNC_PNETLIBS_H_
 #define PCLOUD_PCLSYNC_PNETLIBS_H_
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "psynclib.h"
 #include "plist.h"
 #include "papi.h"

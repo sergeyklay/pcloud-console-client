@@ -11,7 +11,7 @@
 #ifndef PCLOUD_PCLSYNC_PFSXATTR_H_
 #define PCLOUD_PCLSYNC_PFSXATTR_H_
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "psynclib.h"
 
 #ifdef P_OS_MACOSX

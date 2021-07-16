@@ -28,7 +28,7 @@
 #include "pssl.h"
 #include "psynclib.h"
 #include "plibs.h"
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "psettings.h"
 #include <unistd.h>
 #include <string.h>

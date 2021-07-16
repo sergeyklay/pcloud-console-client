@@ -28,7 +28,7 @@
 #ifndef _PSYNC_TREE_H
 #define _PSYNC_TREE_H
 
-#include "pcloudcc/pcompiler.h"
+#include "pcloudcc/compiler.h"
 #include <stdlib.h>
 #include <stddef.h>
 

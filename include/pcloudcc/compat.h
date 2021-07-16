@@ -12,7 +12,7 @@
 #ifndef PCLOUDCC_PCOMPAT_H_
 #define PCLOUDCC_PCOMPAT_H_
 
-#include "pcloudcc/pcompiler.h"
+#include "pcloudcc/compiler.h"
 
 #if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && !defined(P_OS_BSD) && !defined(P_OS_POSIX)
 #if defined(__ANDROID__)
