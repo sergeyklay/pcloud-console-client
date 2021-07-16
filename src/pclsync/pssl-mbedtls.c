@@ -381,17 +381,21 @@ err1:
 int psync_ssl_connect_finish(void *sslconn, const char *hostname) {
   ssl_connection_t *conn;
   int ret;
-  conn=(ssl_connection_t *)sslconn;
-  ret=mbedtls_ssl_handshake(&conn->ssl);
-  if (ret==0) {
+  conn = (ssl_connection_t *)sslconn;
+  ret = mbedtls_ssl_handshake(&conn->ssl);
+
+  if (ret == 0) {
     if (psync_ssl_check_peer_public_key(conn))
       goto fail;
     psync_ssl_save_session(conn);
     return PSYNC_SSL_SUCCESS;
   }
+
   psync_set_ssl_error(conn, ret);
-  if (likely_log(ret==MBEDTLS_ERR_SSL_WANT_READ || ret==MBEDTLS_ERR_SSL_WANT_WRITE))
+  if (likely(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE))
     return PSYNC_SSL_NEED_FINISH;
+
+  mbedtls_log_error(ret);
 fail:
   mbedtls_ssl_free(&conn->ssl);
   psync_free(conn);
