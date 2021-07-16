@@ -332,7 +332,7 @@ static psync_socket *get_connected_socket() {
       psync_wait_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_PROVIDED);
       continue;
     }
-    log_info("userid %lu", (unsigned long)userid);
+    log_debug("userid %lu", (unsigned long)userid);
     cres=psync_check_result(res, "account", PARAM_HASH);
     q=psync_sql_prep_statement("REPLACE INTO setting (id, value) VALUES (?, ?)");
     if (cres) {
@@ -2364,13 +2364,13 @@ static void psync_diff_thread() {
   subscribed_ids ids = {0, 0, 0, 0};
   int sel, ret=0;
   char ex;
-  char *err=NULL;
+  char *err = NULL;
   psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_CONNECTING);
   psync_send_status_update();
 restart:
   psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_CONNECTING);
-  sock=get_connected_socket();
-  log_info("connected");
+  sock = get_connected_socket();
+  log_debug("got connected socket");
   psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_SCANNING);
   ids.diffid=psync_sql_cellint("SELECT value FROM setting WHERE id='diffid'", 0);
   if (ids.diffid==0)
@@ -2464,9 +2464,9 @@ restart:
         continue;
       }
       last_event=psync_timer_time();
-      result=psync_find_result(res, "result", PARAM_NUM)->num;
+      result = psync_find_result(res, "result", PARAM_NUM)->num;
       if (unlikely(result)) {
-        if (result==6003 || result==6002) { // timeout or cancel
+        if (result == 6003 || result == 6002) { // timeout or cancel
           log_info(
               "got \"%s\" from the socket",
               psync_find_result(res, "error", PARAM_STR)->str
@@ -2499,46 +2499,39 @@ restart:
           else
             log_info("diff with 0 entries, did we send a nop recently?");
           psync_free(res);
-        }
-        else if (entries->length==13 && !strcmp(entries->str, "notifications")) {
+        } else if (entries->length==13 && !strcmp(entries->str, "notifications")) {
           ids.notificationid=psync_find_result(res, "notificationid", PARAM_NUM)->num;
           // do not free res
           psync_notifications_notify(res);
-        }
-        else if (entries->length==8 && !strcmp(entries->str, "publinks")) {
+        } else if (entries->length==8 && !strcmp(entries->str, "publinks")) {
           ids.publinkid=psync_find_result(res, "publinkid", PARAM_NUM)->num;
           ret = cache_links(&err);
           if (ret < 0)
-            log_error("Cacheing links faild with err %s", err);
+            log_error("Caching links failed with err %s", err);
           else
             psync_notify_cache_change(PACCOUNT_CHANGE_LINKS);
-        }
-        else if (entries->length==11 && !strcmp(entries->str, "uploadlinks")) {
+        } else if (entries->length==11 && !strcmp(entries->str, "uploadlinks")) {
           ids.uploadlinkid=psync_find_result(res, "uploadlinkid", PARAM_NUM)->num;
           ret = cache_upload_links(&err);
           if (ret < 0)
             log_error("Cacheing upload links failed with err %s", err);
           else
             psync_notify_cache_change(PACCOUNT_CHANGE_LINKS);
-
-        }
-        else if (entries->length==5 && !strcmp(entries->str, "teams")) {
+        } else if (entries->length==5 && !strcmp(entries->str, "teams")) {
           cache_account_teams();
           cache_ba_my_teams();
           psync_notify_cache_change(PACCOUNT_CHANGE_TEAMS);
-        }
-        else if (entries->length==5 && !strcmp(entries->str, "users")) {
+        } else if (entries->length==5 && !strcmp(entries->str, "users")) {
           cache_account_emails();
           psync_notify_cache_change(PACCOUNT_CHANGE_EMAILS);
-        }
-         else if (entries->length==8 && !strcmp(entries->str, "contacts")) {
+        } else if (entries->length==8 && !strcmp(entries->str, "contacts")) {
           cache_contacts();
           psync_notify_cache_change(PACCOUNT_CHANGE_CONTACTS);
-        }
-        else{
+        } else{
           log_info("got no from, did we send a nop recently?");
           psync_free(res);
         }
+
         send_diff_command(sock, ids);
       }
       else{
