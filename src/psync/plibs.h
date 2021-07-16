@@ -101,7 +101,7 @@
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #define psync_new(type) (type *)psync_malloc(sizeof(type))
-#define psync_new_cnt(type, cnt) (type *)psync_malloc(sizeof(type)*(cnt))
+#define psync_new_cnt(type, cnt) (type *)psync_malloc(sizeof(type) * (cnt))
 
 #define psync_binhex(dst, src, cnt) \
   do {\

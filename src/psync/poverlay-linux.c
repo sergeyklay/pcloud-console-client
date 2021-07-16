@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include "poverlay.h"
-#include "psynclib.h"
+#include "plibs.h"
 #include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
@@ -26,7 +26,7 @@
 #define POVERLAY_SOCKET   "pcloud.sock"
 
 static char * create_socket_path() {
-  char *path = (char *)psync_malloc(FILENAME_MAX + 1);
+  char *path = psync_new_cnt(char, (FILENAME_MAX + 1));
   if (!path) {
     return NULL;
   }
