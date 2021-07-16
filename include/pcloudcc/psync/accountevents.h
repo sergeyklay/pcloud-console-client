@@ -12,7 +12,7 @@
 #define PCLOUDCC_PSYNC_ACCOUNTEVENTS_H_
 
 /*! \file accountevents.h
- *  \brief Provides base data types to handle account event.
+ *  \brief Provides base data types to handle account events.
  */
 
 #include <stdint.h>
@@ -34,7 +34,7 @@
 
 /*! \brief A type definition for an account cache type.
  *
- * Should be used by the \ref paccount_cache_callback_t.
+ * Meant for use with \ref paccount_cache_callback_t.
  */
 typedef uint32_t psync_changetype_t;
 
