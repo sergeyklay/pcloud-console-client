@@ -26,6 +26,7 @@ For project dependencies list see `conanfile.txt` bundled with this project.
 Optional prerequisites are:
 
 - Documentation generation tool: [Doxygen](http://www.doxygen.org/)
+- Graph visualization toolkit: [Graphviz](http://www.graphviz.org/)
 
 On Debian and its derivatives you can install the required packages this way:
 
