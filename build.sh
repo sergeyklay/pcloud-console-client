@@ -26,6 +26,7 @@ conan install . -if=build --build=missing
 
 echo "Configure client"
 cmake -S . -B build \
+  -DPCLOUD_MAINTAINER_LOGS_LEVEL=0 \
   -DPCLOUD_MAINTAINER_LOGS=ON \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
   -DCMAKE_BUILD_TYPE=Debug \

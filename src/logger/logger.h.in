@@ -18,7 +18,9 @@ extern "C" {
 
 #include <log.h>
 
+#ifndef PCLOUD_LOG_LEVEL
 #define PCLOUD_LOG_LEVEL LOG_DEBUG
+#endif
 
 #ifndef PCLOUD_MAINTAINER_LOGS
 #define PCLOUD_MAINTAINER_LOGS false

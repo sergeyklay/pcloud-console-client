@@ -698,12 +698,12 @@ static int psync_fs_getrootattr(struct FUSE_STAT *stbuf) {
   }\
 } while (0)
 
-#define CHECK_LOGIN_RDLOCKED() do {\
-  if (unlikely(waitingforlogin)) {\
-    psync_sql_rdunlock();\
-    log_info("returning EACCES for not logged in");\
-    return -EACCES;\
-  }\
+#define CHECK_LOGIN_RDLOCKED() do { \
+  if (unlikely(waitingforlogin)) { \
+    psync_sql_rdunlock(); \
+    log_debug("returning EACCES for not logged in"); \
+    return -EACCES; \
+  } \
 } while (0)
 
 static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
@@ -713,10 +713,13 @@ static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
   psync_fstask_folder_t *folder;
   psync_fstask_creat_t *cr;
   int crr;
+
   psync_fs_set_thread_name();
-//  log_info("getattr %s", path);
-  if (path[1]==0 && path[0]=='/')
+  log_trace("trying get attributes for %s", path);
+
+  if (path[1] == 0 && path[0] == '/')
     return psync_fs_getrootattr(stbuf);
+
   psync_sql_rdlock();
   CHECK_LOGIN_RDLOCKED();
   fpath=psync_fsfolder_resolve_path(path);
@@ -782,7 +785,8 @@ static int psync_fs_getattr(const char *path, struct FUSE_STAT *stbuf) {
   psync_free(fpath);
   if (row || !crr)
     return 0;
-  log_info("returning ENOENT for %s", path);
+
+  log_debug("returning ENOENT for %s, path not found", path);
   return -ENOENT;
 }
 
@@ -2701,7 +2705,7 @@ err_enoent:
 static int psync_fs_statfs(const char *path, struct statvfs *stbuf) {
   uint64_t q, uq;
   psync_fs_set_thread_name();
-  log_debug("statfs %s", path);
+  log_trace("statfs %s", path);
   if (waitingforlogin)
     return -EACCES;
 /* TODO:

@@ -20,6 +20,8 @@ void log_lock(bool lock, void* udata) {
 }
 
 void setup_logging() {
+  log_set_level(PCLOUD_LOG_LEVEL);
+
   /* Do nothing if maintainer logs are disabled */
   if (!PCLOUD_MAINTAINER_LOGS) {
     log_set_quiet(true);
