@@ -946,11 +946,16 @@ static int psync_fs_crypto_do_finalize_log(psync_openfile_t *of, int fullsync) {
   }
   psync_tree_for_each_element_call_safe(of->sectorsinlog, psync_sector_inlog_t, tree, psync_free);
   of->sectorsinlog=PSYNC_TREE_EMPTY;
-  ret=psync_fs_crypto_log_flush_and_process(of, flog, 0, 1);
+  ret = psync_fs_crypto_log_flush_and_process(of, flog, 0, 1);
   psync_file_delete(flog);
   psync_free(olog);
   psync_free(flog);
-  return PRINT_NEG_RETURN(ret);
+
+  if (ret < 0) {
+    log_warn("psync_fs_crypto_log_flush_and_process returned %d", (int)(ret));
+  }
+
+  return ret;
 }
 
 static int psync_fs_crypto_finalize_log(psync_openfile_t *of, int fullsync) {
