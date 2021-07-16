@@ -283,7 +283,7 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
   int res, err;
   ssl=SSL_new(globalctx);
   if (!ssl)
-    return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+    return PSYNC_SSL_FAIL;
   SSL_set_fd(ssl, sock);
   conn=psync_ssl_alloc_conn(ssl, hostname);
   if ((sess=(SSL_SESSION *)psync_cache_get(conn->cachekey))){
@@ -309,7 +309,7 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
 fail:
   SSL_free(ssl);
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_connect_finish(void *sslconn, const char *hostname){
@@ -331,7 +331,7 @@ int psync_ssl_connect_finish(void *sslconn, const char *hostname){
 fail:
   SSL_free(conn->ssl);
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 static void psync_ssl_free_session(void *ptr){

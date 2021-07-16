@@ -202,7 +202,7 @@ static int64_t xattr_get_object_id_locked(const char *path) {
   oid=xattr_get_object_id_locked(path);\
   if (unlikely(oid==-1)) {\
     psync_sql_unlock();\
-    return -PRINT_RETURN_CONST(ENOENT);\
+    return -ENOENT;\
   }\
 } while (0)
 
@@ -211,7 +211,7 @@ static int64_t xattr_get_object_id_locked(const char *path) {
   oid=xattr_get_object_id_locked(path);\
   if (unlikely(oid==-1)) {\
     psync_sql_rdunlock();\
-    return -PRINT_RETURN_CONST(ENOENT);\
+    return -ENOENT;\
   }\
 } while (0)
 
@@ -229,9 +229,9 @@ int psync_fs_setxattr(const char *path, const char *name, const char *value, siz
     psync_sql_bind_blob(res, 3, value, size);
     psync_sql_run_free(res);
     if (psync_sql_affected_rows())
-      ret=0;
+      ret = 0;
     else
-      ret=-PRINT_RETURN_CONST(EEXIST);
+      ret = -EEXIST;
   }
   else if (flags&XATTR_REPLACE) {
     res=psync_sql_prep_statement("UPDATE fsxattr SET value=? WHERE objectid=? AND name=?");
@@ -242,7 +242,7 @@ int psync_fs_setxattr(const char *path, const char *name, const char *value, siz
     if (psync_sql_affected_rows())
       ret=0;
     else
-      ret=-PRINT_RETURN_CONST(ENOATTR);
+      ret = -ENOATTR;
   }
   else {
     res=psync_sql_prep_statement("REPLACE INTO fsxattr (objectid, name, value) VALUES (?, ?, ?)");

@@ -375,7 +375,7 @@ err1:
   mbedtls_ssl_free(&conn->ssl);
 
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_connect_finish(void *sslconn, const char *hostname) {
@@ -399,7 +399,7 @@ int psync_ssl_connect_finish(void *sslconn, const char *hostname) {
 fail:
   mbedtls_ssl_free(&conn->ssl);
   psync_free(conn);
-  return PRINT_RETURN_CONST(PSYNC_SSL_FAIL);
+  return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_shutdown(void *sslconn) {

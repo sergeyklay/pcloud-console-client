@@ -3521,12 +3521,12 @@ int psync_pagecache_move_cache(const char *path) {
   rdpath=psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
   if (!psync_stat(rdpath, &st)) {
     psync_free(rdpath);
-    return PRINT_RETURN_CONST(PERROR_CACHE_MOVE_NOT_EMPTY);
+    return PERROR_CACHE_MOVE_NOT_EMPTY;
   }
   newrdcache=psync_file_open(rdpath, P_O_RDWR, P_O_CREAT|P_O_EXCL);
   if (newrdcache==INVALID_HANDLE_VALUE) {
     psync_free(rdpath);
-    return PRINT_RETURN_CONST(PERROR_CACHE_MOVE_NO_WRITE_ACCESS);
+    return PERROR_CACHE_MOVE_NO_WRITE_ACCESS;
   }
   opath=psync_strdup(psync_setting_get_string(_PS(fscachepath)));
   pthread_mutex_lock(&clean_cache_mutex);
@@ -3550,7 +3550,7 @@ int psync_pagecache_move_cache(const char *path) {
     psync_file_delete(rdpath);
     psync_free(opath);
     psync_free(rdpath);
-    return PRINT_RETURN_CONST(PERROR_CACHE_MOVE_DRIVE_HAS_TASKS);
+    return PERROR_CACHE_MOVE_DRIVE_HAS_TASKS;
   }
   ordcache=readcache;
   readcache=newrdcache;

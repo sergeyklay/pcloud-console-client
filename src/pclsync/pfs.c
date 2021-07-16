@@ -1499,7 +1499,7 @@ static int psync_fs_creat(const char *path, mode_t mode, struct fuse_file_info *
       psync_fstask_release_folder_tasks_locked(folder);
       psync_sql_unlock();
       psync_free(fpath);
-      return -PRINT_RETURN_CONST(PSYNC_FS_ERR_CRYPTO_EXPIRED);
+      return -PSYNC_FS_ERR_CRYPTO_EXPIRED;
     }
     encsymkey=psync_cloud_crypto_get_new_encoded_and_plain_key(0, &encsymkeylen, &symkey);
     if (unlikely_log(psync_crypto_is_error(encsymkey))) {
@@ -1969,7 +1969,7 @@ PSYNC_NOINLINE static int psync_fs_reopen_file_for_writing(psync_openfile_t *of)
   if (of->encrypted) {
     if (unlikely(psync_crypto_isexpired())) {
       psync_sql_unlock();
-      return -PRINT_RETURN_CONST(PSYNC_FS_ERR_CRYPTO_EXPIRED);
+      return -PSYNC_FS_ERR_CRYPTO_EXPIRED;
     }
     size=psync_fs_crypto_crypto_size(of->initialsize);
     encsymkey=psync_cloud_crypto_get_file_encoded_key(of->fileid, of->hash, &encsymkeylen);
@@ -2086,9 +2086,9 @@ PSYNC_NOINLINE static int psync_fs_reopen_static_file_for_writing(psync_openfile
   if (unlikely_log(ret))
     return ret;
   if (psync_file_pwrite(of->datafile, of->staticdata, of->currentsize, 0)!=of->currentsize)
-    ret=-PRINT_RETURN_CONST(EIO);
+    ret = -EIO;
   else
-    ret=1;
+    ret = 1;
   return ret;
 }
 
@@ -2904,9 +2904,9 @@ retry:
     return psync_fs_crypto_ftruncate(of, size);
   else{
     if (psync_fs_modfile_check_size_ok(of, size))
-      ret=-PRINT_RETURN_CONST(EIO);
+      ret = -EIO;
     else if (of->currentsize!=size && (psync_file_seek(of->datafile, size, P_SEEK_SET)==-1 || psync_file_truncate(of->datafile)))
-      ret=-PRINT_RETURN_CONST(EIO);
+      ret = -EIO;
     else{
       ret=0;
       of->currentsize=size;
