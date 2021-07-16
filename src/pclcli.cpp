@@ -216,7 +216,7 @@ int clib::pclcli::finalize (const char* path, void * rep) {
 }
 
 int clib::pclcli::list_sync_folders (const char* path, void * rep) {
-  psync_folder_list_t * folders = psync_get_sync_list();
+  psync_folder_list_t *folders = psync_get_sync_list();
   rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
   return 0;

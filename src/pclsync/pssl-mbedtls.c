@@ -181,19 +181,20 @@ static ssl_connection_t *psync_ssl_alloc_conn(const char *hostname) {
 }
 
 static void psync_set_ssl_error(ssl_connection_t *conn, int err) {
-  if (err==MBEDTLS_ERR_SSL_WANT_READ)
-    psync_ssl_errno=PSYNC_SSL_ERR_WANT_READ;
-  else if (err==MBEDTLS_ERR_SSL_WANT_WRITE)
-    psync_ssl_errno=PSYNC_SSL_ERR_WANT_WRITE;
-  else{
-    psync_ssl_errno=PSYNC_SSL_ERR_UNKNOWN;
-    conn->isbroken=1;
-    if (err==MBEDTLS_ERR_NET_RECV_FAILED)
-      log_info("got MBEDTLS_ERR_NET_RECV_FAILED");
-    else if (err==MBEDTLS_ERR_NET_SEND_FAILED)
-      log_info("got MBEDTLS_ERR_NET_SEND_FAILED");
+  if (err == MBEDTLS_ERR_SSL_WANT_READ)
+    psync_ssl_errno = PSYNC_SSL_ERR_WANT_READ;
+  else if (err == MBEDTLS_ERR_SSL_WANT_WRITE)
+    psync_ssl_errno = PSYNC_SSL_ERR_WANT_WRITE;
+  else {
+    psync_ssl_errno = PSYNC_SSL_ERR_UNKNOWN;
+    conn->isbroken = 1;
+
+    if (err == MBEDTLS_ERR_NET_RECV_FAILED)
+      log_debug("got MBEDTLS_ERR_NET_RECV_FAILED");
+    else if (err == MBEDTLS_ERR_NET_SEND_FAILED)
+      log_debug("got MBEDTLS_ERR_NET_SEND_FAILED");
     else
-      log_info("got error %d", err);
+      log_debug("got error %d", err);
   }
 }
 
@@ -364,13 +365,12 @@ int psync_ssl_connect(psync_socket_t sock, void **sslconn, const char *hostname)
     return PSYNC_SSL_SUCCESS;
   }
 
-  mbedtls_log_error(ret);
   psync_set_ssl_error(conn, ret);
-  if (likely_log(ret==MBEDTLS_ERR_SSL_WANT_READ || ret==MBEDTLS_ERR_SSL_WANT_WRITE)) {
-    *sslconn=conn;
+  if (likely(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE)) {
+    *sslconn = conn;
     return PSYNC_SSL_NEED_FINISH;
   }
-
+  mbedtls_log_error(ret);
 err1:
   mbedtls_ssl_free(&conn->ssl);
 
@@ -403,17 +403,19 @@ fail:
 }
 
 int psync_ssl_shutdown(void *sslconn) {
-  ssl_connection_t *conn;
-  int ret;
-  conn=(ssl_connection_t *)sslconn;
+  ssl_connection_t *conn = (ssl_connection_t *)sslconn;
   if (conn->isbroken)
     goto noshutdown;
-  ret=mbedtls_ssl_close_notify(&conn->ssl);
-  if (ret==0)
+
+  int ret = mbedtls_ssl_close_notify(&conn->ssl);
+  if (ret == 0)
     goto noshutdown;
+
   psync_set_ssl_error(conn, ret);
-  if (likely_log(ret==MBEDTLS_ERR_SSL_WANT_READ || ret==MBEDTLS_ERR_SSL_WANT_WRITE))
+  if (likely(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE))
     return PSYNC_SSL_NEED_FINISH;
+
+  mbedtls_log_error(ret);
 noshutdown:
   mbedtls_ssl_free(&conn->ssl);
   psync_free(conn);
@@ -432,24 +434,31 @@ size_t psync_ssl_pendingdata(void *sslconn) {
 }
 
 int psync_ssl_read(void *sslconn, void *buf, int num) {
-  ssl_connection_t *conn;
-  int res;
-  conn=(ssl_connection_t *)sslconn;
-  res=mbedtls_ssl_read(&conn->ssl, (unsigned char *)buf, num);
-  if (res>=0)
-    return res;
-  psync_set_ssl_error(conn, res);
+  ssl_connection_t *conn = (ssl_connection_t *)sslconn;
+  int ret = mbedtls_ssl_read(&conn->ssl, (unsigned char *)buf, num);
+  if (ret >= 0)
+    return ret;
+
+  psync_set_ssl_error(conn, ret);
+  if (ret < 0) {
+    mbedtls_log_error(ret);
+  }
+
   return PSYNC_SSL_FAIL;
 }
 
 int psync_ssl_write(void *sslconn, const void *buf, int num) {
-  ssl_connection_t *conn;
-  int res;
-  conn=(ssl_connection_t *)sslconn;
-  res=mbedtls_ssl_write(&conn->ssl, (const unsigned char *)buf, num);
-  if (res>=0)
-    return res;
-  psync_set_ssl_error(conn, res);
+  ssl_connection_t *conn = (ssl_connection_t *)sslconn;
+  int ret = mbedtls_ssl_write(&conn->ssl, (const unsigned char *)buf, num);
+
+  if (ret >= 0)
+    return ret;
+
+  psync_set_ssl_error(conn, ret);
+  if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
+    mbedtls_log_error(ret);
+  }
+
   return PSYNC_SSL_FAIL;
 }
 
