@@ -18,7 +18,7 @@ welcome!
 
 ## Documentation
 
-- [Installing](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Install.md)
+- [Getting Started](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/GettingStarted.md)
 - [Usage](https://github.com/sergeyklay/pcloud-console-client/blob/master/docs/Usage.md)
 
 ## License

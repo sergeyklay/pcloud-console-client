@@ -20,6 +20,7 @@ releases, in reverse chronological order.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
 * Provide ability to enable maintainer logs using `log.c` library.
 * Added possibility to use EU region servers.
+* Provided ability to generate the API documentation.
 
 ### Bugfix
 
@@ -32,7 +33,7 @@ releases, in reverse chronological order.
 ### Changes
 
 * Improved documentation.
-* CMake < 3.10.2 is no longer supported.
+* CMake < 3.11 is no longer supported.
 * Reorganized project structures to follow modern CMake layout.
 * Instructed the compiler to use `-std=gnu99` when it is needed.
 * Project build no longer uses `pcloudcc_lib` shared library and from now the
