@@ -157,7 +157,7 @@ static int unlock_page(pageid_t pageid, int page_size){
       psync_free(node);
       // do not move out of the mutex, will create race conditions
       if (unlikely(psync_munlock((void *)(pageid*page_size), page_size)))
-        ret=PRINT_RETURN(-1);
+        ret = -1;
       else{
         debug(D_NOTICE, "unlocked page %lx", (unsigned long)pageid*page_size);
         ret=0;
@@ -177,14 +177,14 @@ int psync_mem_lock(void *ptr, size_t size){
   int page_size;
   page_size=psync_get_page_size();
   if (page_size==-1)
-    return PRINT_RETURN(-1);
+    return -1;
   frompage=(uintptr_t)ptr/page_size;
   topage=((uintptr_t)ptr+size-1)/page_size;
   for (i=frompage; i<=topage; i++)
     if (unlikely(lock_page(i, page_size))){
       while (i>frompage)
         unlock_page(--i, page_size);
-      return PRINT_RETURN(-1);
+      return -1;
     }
   return 0;
 }
@@ -194,13 +194,13 @@ int psync_mem_unlock(void *ptr, size_t size){
   int page_size, ret;
   page_size=psync_get_page_size();
   if (page_size==-1)
-    return PRINT_RETURN(-1);
+    return -1;
   frompage=(uintptr_t)ptr/page_size;
   topage=((uintptr_t)ptr+size-1)/page_size;
   ret=0;
   for (i=frompage; i<=topage; i++)
     if (unlikely(unlock_page(i, page_size)))
-      ret=PRINT_RETURN(-1);
+      ret = -1;
   return ret;
 }
 

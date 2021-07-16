@@ -820,15 +820,15 @@ static int psync_fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   if (unlikely_log(folderid==PSYNC_INVALID_FSFOLDERID)) {
     psync_sql_rdunlock();
     if (psync_fsfolder_crypto_error())
-      return PRINT_RETURN(-psync_fs_crypto_err_to_errno(psync_fsfolder_crypto_error()));
+      return -psync_fs_crypto_err_to_errno(psync_fsfolder_crypto_error());
     else
-      return -PRINT_RETURN_CONST(ENOENT);
+      return -ENOENT;
   }
   if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED) {
     dec=psync_cloud_crypto_get_folder_decoder(folderid);
     if (psync_crypto_is_error(dec)) {
       psync_sql_rdunlock();
-      return PRINT_RETURN(-psync_fs_crypto_err_to_errno(psync_crypto_to_error(dec)));
+      return -psync_fs_crypto_err_to_errno(psync_crypto_to_error(dec));
     }
   }
   else
@@ -894,7 +894,7 @@ static int psync_fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   psync_sql_rdunlock();
   if (dec)
     psync_cloud_crypto_release_folder_decoder(folderid, dec);
-  return PRINT_RETURN(0);
+  return 0;
 }
 
 static psync_openfile_t *psync_fs_create_file(psync_fsfileid_t fileid, psync_fsfileid_t remotefileid, uint64_t size, uint64_t hash, int lock,
@@ -1165,7 +1165,7 @@ static int psync_fs_open(const char *path, struct fuse_file_info *fi) {
     ret=psync_fsfolder_crypto_error();
     if (ret) {
       ret=-psync_fs_crypto_err_to_errno(ret);
-      return PRINT_RETURN(ret);
+      return ret;
     }
     else{
       log_info("returning ENOENT for %s, folder not found", path);
@@ -1471,7 +1471,7 @@ static int psync_fs_creat(const char *path, mode_t mode, struct fuse_file_info *
     ret=psync_fsfolder_crypto_error();
     if (ret) {
       ret=psync_fs_crypto_err_to_errno(ret);
-      return PRINT_RETURN(-ret);
+      return -ret;
     }
     else{
       log_info("returning ENOENT for %s, folder not found", path);
