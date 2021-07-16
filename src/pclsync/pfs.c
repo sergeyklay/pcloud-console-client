@@ -2686,7 +2686,8 @@ finish:
   psync_sql_unlock();
   psync_free(fold_path);
   psync_free(fnew_path);
-  return PRINT_RETURN_FORMAT(ret, " for rename from %s to %s", old_path, new_path);
+  log_debug("return %d for rename from %s to %s", (int)ret, old_path, new_path);
+  return ret;
 err_enoent:
   if (folder)
     psync_fstask_release_folder_tasks_locked(folder);
@@ -2924,7 +2925,8 @@ static int psync_fs_ftruncate(const char *path, fuse_off_t size, struct fuse_fil
   psync_fs_lock_file(of);
   ret=psync_fs_ftruncate_of_locked(of, size);
   pthread_mutex_unlock(&of->mutex);
-  return PRINT_RETURN_FORMAT(ret, " for ftruncate of %s to %lu", path, (unsigned long)size);
+  log_debug("return %d for ftruncate of %s to %lu", (int)ret, path, (unsigned long)size);
+  return ret;
 }
 
 static int psync_fs_truncate(const char *path, fuse_off_t size) {
