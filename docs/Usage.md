@@ -1,6 +1,6 @@
-# Maintaining pCloud Console Client
+## Maintaining pCloud Console Client
 
-## Run client
+### Run client
 
 The usual way to run client is to type its name in a Unix shell prompt,
 followed by pCloud account name as follows:
@@ -61,7 +61,7 @@ or  starting the daemon with `-o`. Available commands are:
 - `finalize` – stops the running daemon.
 - `quit`, `q` - exits the current client. Daemon stays alive.
 
-### Example usage scenario
+#### Example usage scenario
 
 1. Start the service manually
    ```sh
@@ -95,14 +95,14 @@ pending transfers. Locally cached files are located under `~/.pcloud/Cache`
 directory. When there is only one file `~/.pcloud/Cache/cached` (usually big sized)
 this mean that all transfers are completed.
 
-## Autostart on system boot
+### Autostart on system boot
 
 If you want client to start when your operating system boots, the
 mechanism varies. It's probably easiet to just follow
 [these instructions](https://www.howtogeek.com/228467/how-to-make-a-program-run-at-startup-on-any-computer/)
 for setting up autostart. Alternatively, you can try following the instructions below.
 
-### Linux (systemd)
+#### Linux (systemd)
 
 Traditionally, you must add a command line to the shell script in
 `/etc/rc` (which is read by `init` when the system boots), using the `&`
@@ -142,7 +142,7 @@ Remember to initialize you account first by running:
 $ pcloudcc -u example@myemail.com -p -s
 ```
 
-## EU region users
+### EU region users
 
 In order to connect to the EU region api server the environment variable
 `PCLOUD_REGION_EU` has to be set, e.g. like this:
