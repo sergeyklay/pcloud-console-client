@@ -32,7 +32,7 @@
 /*! \brief Account changed its emails. */
 #define PACCOUNT_CHANGE_EMAILS 5
 
-/*! \brief A type definition for an account cache type.
+/*! \brief A type definition for the type of account changes.
  *
  * Meant for use with \ref paccount_cache_callback_t.
  */
