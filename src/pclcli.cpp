@@ -210,7 +210,8 @@ int clib::pclcli::stop_crypto (const char* path, void * rep) {
 
 int clib::pclcli::finalize (const char* path, void * rep) {
   psync_destroy();
-  /* exit(0); */
+  exit(0); /* yes, exit program */
+
   return 0;
 }
 
