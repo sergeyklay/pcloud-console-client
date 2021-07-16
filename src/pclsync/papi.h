@@ -15,8 +15,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "pcloudcc/pcompat.h"
-#include "pcloudcc/pcompiler.h"
+#include "pcloudcc/compat.h"
+#include "pcloudcc/compiler.h"
 
 #define PARAM_STR   0
 #define PARAM_NUM   1

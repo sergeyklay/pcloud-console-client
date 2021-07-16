@@ -21,7 +21,7 @@
 #include <semaphore.h>
 #endif
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pnetlibs.h"
 #include "pssl.h"
 #include "psettings.h"

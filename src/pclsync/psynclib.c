@@ -10,7 +10,7 @@
  */
 
 #include "plibs.h"
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "psynclib.h"
 #include "pcallbacks.h"
 #include "pstatus.h"

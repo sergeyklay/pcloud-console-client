@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pscanner.h"
 #include "pscanexts.h"
 #include "plist.h"

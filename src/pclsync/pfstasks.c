@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pfstasks.h"
 #include "plibs.h"
 #include "ptimer.h"

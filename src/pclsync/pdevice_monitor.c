@@ -1,4 +1,4 @@
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "plibs.h"
 #include "psynclib.h"
 #include "pdevice_monitor.h"

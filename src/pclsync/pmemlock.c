@@ -26,7 +26,7 @@
  */
 
 #include "pmemlock.h"
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "ptree.h"
 #include "pintervaltree.h"
 #include "plibs.h"

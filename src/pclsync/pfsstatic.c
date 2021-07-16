@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pfsstatic.h"
 #include "plibs.h"
 #include "pfstasks.h"

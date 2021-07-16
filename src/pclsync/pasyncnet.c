@@ -28,7 +28,7 @@
 #include <stddef.h>
 #include "plibs.h"
 #include "psettings.h"
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pnetlibs.h"
 #include "papi.h"
 #include "pcompression.h"

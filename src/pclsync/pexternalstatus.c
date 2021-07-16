@@ -27,14 +27,14 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pexternalstatus.h"
 #include "pfsfolder.h"
 #include "pfstasks.h"
 #include "plibs.h"
 #include "pstatus.h"
 #include "psynclib.h"
-#include "pcloudcc/pcompat.h"
+#include "pcloudcc/compat.h"
 #include "pfolder.h"
 
 #define MAX_RECURS_DEPTH 31
