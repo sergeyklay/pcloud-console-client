@@ -1,10 +1,20 @@
-#ifndef _PSYNC_FSXATTR_H
-#define _PSYNC_FSXATTR_H
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2016 Ivan Stoev <ivan.stoev@pcloud.com>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+#ifndef PCLOUD_PCLSYNC_PFSXATTR_H_
+#define PCLOUD_PCLSYNC_PFSXATTR_H_
 
 #include "pcloudcc/pcompat.h"
 #include "psynclib.h"
 
-#if defined(P_OS_MACOSX)
+#ifdef P_OS_MACOSX
 #define PFS_XATTR_IGN , uint32_t ign
 #else
 #define PFS_XATTR_IGN
@@ -24,4 +34,4 @@ void psync_fs_task_to_folder(uint64_t taskid, psync_folderid_t folderid);
 void psync_fs_static_to_task(uint64_t statictaskid, uint64_t taskid);
 void psync_fs_file_to_task(psync_fileid_t fileid, uint64_t taskid);
 
-#endif
+#endif  /* PCLOUD_PCLSYNC_PFSXATTR_H_ */
