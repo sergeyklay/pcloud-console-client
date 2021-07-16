@@ -23,6 +23,10 @@ thus your compiler should support `-std=gnu99`.
 
 For project dependencies list see `conanfile.txt` bundled with this project.
 
+Optional prerequisites are:
+
+- Documentation generation tool: [Doxygen](http://www.doxygen.org/)
+
 On Debian and its derivatives you can install the required packages this way:
 
 ```sh
@@ -91,7 +95,8 @@ recognized during the project configuration phase:
 | ------------------------------ |---------------------------------------------------------------------|-------------------------------------------------------------------|
 | `PCLOUD_WARNINGS_AS_ERRORS`    | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
 | `PCLOUD_TLS_IMPL`              | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
-| `PCLOUD_MAINTAINER_LOGS`       | `ON`, `OFF`                                                         | Enable maintainer logs.                                           |
+| `PCLOUD_BUILD_DOC`             | `ON`, `OFF`                                                         | ON to generate the API documentation, OFF to ignore it.           |
+| `PCLOUD_MAINTAINER_LOGS`       | `ON`, `OFF`                                                         | ON to enable maintainer logs, OFF to disable logging.             |
 | `PCLOUD_MAINTAINER_LOG_FILE`   | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
 | `PCLOUD_MAINTAINER_LOGS_LEVEL` | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
 | `CMAKE_BUILD_TYPE`             | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
@@ -127,6 +132,15 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 # Build client
 cmake --build build --config Release
 ```
+
+#### Generate the API documentation
+
+Follow these steps:
+
+1. Configure with code coverage instrumentation enabled `-DPCLOUD_BUILD_DOC=ON`
+2. Build project
+3. Call `cmake --build build --target doc` from the project root directory
+4. Open `build/docs/html/index.html` in your browser to view the API documentation
 
 ## Install
 

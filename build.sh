@@ -29,11 +29,15 @@ cmake -S . -B build \
   -DPCLOUD_MAINTAINER_LOGS_LEVEL=0 \
   -DPCLOUD_MAINTAINER_LOGS=ON \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
+  -DPCLOUD_BUILD_DOC=ON \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
 cmake --build build --config Debug
+
+echo "Generate the API documentation"
+cmake --build build --target doc
 
 echo "Install client"
 cmake --build build --target install

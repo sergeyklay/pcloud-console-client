@@ -5,7 +5,7 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 project(pcloudcc LANGUAGES C CXX)
 
@@ -40,3 +40,7 @@ include(GNUInstallDirs)
 set(CMAKE_FIND_FRAMEWORK LAST)
 
 add_subdirectory(src)
+
+if(MASTER_PROJECT)
+  add_subdirectory(docs)
+endif()
