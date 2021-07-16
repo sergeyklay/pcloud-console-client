@@ -15,6 +15,7 @@
 
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
+#include "poverlay.h"
 
 #include "pcloudcc/version.hpp"
 #include "pclcli.hpp"
