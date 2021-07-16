@@ -180,7 +180,8 @@ static psync_socket *get_connected_socket() {
     psync_set_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_PROVIDED);
     saveauth=psync_setting_get_bool(_PS(saveauth));
     sock=psync_api_connect(apiserver, psync_setting_get_bool(_PS(usessl)));
-    if (unlikely_log(!sock)) {
+    if (unlikely(!sock)) {
+      log_error("failed to connect to API server on %s", apiserver);
       psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_OFFLINE);
       psync_milisleep(PSYNC_SLEEP_BEFORE_RECONNECT);
       continue;
