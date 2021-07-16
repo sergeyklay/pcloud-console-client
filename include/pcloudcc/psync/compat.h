@@ -325,8 +325,8 @@ typedef HANDLE psync_file_t;
 #error "Need to define types for your operating system"
 #endif
 
-typedef struct _psync_socket_buffer {
-  struct _psync_socket_buffer *next;
+typedef struct psync_socket_buffer_ {
+  struct psync_socket_buffer_ *next;
   uint32_t size;
   uint32_t woffset;
   uint32_t roffset;
@@ -368,19 +368,19 @@ typedef struct {
 } psync_interface_list_t;
 
 #ifndef INVALID_SOCKET
-# define INVALID_SOCKET -1
+# define INVALID_SOCKET (-1)
 #endif
 
 #ifndef SOCKET_ERROR
-# define SOCKET_ERROR -1
+# define SOCKET_ERROR (-1)
 #endif
 
 #ifndef INVALID_HANDLE_VALUE
-# define INVALID_HANDLE_VALUE -1
+# define INVALID_HANDLE_VALUE (-1)
 #endif
 
-#define PSYNC_SOCKET_ERROR      -1
-#define PSYNC_SOCKET_WOULDBLOCK -2
+#define PSYNC_SOCKET_ERROR      (-1)
+#define PSYNC_SOCKET_WOULDBLOCK (-2)
 
 #if !defined(__socklen_t_defined) && !defined(HAVE_SOCKET_LEN_T) && !defined(socklen_t)
 #if defined(P_OS_WINDOWS)

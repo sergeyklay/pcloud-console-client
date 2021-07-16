@@ -2040,13 +2040,13 @@ static void check_overquota() {
 
 static void diff_exception_handler() {
   log_error("got exception");
-  if (likely(exceptionsockwrite!=INVALID_SOCKET))
+  if (likely(exceptionsockwrite != INVALID_SOCKET))
     psync_pipe_write(exceptionsockwrite, "e", 1);
 }
 
-static psync_socket_t setup_exeptions() {
+static psync_socket_t setup_exceptions() {
   psync_socket_t pfds[2];
-  if (psync_pipe(pfds)==SOCKET_ERROR)
+  if (psync_pipe(pfds) == SOCKET_ERROR)
     return INVALID_SOCKET;
   exceptionsockwrite=pfds[1];
   psync_timer_exception_handler(diff_exception_handler);
@@ -2421,8 +2421,8 @@ restart:
   initialdownload=0;
   psync_run_analyze_if_needed();
   psync_syncer_check_delayed_syncs();
-  exceptionsock=setup_exeptions();
-  if (unlikely(exceptionsock==INVALID_SOCKET)) {
+  exceptionsock = setup_exceptions();
+  if (unlikely(exceptionsock == INVALID_SOCKET)) {
     log_error("could not create pipe");
     psync_socket_close(sock);
     return;

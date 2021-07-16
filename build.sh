@@ -19,6 +19,8 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
+BUILD_TYPE=${BUILD_TYPE:-Debug}
+
 # Clear any cache
 rm -rf "$(pwd)/build"
 
@@ -30,11 +32,11 @@ cmake -S . -B build \
   -DPCLOUD_MAINTAINER_LOGS=ON \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
   -DPCLOUD_BUILD_DOC=ON \
-  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
   -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 
 echo "Build client"
-cmake --build build --config Debug
+cmake --build build --config "${BUILD_TYPE}"
 
 echo "Generate the API documentation"
 cmake --build build --target doc
