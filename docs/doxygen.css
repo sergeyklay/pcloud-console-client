@@ -620,11 +620,11 @@ div.directory {
 div.dynheader {
     margin-top: 8px;
     -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
+      -webkit-user-select: none;
+       -khtml-user-select: none;
     -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+     -ms-user-select: none;
+         user-select: none;
 }
 
 address {
@@ -726,8 +726,8 @@ table.fieldtable {
     color:#8AA0CC;
     border:solid 1px #C2CDE4;
     overflow:hidden;
-    margin:0px;
-    padding:0px;
+    margin:0;
+    padding:0;
 }
 
 .navpath li {
@@ -1085,6 +1085,13 @@ tr.heading h2 {
     background-image: unset;
 }
 
+#main-nav ul a#MSearchClose {
+    display: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
 #main-menu li {
     list-style: none;
     margin-bottom: 0 !important;
@@ -1094,7 +1101,6 @@ tr.heading h2 {
     font-weight: bold;
 }
 
-/* Zephir css */
 body {
     font-family: 'Ubuntu', 'Arial', sans-serif;
     line-height: 140%;
@@ -1113,7 +1119,7 @@ body {
     display: flex;
     justify-content: space-between;
     min-height: 4rem;
-    background-color: #6f5499;
+    background-color: #17bed0;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.05),inset 0 -1px 0 rgba(0,0,0,.1);
 }
 
@@ -1144,7 +1150,7 @@ body {
 .bd-brand-logos {
     display: table;
     overflow: hidden;
-    color: #6f5499;
+    color: #17bed0;
     background-color: #f9f9f9;
     border-radius: .25rem;
     width: 40px;
