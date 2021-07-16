@@ -13,8 +13,8 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "psynclib.h"
 #include "pcloudcc/pcompat.h"
+#include "psynclib.h"
 
 #include "pclcli.hpp"
 #include "version.hpp"
@@ -22,6 +22,8 @@
 
 namespace cc = console_client;
 namespace clib = cc::clibrary;
+
+pthread_mutex_t MAINTAINER_LOG_MUTEX;
 
 clib::pclcli& clib::pclcli::get_lib() {
   static clib::pclcli g_lib;
@@ -208,7 +210,8 @@ int clib::pclcli::stop_crypto (const char* path, void * rep) {
 
 int clib::pclcli::finalize (const char* path, void * rep) {
   psync_destroy();
-  /* exit(0); */
+  exit(0); /* yes, exit program */
+
   return 0;
 }
 
@@ -224,8 +227,8 @@ int clib::pclcli::init() {
   // const std::string client_name = " Console Client v3.0.0";
   // std::string software_string = exec("lsb_release -ds");
   // psync_set_software_string(software_string.append(client_name).c_str());
-  if (pthread_mutex_init(&MUTEX_LOG, nullptr) == 0) {
-    log_set_lock(log_lock, &MUTEX_LOG);
+  if (pthread_mutex_init(&MAINTAINER_LOG_MUTEX, nullptr) == 0) {
+    log_set_lock(log_lock, &MAINTAINER_LOG_MUTEX);
   }
 
   setup_logging();
@@ -296,5 +299,5 @@ clib::pclcli::pclcli():
   status_callback_{} {}
 
 clib::pclcli::~pclcli() {
-  pthread_mutex_destroy(&MUTEX_LOG);
+  pthread_mutex_destroy(&MAINTAINER_LOG_MUTEX);
 };

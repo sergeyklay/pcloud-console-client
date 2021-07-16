@@ -3281,12 +3281,12 @@ static void psync_fuse_thread() {
     initonce=1;
   }
   pthread_mutex_unlock(&start_mutex);
-  log_info("running fuse_loop_mt");
+  log_debug("running fuse_loop_mt");
   fr=fuse_loop_mt(psync_fuse);
-  log_info("fuse_loop_mt exited with code %d, running fuse_destroy", fr);
+  log_debug("fuse_loop_mt exited with code %d, running fuse_destroy", fr);
   pthread_mutex_lock(&start_mutex);
   fuse_destroy(psync_fuse);
-  log_info("fuse_destroy exited");
+  log_debug("fuse_destroy exited");
 /*#if defined(P_OS_MACOSX)
   log_info("calling unmount");
   unmount(psync_current_mountpoint, MNT_FORCE);

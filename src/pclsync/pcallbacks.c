@@ -268,7 +268,11 @@ static void status_change_thread(void *ptr){
     if (!psync_do_run)
       break;
     status_fill_formatted_str(&psync_status, downloadstr, uploadstr);
-    log_info("sending status update, dwlstr: %s, uplstr: %s", psync_status.downloadstr, psync_status.uploadstr);
+    log_debug(
+        "sending status update, downloadstr: %s, uploadstr: %s",
+        psync_status.downloadstr,
+        psync_status.uploadstr
+    );
     callback(&psync_status);
   }
 }

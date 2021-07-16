@@ -20,29 +20,31 @@ int callbacks_running = 1;
 #include "poverlay-windows.c"
 #elif defined(P_OS_LINUX)
 #include "poverlay-linux.c"
-#elif defined(P_OS_MACOSX)
+#elif defined(P_OS_MACOSX) || defined(P_OS_BSD)
 #include "poverlay-macos.c"
 #else
-void overlay_main_loop(VOID) {}
-void instance_thread(LPVOID) {}
+void overlay_main_loop(void) {}
+void instance_thread(void* payload) {}
 #endif  /* P_OS_WINDOWS */
 
 poverlay_callback * callbacks;
 static int callbacks_size = 15;
 static const int callbacks_lower_band = 20;
 
-int psync_add_overlay_callback(int id, poverlay_callback callback)
-{
+int psync_add_overlay_callback(int id, poverlay_callback callback) {
   poverlay_callback * callbacks_old = callbacks;
   int callbacks_size_old = callbacks_size;
   if (id < callbacks_lower_band)
     return -1;
+
   if (id > (callbacks_lower_band + callbacks_size)) {
      callbacks_size = id - callbacks_lower_band + 1;
      init_overlay_callbacks();
-     memcpy(callbacks,callbacks_old, callbacks_size_old*sizeof(poverlay_callback));
+     memcpy(callbacks, callbacks_old,
+            callbacks_size_old * sizeof(poverlay_callback));
      psync_free(callbacks_old);
   }
+
   callbacks[id - callbacks_lower_band] = callback;
   return 0;
 }

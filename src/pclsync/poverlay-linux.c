@@ -10,7 +10,7 @@
 
 #include "pcloudcc/pcompat.h"
 
-#if defined(P_OS_LINUX) || defined(P_OS_MACOSX) || defined(P_OS_BSD)
+#ifdef P_OS_LINUX
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -18,58 +18,94 @@
 #include <stdlib.h>
 
 #include "poverlay.h"
-#include "plibs.h"
+#include "psynclib.h"
 #include "logger.h"
 
 #define POVERLAY_BUFSIZE 512
+#define POVERLAY_PROTOCOL 0
+#define POVERLAY_SOCKET   "pcloud.sock"
 
-char *mysoc = "/tmp/pcloud_unix_soc.sock";
+static char * create_socket_path() {
+  char *path = (char *)psync_malloc(FILENAME_MAX + 1);
+  if (!path) {
+    return NULL;
+  }
 
-void overlay_main_loop()
-{
+  int n;
+  const char *runtime_dir = getenv("XDG_RUNTIME_DIR");
+  if (runtime_dir) {
+    n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
+  } else {
+    runtime_dir = getenv("TMPDIR");
+    if (runtime_dir) {
+      n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
+    } else {
+      n = snprintf(path, strlen(POVERLAY_SOCKET) + 1, "/tmp/%s",
+                   POVERLAY_SOCKET);
+    }
+  }
+
+  if (n <= 0) {
+    log_fatal("failed to create a socket path");
+    psync_free(path);
+    return NULL;
+  }
+
+  return path;
+}
+
+void overlay_main_loop() {
   struct sockaddr_un addr;
-  int fd,cl;
+  int fd, cl;
 
-  if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    log_error("Unix socket error failed to open %s", mysoc);
+  const char *socket_path = create_socket_path();
+  if (!socket_path) {
+    log_debug("socket path is empty");
     return;
   }
 
-  memset(&addr, 0, sizeof(addr));
+  /* 1. Open a socket */
+  if ((fd = socket(AF_UNIX, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
+    log_error("failed to create socket %s", socket_path);
+    return;
+  }
+
+  /* 2. Create an address */
+  bzero((char *)&addr, sizeof(addr));
   addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, mysoc, sizeof(addr.sun_path)-1);
+  strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+  unlink(socket_path);
 
-  unlink(mysoc);
-
-  if (bind(fd, (struct sockaddr*)&addr,  strlen(mysoc) + sizeof(addr.sun_family)) == -1) {
-    log_error("Unix socket bind error");
+  /* 3. Bind the address to the socket */
+  if (bind(fd, (struct sockaddr*)&addr, strlen(socket_path) + sizeof(addr.sun_family)) == -1) {
+    log_error("failed bind the address to the socket: %s", strerror(errno));
     return;
   }
 
+  /* 4. Listen for connections on the socket */
   if (listen(fd, 5) == -1) {
-    log_error("Unix socket listen error");
+    log_error("failed to listen for connections on the socket: %s", strerror(errno));
     return;
   }
 
   while (1) {
-    if ( (cl = accept(fd, NULL, NULL)) == -1) {
-      log_error("Unix socket accept error");
+    /* 6. Accept connections */
+    if ((cl = accept(fd, NULL, NULL)) == -1) {
+      log_error("failed to accept connections: %s", strerror(errno));
       continue;
     }
+
     psync_run_thread1(
       "Pipe request handle routine",
-      instance_thread,    // thread proc
-      (LPVOID)&cl     // thread parameter
-      );
+      instance_thread, // thread proc
+      (void*)&cl       // thread parameter
+    );
   }
-
-  return;
 }
 
-void instance_thread(void* lpvParam)
-{
+void instance_thread(void* payload) {
   int *cl, rc;
-  char  chbuf[POVERLAY_BUFSIZE];
+  char chbuf[POVERLAY_BUFSIZE];
   message* request = NULL;
   char * curbuf = &chbuf[0];
   int bytes_read = 0;
@@ -78,11 +114,11 @@ void instance_thread(void* lpvParam)
   memset(reply, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
 
-  cl = (int *)lpvParam;
+  cl = (int *)payload;
 
-  while ( (rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
+  while ((rc = read(*cl, curbuf, (POVERLAY_BUFSIZE - bytes_read))) > 0) {
     bytes_read += rc;
-    log_error( "Read %u bytes: %u %s", bytes_read, rc, curbuf );
+    log_debug("Read %u bytes: %u %s", bytes_read, rc, curbuf);
     curbuf = curbuf + rc;
     if (bytes_read > 12) {
       request = (message *)chbuf;
@@ -90,28 +126,29 @@ void instance_thread(void* lpvParam)
         break;
     }
   }
+
   if (rc == -1) {
-    log_error("Unix socket read");
+    log_error("failed to read the socket");
     close(*cl);
     return;
-  }
-  else if (rc == 0) {
-    log_info("Message received");
+  } else if (rc == 0) {
+    log_info("received message from the socket");
     close(*cl);
   }
+
   request = (message *)chbuf;
   if (request) {
   get_answer_to_request(request, reply);
     if (reply ) {
       rc = write(*cl,reply,reply->length);
       if (rc != reply->length)
-        log_error("Unix socket reply not sent.");
-
+        log_error("socket reply not sent");
     }
   }
+
   if (cl) {
     close(*cl);
   }
 };
 
-#endif //defined(P_OS_LINUX) || definef(P_OS_MACOSX) || defined(P_OS_BSD)
+#endif  /* P_OS_LINUX */

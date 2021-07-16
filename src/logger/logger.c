@@ -7,6 +7,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include <pthread.h>
+
 #include "logger.h"
 
 void log_lock(bool lock, void* udata) {
