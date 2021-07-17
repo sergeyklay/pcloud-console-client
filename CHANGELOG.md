@@ -53,3 +53,8 @@ releases, in reverse chronological order.
   create a socket in `XDG_RUNTIME_DIR` or `TMPDIR`. The `/tmp` will be used
   if there are no such environment variables.
 * Removed useless logs. Were removed macro from the `PRINT_RETURN` family.
+* The original version of client, when some errors occurred with the database,
+  sent debug information to the pCloud's servers. This debug information
+  included psync library version, file name, line number, function name, and
+  the error message itself. This project isn't maintained by the pCloud's
+  employees, so this functionality has been removed.
