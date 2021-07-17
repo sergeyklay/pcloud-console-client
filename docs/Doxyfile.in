@@ -868,6 +868,7 @@ INPUT                  = "@DOXYGEN_INPUT_DIR@/include" \
                          "@DOXYGEN_INPUT_DIR@/src" \
                          "@DOXYGEN_INPUT_DIR@/docs/GettingStarted.md" \
                          "@DOXYGEN_INPUT_DIR@/docs/Usage.md" \
+                         "@DOXYGEN_INPUT_DIR@/CHANGELOG.md" \
                          "@DOXYGEN_INPUT_DIR@/docs/mainpage.hpp"
 
 # This tag can be used to specify the character encoding of the source files

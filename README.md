@@ -13,7 +13,7 @@
 pCloud Console Client was forked from
 [the project](https://github.com/pcloudcom/console-client) initially written by
 pCloud Ltd to breathe new life into it and set a more dynamic pace of
-development.  The maintainer of this fork isn't affiliated to pCloud so this
+development. The maintainer of this fork isn't affiliated to pCloud so this
 project is as good or as bad as it gets. If you'd like to contribute to pCloud
 Console Client you're most welcome!
 
