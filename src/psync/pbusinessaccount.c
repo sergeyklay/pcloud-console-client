@@ -1,36 +1,21 @@
-/* Copyright (c) 2013-2015 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2015 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <stdio.h>
 
 #include "pbusinessaccount.h"
 #include "papi.h"
 #include "plibs.h"
 #include "pnetlibs.h"
 #include "pfolder.h"
-
-#include <stdio.h>
+#include "logger.h"
 
 typedef struct _email_vis_params {
   char** email;
@@ -46,22 +31,12 @@ typedef struct _team_vis_params {
 #define INVALID_SHAREDID_RESULT 2025
 
 static void init_param_str(binparam* t, const char *name, const char *val) {
-  //{PARAM_STR, strlen(name), strlen(val), (name), {(uint64_t)((uintptr_t)(val))}}
   t->paramtype  = PARAM_STR;
   t->paramnamelen = strlen(name);
   t->opts = strlen(val);
   t->paramname = name;
   t->str = val;
 }
-/*
-static void init_param_num(binparam* t, const char *name, uint64_t val) {
-  //{PARAM_NUM, strlen(name), 0, (name), {(val)}}
-  t->paramtype  = PARAM_NUM;
-  t->paramnamelen = strlen(name);
-  t->opts = 0;
-  t->paramname = name;
-  t->num = val;
-}*/
 
 static int handle_result(const binresult *bres, uint64_t result, char **err)
 {
@@ -73,7 +48,7 @@ static int handle_result(const binresult *bres, uint64_t result, char **err)
     errorret = psync_find_result(bres, "message", PARAM_STR)->str;
 
   *err = psync_strndup(errorret, strlen(errorret));
-  debug(D_WARNING, "command gettreepublink returned error code %u message %s", (unsigned)result, errorret);
+  log_warn("command gettreepublink returned error code %u message %s", (unsigned)result, errorret);
   psync_process_api_error(result);
   if (psync_handle_api_result(result)==PSYNC_NET_TEMPFAIL)
     return -result;
@@ -114,7 +89,6 @@ int do_psync_account_stopshare(psync_shareid_t usershareids[], int nusershareid,
     }
     if (i > 0)
       *(idsp - 1) = '\0';
-    //debug(D_NOTICE, "usershareids %s",ids1);
     init_param_str(t + pind++, "usershareids", ids1);
   }
 
@@ -129,13 +103,12 @@ int do_psync_account_stopshare(psync_shareid_t usershareids[], int nusershareid,
     }
     if (i > 0)
       *(idsp - 1) = '\0';
-    //debug(D_NOTICE, "teamshareids %s",ids2);
     init_param_str(t + pind++, "teamshareids", ids2);
   }
 
   api=psync_apipool_get();
   if (unlikely(!api)) {
-    debug(D_WARNING, "Can't gat api from the pool. No pool ?\n");
+    log_warn("Can't gat api from the pool. No pool ?\n");
     return -2;
   }
 
@@ -145,7 +118,7 @@ int do_psync_account_stopshare(psync_shareid_t usershareids[], int nusershareid,
     psync_apipool_release(api);
   else {
     psync_apipool_release_bad(api);
-    debug(D_WARNING, "Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result.\n");
     return -2;
   }
 
@@ -225,7 +198,7 @@ int do_psync_account_modifyshare(psync_shareid_t usrshrids[], uint32_t uperms[],
       *(idsp - 1) = '\0';
       *(permsp - 1) = '\0';
     }
-    //debug(D_NOTICE, "usershareids %s, userpermissions %s",ids1, perms1);
+
     init_param_str(t + pind++, "usershareids", ids1);
     init_param_str(t + pind++, "userpermissions", perms1);
   }
@@ -251,14 +224,14 @@ int do_psync_account_modifyshare(psync_shareid_t usrshrids[], uint32_t uperms[],
       *(idsp - 1) = '\0';
       *(permsp - 1) = '\0';
     }
-    //debug(D_NOTICE, "teamshareids %s teampermissions %s",ids2, perms2);
+
     init_param_str(t + pind++, "teamshareids", ids2);
     init_param_str(t + pind++, "teampermissions", perms2);
   }
 
   api=psync_apipool_get();
   if (unlikely(!api)) {
-    debug(D_WARNING, "Can't gat api from the pool. No pool ?\n");
+    log_warn("Can't gat api from the pool. No pool ?\n");
     return -2;
   }
 
@@ -268,7 +241,7 @@ int do_psync_account_modifyshare(psync_shareid_t usrshrids[], uint32_t uperms[],
     psync_apipool_release(api);
   else {
     psync_apipool_release_bad(api);
-    debug(D_WARNING, "Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result.\n");
     return -2;
   }
 
@@ -314,35 +287,35 @@ void get_ba_member_email(uint64_t userid, char** email /*OUT*/, size_t *length /
   *length = 0;
   res=psync_sql_query("SELECT mail FROM baccountemail WHERE id=?");
   psync_sql_bind_uint(res, 1, userid);
-  if ((row=psync_sql_fetch_row(res))){
+  if ((row=psync_sql_fetch_row(res))) {
       cstr=psync_get_lstring(row[0], length);
       *email=(char *)psync_malloc(*length);
       memcpy(*email, cstr, *length);
       psync_sql_free_result(res);
       return;
-  } else 
+  } else
     psync_sql_free_result(res);
 
   {
     binresult *bres;
     const binresult *users;
     const char* fname, *lname;
-    
+
     binparam params[] = { P_STR("auth", psync_my_auth), P_STR("timeformat", "timestamp"), P_NUM("userids", userid) };
     bres = psync_api_run_command("account_users", params);
 
-    if (!bres){
-      debug(D_NOTICE, "Account users command failed! \n");
+    if (!bres) {
+      log_error("Account users command failed! \n");
       return;
     }
-    
+
     if (api_error_result(bres))
       return;
-    
+
     users = psync_find_result(bres, "users", PARAM_ARRAY);
     if (!users->length) {
       psync_free(bres);
-      debug(D_WARNING, "Account_users returned empty result!\n");
+      log_warn("Account_users returned empty result!\n");
       return;
     } else {
       const char *resret = psync_find_result(users->array[0], "email", PARAM_STR)->str;
@@ -362,7 +335,7 @@ void get_ba_member_email(uint64_t userid, char** email /*OUT*/, size_t *length /
 	  psync_sql_bind_lstring(q, 4, lname, strlen(lname));
       psync_sql_run_free(q);
     }
-  
+
   }
 }
 
@@ -370,13 +343,13 @@ void get_ba_team_name(uint64_t teamid, char** name /*OUT*/, size_t *length /*OUT
   psync_sql_res *res;
   psync_variant_row row;
   const char *cstr;
-  
+
   binresult *bres;
   const binresult *teams;
 
   res=psync_sql_query("SELECT name FROM baccountteam WHERE id=?");
   psync_sql_bind_uint(res, 1, teamid);
-  if ((row=psync_sql_fetch_row(res))){
+  if ((row=psync_sql_fetch_row(res))) {
       cstr=psync_get_lstring(row[0], length);
       *name=(char *)psync_malloc(*length);
       memcpy(*name, cstr, *length);
@@ -385,41 +358,38 @@ void get_ba_team_name(uint64_t teamid, char** name /*OUT*/, size_t *length /*OUT
   } else
     psync_sql_free_result(res);
 
-  //debug(D_NOTICE, "Account_teams numids %d\n", nids);
   binparam params[] = { P_STR("auth", psync_my_auth), P_STR("timeformat", "timestamp"), P_NUM("teamids", teamid), P_STR("showeveryone", "1") };
   bres = psync_api_run_command("account_teams", params);
 
   if (!bres) {
-    debug(D_WARNING, "Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result.\n");
     return;
   }
-  
+
   if (api_error_result(bres))
     return;
-  
+
   teams = psync_find_result(bres, "teams", PARAM_ARRAY);
 
-  //debug(D_NOTICE, "Result contains %d teams\n", users->length);
-
-  if (!teams->length){
+  if (!teams->length) {
     psync_free(bres);
-    debug(D_WARNING, "Account_teams returned empty result!\n");
+    log_warn("Account_teams returned empty result!\n");
     return;
-  } else {    
+  } else {
     const char *teamret = "";
     teamret = psync_find_result(teams->array[0], "name", PARAM_STR)->str;
     *length = strlen(teamret);
     *name = psync_strndup(teamret, *length);
   }
   psync_free(bres);
- 
+
   psync_sql_res *q;
   q=psync_sql_prep_statement("REPLACE INTO baccountteam  (id, name) VALUES (?, ?)");
   psync_sql_bind_uint(q, 1, teamid);
   psync_sql_bind_lstring(q, 2, *name,  *length);
   psync_sql_run_free(q);
-  
-  return; 
+
+  return;
 }
 
 void cache_account_emails() {
@@ -434,9 +404,9 @@ void cache_account_emails() {
     binparam params[] =  {P_STR("username", psync_my_user), P_STR("password", psync_my_pass), P_STR("timeformat", "timestamp")};
     bres =  psync_api_run_command("account_users", params);
   } else return;
-    
+
   if (!bres) {
-    debug(D_WARNING, "Send command returned invalid result.\n");
+    log_warn("Send command returned invalid result.\n");
     return;
   }
 
@@ -446,7 +416,7 @@ void cache_account_emails() {
   users = psync_find_result(bres, "users", PARAM_ARRAY);
 
   if (!users->length) {
-    debug(D_WARNING, "Account_users returned empty result!\n");
+    log_warn("Account_users returned empty result!\n");
     goto end_close;
   } else {
     psync_sql_res *q;
@@ -456,7 +426,7 @@ void cache_account_emails() {
       psync_sql_rollback_transaction();
       goto end_close;
     }
-    
+
     for (i = 0; i < users->length; ++i) {
       const char *nameret = 0;
       const binresult *user = users->array[i];
@@ -503,22 +473,20 @@ void cache_account_teams() {
       binparam params[] =  {P_STR("username", psync_my_user), P_STR("password", psync_my_pass), P_STR("timeformat", "timestamp"), P_STR("showeveryone", "1")};
       bres = psync_api_run_command("account_teams", params);
   } else return;
-  
+
   if (!bres) {
-    debug(D_WARNING, "Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result.\n");
     return;
   }
-  
+
   if (api_error_result(bres))
     return;
-  
+
   users = psync_find_result(bres, "teams", PARAM_ARRAY);
 
-  //debug(D_NOTICE, "Result contains %d teams\n", users->length);
-
-  if (!users->length){
+  if (!users->length) {
     psync_free(bres);
-    debug(D_WARNING, "Account_teams returned empty result!\n");
+    log_warn("Account_teams returned empty result!\n");
     return;
   } else {
     psync_sql_res *q;
@@ -526,16 +494,15 @@ void cache_account_teams() {
     q=psync_sql_prep_statement("DELETE FROM baccountteam");
     if (unlikely(psync_sql_run_free(q)))
       psync_sql_rollback_transaction();
-  
+
     for (i = 0; i < users->length; ++i)
     {
       const char *nameret = 0;
       nameret = psync_find_result(users->array[i], "name", PARAM_STR)->str;
       uint64_t teamid = 0;
       psync_sql_res *res;
-      
+
       teamid = psync_find_result(users->array[i], "id", PARAM_NUM)->num;
-      //debug(D_NOTICE, "Team name %s team id %lld\n", nameret,(long long)teamid);
       res=psync_sql_prep_statement("INSERT INTO baccountteam  (id, name) VALUES (?, ?)");
       psync_sql_bind_uint(res, 1, teamid);
       psync_sql_bind_lstring(res, 2, nameret, strlen(nameret));
@@ -546,7 +513,7 @@ void cache_account_teams() {
   }
   psync_free(bres);
   return;
- 
+
 }
 
 static void cache_my_team(const binresult *team1) {
@@ -559,7 +526,6 @@ static void cache_my_team(const binresult *team1) {
 
   nameret = psync_find_result(team, "name", PARAM_STR)->str;
   teamid = psync_find_result(team, "id", PARAM_NUM)->num;
-  //debug(D_NOTICE, "My Team name %s team id %lld\n", nameret,(long long)teamid);
   q=psync_sql_prep_statement("INSERT INTO myteams  (id, name) VALUES (?, ?)");
   psync_sql_bind_uint(q, 1, teamid);
   psync_sql_bind_lstring(q, 2, nameret, strlen(nameret));
@@ -573,14 +539,14 @@ void cache_ba_my_teams() {
   const binresult *teams;
   psync_sql_res *q;
   int i;
-  
+
   binparam params[] = { P_STR("auth", psync_my_auth), P_STR("timeformat", "timestamp"), P_STR("userids", "me"), P_STR("showteams", "1"), P_STR("showeveryone", "1") };
   bres = psync_api_run_command("account_users", params);
   if (!bres) {
-    debug(D_WARNING, "Send command returned invalid result.\n");
+    log_warn("Send command returned invalid result.\n");
     return;
   }
-  
+
   if (api_error_result(bres))
     return;
 
@@ -588,7 +554,7 @@ void cache_ba_my_teams() {
 
   if (!users->length) {
     psync_free(bres);
-    debug(D_WARNING, "Account_users returned empty result!\n");
+    log_warn("Account_users returned empty result!\n");
     return;
   }
 
@@ -606,7 +572,7 @@ void cache_ba_my_teams() {
 int api_error_result(binresult* res) {
   uint64_t result;
   result=psync_find_result(res, "result", PARAM_NUM)->num;
-  if (result){
+  if (result) {
     psync_free(res);
     psync_process_api_error(result);
     return 1;
@@ -615,28 +581,28 @@ int api_error_result(binresult* res) {
 }
 
 
-void psync_update_cryptostatus(){
+void psync_update_cryptostatus() {
  if (psync_my_auth[0]) {
     binresult *res;
     const binresult *cres;
     psync_sql_res *q;
     uint64_t u, crexp, crsub = 0, is_business = 0;
     int crst = 0,crstat;
-  
+
     binparam params[] = { P_STR("auth", psync_my_auth), P_STR("timeformat","timestamp") };
     res = psync_api_run_command("userinfo", params);
     if (!res) {
-      debug(D_WARNING, "Send command returned invalid result.\n");
+      log_warn("Send command returned invalid result.\n");
       return;
     }
-    
+
     if (api_error_result(res))
       return;
-    
+
     q=psync_sql_prep_statement("REPLACE INTO setting (id, value) VALUES (?, ?)");
-    
+
     is_business=psync_find_result(res, "business", PARAM_BOOL)->num;
-    
+
     u=psync_find_result(res, "cryptosetup", PARAM_BOOL)->num;
     psync_sql_bind_string(q, 1, "cryptosetup");
     psync_sql_bind_uint(q, 2, u);
@@ -647,25 +613,25 @@ void psync_update_cryptostatus(){
     crsub =  psync_find_result(res, "cryptosubscription", PARAM_BOOL)->num;
     psync_sql_bind_uint(q, 2, crsub);
     psync_sql_run(q);
-    
+
     cres=psync_check_result(res, "cryptoexpires", PARAM_NUM);
     crexp = cres?cres->num:0;
     psync_sql_bind_string(q, 1, "cryptoexpires");
     psync_sql_bind_uint(q, 2, crexp);
     psync_sql_run(q);
 
-    if (is_business || crsub){
+    if (is_business || crsub) {
       if (crst)
         crstat = 5;
       else  crstat = 4;
     } else {
       if (!crst)
         crstat = 1;
-      else 
+      else
       {
         if (psync_time() > crexp)
           crstat = 3;
-        else 
+        else
           crstat = 2;
       }
     }
@@ -681,7 +647,7 @@ static int check_write_permissions (psync_folderid_t folderid) {
   psync_sql_res* res;
   psync_uint_row row;
   int  ret = 0;
-  
+
   res=psync_sql_query("SELECT permissions, flags, name FROM folder WHERE id=?");
   psync_sql_bind_uint(res, 1, folderid);
   row=psync_sql_fetch_rowint(res);
@@ -689,7 +655,7 @@ static int check_write_permissions (psync_folderid_t folderid) {
     debug(D_ERROR, "could not find folder of folderid %lu", (unsigned long)folderid);
   else if (/*(((row[1]) & 3) != O_RDONLY) &&*/ ((row[0]&PSYNC_PERM_MODIFY)&&(row[0]&PSYNC_PERM_CREATE)))
     ret = 1;
-    
+
    psync_sql_free_result(res);
    return ret;
 }
@@ -699,14 +665,14 @@ static psync_folderid_t create_index_folder(const char * path) {
   int ind = 1;
   char * err;
   psync_folderid_t folderid;
-    
+
   while (ind < 100) {
     folderid=PSYNC_INVALID_FOLDERID;
     bufflen = strlen(path) + 1 /*zero char*/ + 3 /*parenthesis*/ + 3 /*up to 3 digit index*/;
     buff = (char *) psync_malloc(bufflen);
     snprintf(buff, bufflen - 1, "%s (%d)", path, ind);
     if (psync_create_remote_folder_by_path(buff, &err)!=0)
-      debug(D_NOTICE, "Unable to create folder %s error is %s.", buff, err);
+      log_error("Unable to create folder %s error is %s.", buff, err);
     folderid=psync_get_folderid_by_path(buff);
     if ((folderid!=PSYNC_INVALID_FOLDERID)&&check_write_permissions(folderid)) {
       psync_free(buff);
@@ -722,15 +688,15 @@ static psync_folderid_t create_index_folder(const char * path) {
 psync_folderid_t psync_check_and_create_folder (const char * path) {
   psync_folderid_t folderid=psync_get_folderid_by_path(path);
   char *err;
-  
+
   if (folderid==PSYNC_INVALID_FOLDERID) {
     if(psync_create_remote_folder_by_path(path, &err)!=0) {
-      debug(D_NOTICE, "Unable to create folder %s error is %s.", path, err);
+      log_error("Unable to create folder %s error is %s.", path, err);
       psync_free(err);
       folderid = create_index_folder(path);
     }
   } else if (!check_write_permissions(folderid))
    folderid = create_index_folder(path);
 
-  return folderid; 
+  return folderid;
 }
