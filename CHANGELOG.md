@@ -8,8 +8,8 @@ releases, in reverse chronological order.
 ### Removals
 
 * Code cleanup. Removed not used, old and duplicate stuff to avoid confusion.
-* Removed hardcoded mbedtls library.
-* Removed hardcoded sqlite3 library.
+* Removed hardcoded Mbed TLS library.
+* Removed hardcoded SQLite3 library.
 * Removed useless logs. Were removed macro from the `PRINT_RETURN` family.
 * The original version of client, when some errors occurred with the database,
   sent debug information to the pCloud's servers. This debug information
@@ -22,7 +22,7 @@ releases, in reverse chronological order.
 * Build project using single CMake command only.
 * Introduced the CI process through GitHub Actions.
 * Provided systemd service example.
-* Install build and run time dependencies using Conan.
+* Install project dependencies using Conan.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
 * Provide ability to enable maintainer logs using `log.c` library.
 * Added possibility to use EU region servers.
@@ -40,8 +40,8 @@ releases, in reverse chronological order.
 
 * Improved documentation.
 * CMake < 3.11 is no longer supported.
-* Reorganized project structures to follow modern CMake layout.
-* Instructed the compiler to use `-std=gnu99` when it is needed.
+* Reorganized project structure to follow modern C/C++ projects structure.
+* Instructed the compiler to use `-std=gnu99` when this is needed.
 * Project build no longer uses `pcloudcc_lib` shared library and from now the
   entire runtime is in one file.
 * The previous version of the client used `lsb_release` on registration phase.
