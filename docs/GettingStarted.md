@@ -15,7 +15,7 @@ Also, you'll need the following build tools:
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
-- [CMake](https://cmake.org/) >= 3.3
+- [CMake](https://cmake.org/) >= 3.11
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
 - [Conan](https://conan.io/) decentralized package manager with a client-server architecture
 
