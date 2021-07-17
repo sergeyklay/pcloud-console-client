@@ -10,6 +10,12 @@ releases, in reverse chronological order.
 * Code cleanup. Removed not used, old and duplicate stuff to avoid confusion.
 * Removed hardcoded mbedtls library.
 * Removed hardcoded sqlite3 library.
+* Removed useless logs. Were removed macro from the `PRINT_RETURN` family.
+* The original version of client, when some errors occurred with the database,
+  sent debug information to the pCloud's servers. This debug information
+  included psync library version, file name, line number, function name, and
+  the error message itself. This project isn't maintained by the pCloud's
+  employees, so this functionality has been removed.
 
 ### Features
 
@@ -43,8 +49,8 @@ releases, in reverse chronological order.
   due to the fact that `lsb_release` could return a string of arbitrary length.
   This behavior was disabled in the current client version. Now the client send
   only the OS name and client version.
-* Bumped Mbed TLS from 1.3.10 to 2.25.0
-* Bumped SQLite3 from 3.12.0 to 3.36.0
+* Bumped Mbed TLS from 1.3.10 to 2.25.0.
+* Bumped SQLite3 from 3.12.0 to 3.36.0.
 * Replaced deprecated `readdir_r()` function with `readdir()`.
 * Replaced deprecated semaphores implementation on macOS with GCD semaphores.
 * Updated macOS versions list to identity caller on API calls.
@@ -52,9 +58,3 @@ releases, in reverse chronological order.
 * Reworked creation of overlay socket on Linux. Now the client will try to
   create a socket in `XDG_RUNTIME_DIR` or `TMPDIR`. The `/tmp` will be used
   if there are no such environment variables.
-* Removed useless logs. Were removed macro from the `PRINT_RETURN` family.
-* The original version of client, when some errors occurred with the database,
-  sent debug information to the pCloud's servers. This debug information
-  included psync library version, file name, line number, function name, and
-  the error message itself. This project isn't maintained by the pCloud's
-  employees, so this functionality has been removed.
