@@ -3046,7 +3046,7 @@ void psync_fs_refresh_folder(psync_folderid_t folderid) {
   char rndhex[42];
   psync_file_t fd;
 
-  path=psync_get_path_by_folderid_sep(folderid, PSYNC_DIRECTORY_SEPARATOR, NULL);
+  path = psync_get_path_by_folderid_sep(folderid, PSYNC_DIRECTORY_SEPARATOR, NULL);
   if (path==PSYNC_INVALID_PATH)
     return;
   psync_ssl_rand_weak(rndbuff, sizeof(rndbuff));
