@@ -6,6 +6,6 @@
 # the LICENSE file that was distributed with this source code.
 
 option(PCLOUD_WITH_SYSTEMD "Enable systemd integration" OFF)
-if (PCLOUD_WITH_SYSTEMD)
+if(PCLOUD_WITH_SYSTEMD)
   add_subdirectory(systemd)
 endif()

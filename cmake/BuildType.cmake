@@ -28,7 +28,7 @@ if(NOT isMultiConfig) # Makefiles, Ninja, ...
   unset(_allowed_build_types)
 elseif(NOT MULTICONFIG_DONE) # Xcode, Visual Studio, ...
   set(MULTICONFIG_DONE TRUE)
-  if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND CMAKE_CONFIGURATION_TYPES Asan Ubsan)
 
     # This is needed because user can set CMAKE_CONFIGURATION_TYPES
@@ -61,7 +61,7 @@ endif()
 # debugger can still produce a stack backtrace even with optimizations flags
 # (eg '-O1', '-O2', etc).
 #
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # Setup Asan flags
   set(CMAKE_C_FLAGS_ASAN
       "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING

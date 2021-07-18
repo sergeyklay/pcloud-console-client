@@ -30,7 +30,7 @@ endif()
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service.in"
     "${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service")
 
-if (WITH_SYSTEMD)
+if(WITH_SYSTEMD)
   install(FILES pcloudcc@.service
       DESTINATION ${PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR})
 endif()

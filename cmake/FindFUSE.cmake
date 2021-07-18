@@ -58,7 +58,7 @@ find_path(
 # check found version
 if(FUSE_INCLUDE_DIR)
   # usually on Linux FUSE_INCLUDE_DIR is /usr/include
-  if (FUSE_INCLUDE_DIR MATCHES "/include$" AND NOT WINDOWS)
+  if(FUSE_INCLUDE_DIR MATCHES "/include$" AND NOT WINDOWS)
     set(FUSE_INCLUDE_DIR "${FUSE_INCLUDE_DIR}/fuse")
   endif()
 

@@ -36,6 +36,8 @@ include(ProjectInfo)
 # Use a standard directory layout
 include(GNUInstallDirs)
 
+message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
+
 if(APPLE)
   # We prefer libraries over frameworks
   set(CMAKE_FIND_FRAMEWORK LAST)
@@ -56,7 +58,5 @@ add_subdirectory(src)
 add_subdirectory(extras)
 
 if(MASTER_PROJECT)
-  message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
-
   add_subdirectory(docs)
 endif()
