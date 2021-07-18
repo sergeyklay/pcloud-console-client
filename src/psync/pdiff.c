@@ -98,7 +98,7 @@ static void delete_cached_crypto_keys() {
 
 static binresult *get_userinfo_user_digest(psync_socket *sock, const char *username, size_t userlen, const char *pwddig, const char *digest, uint32_t diglen,
                                            const char *device) {
-  binparam params[]={P_STR("timeformat", "timestamp"),
+  binparam params[] = {P_STR("timeformat", "timestamp"),
                       P_LSTR("username", username, userlen),
                       P_LSTR("digest", digest, diglen),
                       P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
@@ -111,7 +111,7 @@ static binresult *get_userinfo_user_digest(psync_socket *sock, const char *usern
 }
 
 static binresult *get_userinfo_user_pass(psync_socket *sock, const char *username, const char *password, const char *device) {
-  binparam empty_params[]={P_STR("MS", "sucks")};
+  binparam empty_params[] = {P_STR("MS", "sucks")};
   psync_sha1_ctx ctx;
   binresult *res, *ret;
   const binresult *dig;
@@ -205,7 +205,7 @@ static psync_socket *get_connected_socket() {
         res = send_command(sock, "login", params);
       }
     } else {
-      binparam params[]={
+      binparam params[] = {
           P_STR("timeformat", "timestamp"),
           P_STR("auth", auth),
           P_STR("device", device),
@@ -400,7 +400,7 @@ static psync_socket *get_connected_socket() {
       psync_apipool_set_server(cres->array[0]->str);
     psync_free(res);
     if (isbusiness) {
-      binparam params[]={P_STR("timeformat", "timestamp"),
+      binparam params[] = {P_STR("timeformat", "timestamp"),
                          P_STR("auth", psync_my_auth)};
       res=send_command(sock, "account_info", params);
       if (unlikely_log(!res)) {
@@ -2062,13 +2062,13 @@ static int send_diff_command(psync_socket *sock, subscribed_ids ids) {
     const char *ts=psync_notifications_get_thumb_size();
     if (ts) {
       if (psync_is_business) {
-        binparam diffparams[]={P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"),
+        binparam diffparams[] = {P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"),
                               P_NUM("difflimit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid),
                               P_NUM("notificationid", ids.notificationid), P_STR("notificationthumbsize", ts), P_NUM("publinkid", ids.publinkid),
                               P_NUM("uploadlinkid", ids.uploadlinkid)};
         return send_command_no_res(sock, "subscribe", diffparams)?0:-1;
       } else {
-         binparam diffparams[]={P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"),
+         binparam diffparams[] = {P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"),
                               P_NUM("difflimit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid),
                               P_NUM("notificationid", ids.notificationid), P_STR("notificationthumbsize", ts), P_NUM("publinkid", ids.publinkid),
                               P_NUM("uploadlinkid", ids.uploadlinkid)};
@@ -2077,12 +2077,12 @@ static int send_diff_command(psync_socket *sock, subscribed_ids ids) {
     }
     else{
       if (psync_is_business) {
-        binparam diffparams[]={P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"),
+        binparam diffparams[] = {P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"),
                               P_NUM("difflimit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid), P_NUM("notificationid", ids.notificationid), P_NUM("publinkid", ids.publinkid),
                               P_NUM("uploadlinkid", ids.uploadlinkid)};
         return send_command_no_res(sock, "subscribe", diffparams)?0:-1;
       } else {
-        binparam diffparams[]={P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"),
+        binparam diffparams[] = {P_STR("subscribefor", "diff,notifications,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"),
                               P_NUM("difflimit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid), P_NUM("notificationid", ids.notificationid), P_NUM("publinkid", ids.publinkid),
                               P_NUM("uploadlinkid", ids.uploadlinkid)};
         return send_command_no_res(sock, "subscribe", diffparams)?0:-1;
@@ -2091,11 +2091,11 @@ static int send_diff_command(psync_socket *sock, subscribed_ids ids) {
   }
   else{
     if (psync_is_business) {
-      binparam diffparams[]={P_STR("subscribefor", "diff,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"), P_NUM("difflimit", PSYNC_DIFF_LIMIT),
+      binparam diffparams[] = {P_STR("subscribefor", "diff,publinks,uploadlinks,teams,users,contacts"), P_STR("timeformat", "timestamp"), P_NUM("difflimit", PSYNC_DIFF_LIMIT),
                             P_NUM("diffid", ids.diffid), P_NUM("publinkid", ids.publinkid), P_NUM("uploadlinkid", ids.uploadlinkid)};
       return send_command_no_res(sock, "subscribe", diffparams)?0:-1;
     } else {
-      binparam diffparams[]={P_STR("subscribefor", "diff,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"), P_NUM("difflimit", PSYNC_DIFF_LIMIT),
+      binparam diffparams[] = {P_STR("subscribefor", "diff,publinks,uploadlinks,contacts"), P_STR("timeformat", "timestamp"), P_NUM("difflimit", PSYNC_DIFF_LIMIT),
                             P_NUM("diffid", ids.diffid), P_NUM("publinkid", ids.publinkid), P_NUM("uploadlinkid", ids.uploadlinkid)};
       return send_command_no_res(sock, "subscribe", diffparams)?0:-1;
     }
@@ -2137,10 +2137,10 @@ static void handle_exception(psync_socket **sock, subscribed_ids *ids, char ex) 
     ids->diffid=psync_sql_cellint("SELECT value FROM setting WHERE id='diffid'", 0);
     send_diff_command(*sock, *ids);
   } else if (ex=='e') {
-    binparam diffparams[]={P_STR("id", "ignore")};
+    binparam diffparams[] = {P_STR("id", "ignore")};
     if (!send_command_no_res(*sock, "nop", diffparams) ||
         psync_select_in(&(*sock)->sock, 1, PSYNC_SOCK_TIMEOUT_ON_EXCEPTION * 1000) != 0 ) {
-      const char *prefixes[]={"API:", "HTTP"};
+      const char *prefixes[] = {"API:", "HTTP"};
       log_info("reconnecting diff");
       psync_socket_close_bad(*sock);
       psync_cache_clean_starting_with_one_of(prefixes, ARRAY_SIZE(prefixes));
@@ -2239,7 +2239,7 @@ static void psync_diff_refresh_fs(const binresult *entries) {
 
 static void psync_run_analyze_if_needed() {
   if (psync_timer_time()>psync_sql_cellint("SELECT value FROM setting WHERE id='lastanalyze'", 0)+24*3600) {
-    static const char *skiptables[]={"pagecache", "sqlite_stat1"};
+    static const char *skiptables[] = {"pagecache", "sqlite_stat1"};
     psync_sql_res *res;
     psync_uint_row row;
     psync_str_row srow;
@@ -2286,7 +2286,7 @@ static void psync_run_analyze_if_needed() {
 }
 
 static int psync_diff_check_quota(psync_socket *sock) {
-  binparam diffparams[]={P_STR("timeformat", "timestamp"), P_BOOL("getapiserver", 1)};
+  binparam diffparams[] = {P_STR("timeformat", "timestamp"), P_BOOL("getapiserver", 1)};
   binresult *res;
   const binresult *uq;
   uint64_t oused_quota, result;
@@ -2381,7 +2381,7 @@ restart:
     initialdownload=1;
   used_quota=psync_sql_cellint("SELECT value FROM setting WHERE id='usedquota'", 0);
   do{
-    binparam diffparams[]={P_STR("timeformat", "timestamp"), P_NUM("limit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid)};
+    binparam diffparams[] = {P_STR("timeformat", "timestamp"), P_NUM("limit", PSYNC_DIFF_LIMIT), P_NUM("diffid", ids.diffid)};
     if (!psync_do_run)
       break;
     res=send_command(sock, "diff", diffparams);
