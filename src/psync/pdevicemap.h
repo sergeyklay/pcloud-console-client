@@ -12,8 +12,6 @@
 #ifndef PCLOUD_PSYNC_PDEVICEMAP_H_
 #define PCLOUD_PSYNC_PDEVICEMAP_H_
 
-#include "pdevice_monitor.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,12 +25,27 @@ pdevice_extended_info* construct_deviceininfo(
 
 void destruct_deviceininfo(pdevice_extended_info* device);
 
-void add_device (pdevice_types type, int isextended, const char *filesystem_path, const char *vendor, const  char *product,const char *device_id);
-void remove_device (const char *filesystem_path);
-void filter_unconnected_device ();
+void add_device(pdevice_types type, int isextended, const char *filesystem_path, const char *vendor, const  char *product,const char *device_id);
+void remove_device(const char *filesystem_path);
+void filter_unconnected_device();
 void init_devices ();
 void print_stree();
 void print_device_info(pdevice_extended_info *ret );
+
+/*! \brief Lists all stored devices. */
+pdevice_item_list_t * psync_list_devices(char **err);
+
+/*! \brief Enables device.
+ *
+ * This info is stored in the database so will be present after restart.
+ */
+void penable_device(const char* device_id);
+
+/*! \brief Disable device. */
+void pdisable_device(const char* device_id);
+
+/*! \brief Remove db information about device. */
+void premove_device(const char* device_id);
 
 #ifdef __cplusplus
 }

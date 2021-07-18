@@ -313,7 +313,6 @@ void pinit_device_monitor() {
         return;
     }
 
-
     gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     runLoopSource = IONotificationPortGetRunLoopSource(gNotifyPort);
 

@@ -292,9 +292,7 @@ pdevice_item_list_t * psync_list_devices(char **err /*OUT*/) {
   *err = 0;
 
   builder=psync_list_builder_create(sizeof(pdevice_item_t), offsetof(pdevice_item_list_t, entries));
-
   res=psync_sql_query_rdlock("SELECT id, last_path, type, vendor, product, connected, enabled FROM devices");
-
   psync_list_bulder_add_sql(builder, res, create_device_item);
 
   return (pdevice_item_list_t *)psync_list_builder_finalize(builder);
