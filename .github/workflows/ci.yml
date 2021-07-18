@@ -92,7 +92,8 @@ jobs:
                  cmake \
                  fuse \
                  libfuse-dev \
-                 libpthread-stubs0-dev
+                 libpthread-stubs0-dev \
+                 pkg-config
               ;;
             macOS*)
               sudo xcode-select -switch /Applications/Xcode.app

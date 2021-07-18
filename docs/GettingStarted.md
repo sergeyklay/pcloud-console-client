@@ -9,6 +9,8 @@ To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
 
+Additionally, on Linux you'll need `pkg-config` to perform some system checks.
+
 Also, you'll need the following build tools:
 - A C99/C++11 compatible compiler such as
   [GCC](https://gcc.gnu.org),
@@ -35,7 +37,8 @@ $ sudo apt install \
     cmake \
     fuse \
     libfuse-dev \
-    libpthread-stubs0-dev
+    libpthread-stubs0-dev \
+    pkg-config
 ```
 
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
