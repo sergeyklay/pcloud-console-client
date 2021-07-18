@@ -114,17 +114,11 @@ program with its own configuration language. Example configuration files
 for several of these are included in 
 [`extras`](https://github.com/sergeyklay/pcloud-console-client/tree/master/extras)
 directory, but the most common is probably **systemd**, which reads a service
-definition for lines describing command to run at various times. You can
-autostart client on system boot as follows:
+definition for lines describing command to run at various times. To use
+systemd integration the project should be built  with `-DPCLOUD_WITH_SYSTEMD=ON`
+flag.  You can autostart client on system boot as follows:
 
-Copy service from the `extras` directory:
-
-```sh
-$ mkdir -p ~/.config/systemd/user
-$ cp extras/systemd/pcloudcc@.service ~/.config/systemd/user
-```
-
-Then as your own user enable it:
+As your own user enable it:
 
 ```sh
 $ systemctl --user enable pcloudcc@<example@myemail.com>.service

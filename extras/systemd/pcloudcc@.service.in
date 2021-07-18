@@ -13,7 +13,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=%h
-ExecStart=pcloudcc -u %i -m %h/pCloudDrive
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/pcloudcc -u %i -m %h/pCloudDrive
 Restart=on-failure
 RestartSec=10
 

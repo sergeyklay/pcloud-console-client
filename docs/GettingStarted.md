@@ -85,16 +85,18 @@ For example, to enable the feature called `FEATURE` use `-DFEATURE=ON` and to
 disable the feature use `-DFEATURE=OFF`. Below are the special flags that are
 recognized during the project configuration phase:
 
-| Feature                        | Possible Value                                                      | Description                                                       |
-| ------------------------------ |---------------------------------------------------------------------|-------------------------------------------------------------------|
-| `PCLOUD_WARNINGS_AS_ERRORS`    | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
-| `PCLOUD_TLS_IMPL`              | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
-| `PCLOUD_BUILD_DOC`             | `ON`, `OFF`                                                         | ON to generate the API documentation, OFF to ignore it.           |
-| `PCLOUD_MAINTAINER_LOGS`       | `ON`, `OFF`                                                         | ON to enable maintainer logs, OFF to disable logging.             |
-| `PCLOUD_MAINTAINER_LOG_FILE`   | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
-| `PCLOUD_MAINTAINER_LOGS_LEVEL` | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
-| `CMAKE_BUILD_TYPE`             | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
-| `CMAKE_INSTALL_PREFIX`         | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
+| Feature                               | Possible Value                                                      | Description                                                       |
+| ------------------------------------- |---------------------------------------------------------------------|-------------------------------------------------------------------|
+| `PCLOUD_WARNINGS_AS_ERRORS`           | `ON`, `OFF`                                                         | Turn all build warnings into errors.                              |
+| `PCLOUD_TLS_IMPL`                     | `mbedtls`, `openssl`, `securetransport`                             | Implementation of the TLS and SSL protocols.                      |
+| `PCLOUD_BUILD_DOC`                    | `ON`, `OFF`                                                         | ON to generate the API documentation, OFF to ignore it.           |
+| `PCLOUD_MAINTAINER_LOGS`              | `ON`, `OFF`                                                         | ON to enable maintainer logs, OFF to disable logging.             |
+| `PCLOUD_MAINTAINER_LOG_FILE`          | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
+| `PCLOUD_MAINTAINER_LOGS_LEVEL`        | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
+| `PCLOUD_WITH_SYSTEMD`                 | `ON`, `OFF`                                                         | Enable systemd integration.                                       |
+| `PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR` | A recognized by systemd                                             | System or user unit search path for systemd.                      |
+| `CMAKE_BUILD_TYPE`                    | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
+| `CMAKE_INSTALL_PREFIX`                | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
 
 ##### Switching build modes in CMake
 
@@ -151,6 +153,24 @@ at client configure time as follows:
 ```sh
 $ # Configure build
 $ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=~/.local
+
+# Build client
+$ cmake --build build
+
+# Install client (this will use custom prefix now)
+$ cmake --build build --target install
+```
+
+To install systemd unit use `-DPCLOUD_WITH_SYSTEMD=ON`. You can also pass
+`-DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR=/unit/location` to change unit search
+path for systemd. For example:
+
+```sh
+$ # Configure build
+$ cmake -S . -B build \
+  -DCMAKE_INSTALL_PREFIX=~/.local \
+  -DPCLOUD_WITH_SYSTEMD=ON \
+  -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR==~/.config/systemd/user
 
 # Build client
 $ cmake --build build

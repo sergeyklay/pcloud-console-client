@@ -21,7 +21,7 @@ releases, in reverse chronological order.
 
 * Build project using single CMake command only.
 * Introduced the CI process through GitHub Actions.
-* Provided systemd service example.
+* Provided systemd integration on Linux platforms.
 * Install project dependencies using Conan.
 * Provided ability to use custom installation path using `CMAKE_INSTALL_PREFIX`.
 * Provide ability to enable maintainer logs using `log.c` library.
