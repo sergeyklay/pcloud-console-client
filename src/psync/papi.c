@@ -462,80 +462,112 @@ again:
     return ASYNC_RES_NEEDMORE;
 }
 
-unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, size_t additionalalloc, size_t *retlen) {
+static const size_t calculate_params_len(
+    const size_t cmdlen, const binparam *params,
+    const size_t paramcnt, const int64_t datalen) {
   size_t i, plen;
-  unsigned char *data, *sdata;
   /* 2 byte len (not included), 1 byte cmdlen, 1 byte paramcnt, cmdlen bytes cmd*/
-  plen=cmdlen+2;
-  if (datalen!=-1)
-    plen+=sizeof(uint64_t);
-  for (i=0; i<paramcnt; i++)
-    if (params[i].paramtype==PARAM_STR)
-      plen+=params[i].paramnamelen+params[i].opts+5; /* 1byte type+paramnamelen, nbytes paramnamelen, 4byte strlen, nbytes str */
-    else if (params[i].paramtype==PARAM_NUM)
-      plen+=params[i].paramnamelen+1+sizeof(uint64_t);
-    else if (params[i].paramtype==PARAM_BOOL)
-      plen+=params[i].paramnamelen+2;
-  if (unlikely_log(plen>0xffff))
-    return NULL;
-  sdata=data=(unsigned char *)psync_malloc(plen+2+additionalalloc);
-  memcpy(data, &plen, 2);
-  data+=2;
-  if (datalen!=-1) {
-    *data++=cmdlen|0x80;
-    memcpy(data, &datalen, sizeof(uint64_t));
-    data+=sizeof(uint64_t);
+  plen = cmdlen + 2;
+  if (datalen != -1)
+    plen += sizeof(uint64_t);
+
+  for (i = 0; i < paramcnt; ++i) {
+    if (params[i].paramtype == PARAM_STR)
+      /* 1byte type + paramnamelen, nbytes paramnamelen, 4byte strlen, nbytes str */
+      plen += params[i].paramnamelen + params[i].opts + 5;
+    else if (params[i].paramtype == PARAM_NUM)
+      plen += params[i].paramnamelen + 1 + sizeof(uint64_t);
+    else if (params[i].paramtype == PARAM_BOOL)
+      plen += params[i].paramnamelen + 2;
   }
-  else
-    *data++=cmdlen;
+
+  return plen;
+}
+
+unsigned char *do_prepare_command(
+    const char *command, size_t cmdlen, const binparam *params,
+    size_t paramcnt, int64_t datalen, size_t additionalalloc,
+    size_t *retlen) {
+
+  size_t i;
+  unsigned char *data, *sdata;
+  size_t plen = calculate_params_len(cmdlen, params, paramcnt, datalen);
+
+  log_trace("parameters length is: %zu", plen);
+  if (unlikely(plen > 0xffff)) {
+    log_error("the max length of parameters is exceeded: %zu)", plen);
+    return NULL;
+  }
+
+  sdata = data = (unsigned char *)psync_malloc(plen + 2 + additionalalloc);
+  memcpy(data, &plen, 2);
+  data += 2;
+
+  if (datalen != -1) {
+    *data++ = cmdlen|0x80;
+    memcpy(data, &datalen, sizeof(uint64_t));
+    data += sizeof(uint64_t);
+  } else {
+    *data++ = cmdlen;
+  }
+
   memcpy(data, command, cmdlen);
-  data+=cmdlen;
-  *data++=paramcnt;
-  for (i=0; i<paramcnt; i++) {
-    *data++=(params[i].paramtype<<6)+params[i].paramnamelen;
+  data += cmdlen;
+  *data++ = paramcnt;
+
+  for (i = 0; i < paramcnt; i++) {
+    *data++ = (params[i].paramtype << 6) + params[i].paramnamelen;
     memcpy(data, params[i].paramname, params[i].paramnamelen);
-    data+=params[i].paramnamelen;
-    if (params[i].paramtype==PARAM_STR) {
+    data += params[i].paramnamelen;
+    if (params[i].paramtype == PARAM_STR) {
       memcpy(data, &params[i].opts, 4);
-      data+=4;
+      data += 4;
       memcpy(data, params[i].str, params[i].opts);
-      data+=params[i].opts;
-    }
-    else if (params[i].paramtype==PARAM_NUM) {
+      data += params[i].opts;
+    } else if (params[i].paramtype == PARAM_NUM) {
       memcpy(data, &params[i].num, sizeof(uint64_t));
       data+=sizeof(uint64_t);
-    }
-    else if (params[i].paramtype==PARAM_BOOL)
-      *data++=params[i].num&1;
+    } else if (params[i].paramtype == PARAM_BOOL)
+      *data++ = params[i].num&1;
   }
-  plen+=2;
-  *retlen=plen;
+
+  plen += 2;
+  *retlen = plen;
   return sdata;
 }
 
-binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, int readres) {
+binresult *do_send_command(
+    psync_socket *sock, const char *command, size_t cmdlen,
+    const binparam *params, size_t paramcnt, int64_t datalen, int readres) {
+
   unsigned char *sdata;
   size_t plen;
-  sdata=do_prepare_command(command, cmdlen, params, paramcnt, datalen, 0, &plen);
+
+  log_debug("sending command to api server: %s", command);
+  sdata = do_prepare_command(command, cmdlen, params, paramcnt, datalen, 0, &plen);
+
   if (!sdata)
     return NULL;
-  if (readres&2) {
-    if (unlikely_log(psync_socket_writeall_thread(sock, sdata, plen)!=plen)) {
+
+  if (readres & 2) {
+    if (unlikely(psync_socket_writeall_thread(sock, sdata, plen) != plen)) {
+      log_error("failed to write all the data to the socket using thread");
+      psync_free(sdata);
+      return NULL;
+    }
+  } else {
+    if (unlikely(psync_socket_writeall(sock, sdata, plen)!=plen)) {
+      log_error("failed to write all the data to the socket");
       psync_free(sdata);
       return NULL;
     }
   }
-  else {
-    if (unlikely_log(psync_socket_writeall(sock, sdata, plen)!=plen)) {
-      psync_free(sdata);
-      return NULL;
-    }
-  }
+
   psync_free(sdata);
-  if (readres&1)
+  if (readres & 1)
     return get_result(sock);
-  else
-    return PTR_OK;
+
+  return PTR_OK;
 }
 
 const binresult *psync_do_find_result(const binresult *res, const char *name,

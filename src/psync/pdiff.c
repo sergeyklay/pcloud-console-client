@@ -127,7 +127,7 @@ static binresult *get_userinfo_user_pass(psync_socket *sock, const char *usernam
     return NULL;
   }
   dig=psync_find_result(res, "digest", PARAM_STR);
-  log_info("got digest %s", dig->str);
+  log_debug("got digest %s", dig->str);
   ul=strlen(username);
   uc=psync_new_cnt(unsigned char, ul);
   for (i=0; i<ul; i++)
@@ -188,31 +188,35 @@ static psync_socket *get_connected_socket() {
     }
     device=psync_deviceid();
 
-    if (user && pass && pass[0])
-      if (digest)
-        res=get_userinfo_user_pass(sock, user, pass, device);
-      else
-      {
-        binparam params[]={P_STR("timeformat", "timestamp"),
-                         P_STR("username", user),
-                         P_STR("password", pass),
-                         P_STR("device", device),
-                         P_BOOL("getauth", 1),
-                         P_BOOL("cryptokeyssign", 1),
-                         P_BOOL("getapiserver", 1),
-                         P_NUM("os", P_OS_ID)};
-      res=send_command(sock, "login", params);
+    if (user && pass && pass[0]) {
+      if (digest) {
+        res = get_userinfo_user_pass(sock, user, pass, device);
+      } else {
+        binparam params[] = {
+            P_STR("timeformat", "timestamp"),
+            P_STR("username", user),
+            P_STR("password", pass),
+            P_STR("device", device),
+            P_BOOL("getauth", 1),
+            P_BOOL("cryptokeyssign", 1),
+            P_BOOL("getapiserver", 1),
+            P_NUM("os", P_OS_ID)
+        };
+        res = send_command(sock, "login", params);
       }
-    else {
-      binparam params[]={P_STR("timeformat", "timestamp"),
-                         P_STR("auth", auth),
-                         P_STR("device", device),
-                         P_BOOL("getauth", 1),
-                         P_BOOL("cryptokeyssign", 1),
-                         P_BOOL("getapiserver", 1),
-                         P_NUM("os", P_OS_ID)};
-      res=send_command(sock, "userinfo", params);
+    } else {
+      binparam params[]={
+          P_STR("timeformat", "timestamp"),
+          P_STR("auth", auth),
+          P_STR("device", device),
+          P_BOOL("getauth", 1),
+          P_BOOL("cryptokeyssign", 1),
+          P_BOOL("getapiserver", 1),
+          P_NUM("os", P_OS_ID)
+      };
+      res = send_command(sock, "userinfo", params);
     }
+
     psync_free(device);
     if (unlikely_log(!res)) {
       psync_socket_close(sock);
@@ -224,7 +228,7 @@ static psync_socket *get_connected_socket() {
     psync_api_conn_fail_reset();
     result=psync_find_result(res, "result", PARAM_NUM)->num;
     if (unlikely(result)) {
-      log_info(
+      log_warn(
           "userinfo returned error %lu %s",
           (unsigned long)result,
           psync_find_result(res, "error", PARAM_STR)->str
@@ -2387,7 +2391,7 @@ restart:
     }
     result=psync_find_result(res, "result", PARAM_NUM)->num;
     if (unlikely(result)) {
-      log_error(
+      log_warn(
           "diff returned error %u: %s",
           (unsigned int)result, psync_find_result(res, "error", PARAM_STR)->str
       );
@@ -2475,7 +2479,7 @@ restart:
           send_diff_command(sock, ids);
           continue;
         }
-        log_error(
+        log_warn(
             "diff returned error %u: %s",
             (unsigned int)result,
             psync_find_result(res, "error", PARAM_STR)->str
