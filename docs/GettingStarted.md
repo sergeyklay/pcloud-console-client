@@ -37,11 +37,23 @@ $ sudo apt install \
     libfuse-dev \
     libpthread-stubs0-dev
 ```
+
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 ```sh
 $ brew install \
     cmake \
     macfuse
+```
+
+**Note:** On some systems the standard version of CMake is less than 3.11.
+To install at least 3.11 version use the following approach:
+```sh
+$ wget https://github.com/Kitware/CMake/releases/download/v3.11.0/cmake-3.11.0.tar.gz
+$ tar -zxvf cmake-3.11.0.tar.gz
+$ cd cmake-3.11.0
+$ ./bootstrap
+$ make
+$ sudo make install
 ```
 
 ### Build steps
@@ -69,12 +81,13 @@ please refer [here](https://docs.conan.io/en/latest/getting_started.html).
 
 Next, generate the build files using CMake:
 ```sh
-$ cmake -S . -B build
+$ cd build
+$ cmake ..
 ```
 
-Finally, build project:
+Finally, build client:
 ```sh
-$ cmake --build build
+$ cmake --build .
 ```
 
 #### Configure flags
@@ -122,10 +135,11 @@ phase, and then specify at build phase, e.g.:
 
 ```sh
 # Configure client
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+$ cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
 
 # Build client
-cmake --build build --config Release
+cmake --build . --config Release
 ```
 
 ##### Generate the API documentation
@@ -142,7 +156,8 @@ Follow these steps:
 To install client after the build stage simple use `install` target:
 
 ```sh
-$ sudo cmake --build build --target install
+# Under the build directory:
+$ sudo cmake --build . --target install
 ```
 
 To install client in a non-standard location you'll need to change the
@@ -150,14 +165,15 @@ installation prefix. Use `-DCMAKE_INSTALL_PREFIX=/new/location` to change it
 at client configure time as follows:
 
 ```sh
-$ # Configure build
-$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=~/.local
+# Configure build
+$ cd build
+$ cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
 
 # Build client
-$ cmake --build build
+$ cmake --build .
 
 # Install client (this will use custom prefix now)
-$ cmake --build build --target install
+$ cmake --build . --target install
 ```
 
 To install systemd unit use `-DPCLOUD_WITH_SYSTEMD=ON`. You can also pass
@@ -165,15 +181,17 @@ To install systemd unit use `-DPCLOUD_WITH_SYSTEMD=ON`. You can also pass
 path for systemd. For example:
 
 ```sh
-$ # Configure build
-$ cmake -S . -B build \
+# Configure build
+$ cd build
+$ cmake \
   -DCMAKE_INSTALL_PREFIX=~/.local \
   -DPCLOUD_WITH_SYSTEMD=ON \
-  -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR==~/.config/systemd/user
+  -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR==~/.config/systemd/user \
+  ..
 
 # Build client
-$ cmake --build build
+$ cmake --build .
 
 # Install client (this will use custom prefix now)
-$ cmake --build build --target install
+$ cmake --build . --target install
 ```
