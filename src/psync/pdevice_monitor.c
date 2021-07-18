@@ -562,7 +562,7 @@ void monitor_usb_dev () {
   /* Create the udev object */
   udev = udev_new();
   if (!udev) {
-    log_warn"Can't create udev");
+    log_warn("Can't create udev");
     return;
   }
 
