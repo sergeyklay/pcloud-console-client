@@ -1,8 +1,11 @@
-#pragma once
+#ifndef PCLOUD_PSYNC_PDEVICE_MONITOR_H_
+#define PCLOUD_PSYNC_PDEVICE_MONITOR_H_
 
-#ifndef _PDEVICE_MONITOR
-#define _PDEVICE_MONITOR
+/*! \brief Devices monitoring functions.
+ */
+
 #include <stdint.h>
+
 #include "psynclib.h"
 
 typedef struct _pdevice_info pdevice_info;
@@ -31,11 +34,14 @@ extern "C" {
 #endif
 
   void pinit_device_monitor();
-  
+
+  /*! \brief Adds device monitoring callback which is invoked every time a new
+   *         not disabled device arrives.
+   */
   void pnotify_device_callbacks(pdevice_extended_info *param, device_event event);
-  
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif //_PDEVICE_MONITOR
+#endif  /* PCLOUD_PSYNC_PDEVICE_MONITOR_H_ */

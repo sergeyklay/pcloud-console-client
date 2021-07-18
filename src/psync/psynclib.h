@@ -1204,20 +1204,6 @@ psync_folderid_t psync_check_and_create_folder (const char * path);
 
 char * psync_get_token();
 
-/*Devices monitoring functions
- */
-
-//Adds device monitoring callback which is invoked every time a new not disabled device arrives.
-void padd_device_monitor_callback(device_event_callback callback);
-//Lists all stored devices
-pdevice_item_list_t * psync_list_devices(char **err /*OUT*/);
-//Enables device. This info is stored in the database so will be present after restart.
-void penable_device(const char* device_id);
-//Disable device
-void pdisable_device(const char* device_id);
-//Remove db information about device
-void premove_device(const char* device_id);
-
 #ifdef __cplusplus
 }
 #endif
