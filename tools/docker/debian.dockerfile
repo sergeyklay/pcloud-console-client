@@ -5,8 +5,13 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-# docker build -t pcloudcc:debian-10 -f debian.dockerfile .
-# docker run -it --rm pcloudcc:debian-10 bash
+# To build image from the project source root use the following command:
+#
+#     docker build -t pcloudcc:debian-10 -f ./tools/docker/debian.dockerfile .
+
+# To run image after build:
+#
+#     docker run -it --rm pcloudcc:debian-10 bash
 
 FROM debian:buster
 
