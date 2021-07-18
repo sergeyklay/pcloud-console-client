@@ -27,7 +27,7 @@ else()
   set(WITH_SYSTEMD OFF)
 endif()
 
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service.in"
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service.in"
     "${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service")
 
 if(WITH_SYSTEMD)
