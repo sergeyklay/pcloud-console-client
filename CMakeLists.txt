@@ -36,10 +36,26 @@ include(ProjectInfo)
 # Use a standard directory layout
 include(GNUInstallDirs)
 
-# We prefer libraries over frameworks
-set(CMAKE_FIND_FRAMEWORK LAST)
+message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
+
+if(APPLE)
+  # We prefer libraries over frameworks
+  set(CMAKE_FIND_FRAMEWORK LAST)
+endif()
+
+if(UNIX)
+  include(GNUInstallDirs)
+elseif(WIN32)
+  set(${CMAKE_INSTALL_LIBDIR} "lib")
+  set(${CMAKE_INSTALL_DATADIR} "share")
+  set(${CMAKE_INSTALL_INCLUDEDIR} "include")
+  set(${CMAKE_INSTALL_BINDIR} "bin")
+else()
+  message(FATAL_ERROR "System not UNIX nor WIN32. You OS is not be supported yet")
+endif()
 
 add_subdirectory(src)
+add_subdirectory(extras)
 
 if(MASTER_PROJECT)
   add_subdirectory(docs)
