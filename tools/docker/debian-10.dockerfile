@@ -7,11 +7,11 @@
 
 # To build image from the project source root use the following command:
 #
-#     docker build -t pcloudcc:debian-10 -f ./tools/docker/debian.dockerfile .
+#     docker build -t pcloudcc:debian-10 -f ./tools/docker/debian-10.dockerfile .
 
 # To run image after build:
 #
-#     docker run -it --rm pcloudcc:debian-10 bash
+#     docker run -it --rm --privileged pcloudcc:debian-10 bash
 
 FROM debian:buster
 
@@ -87,7 +87,7 @@ RUN cmake -S . -B build \
       -DCMAKE_BUILD_TYPE=Release \
     && cmake --build build --config Release \
     && cmake --build build --target install \
-    && ls -alL $(command -v pcloudcc) \
+    && ldd $(command -v pcloudcc) \
     && pcloudcc --help
 
 # Cleanup

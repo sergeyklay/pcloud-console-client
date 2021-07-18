@@ -37,11 +37,23 @@ $ sudo apt install \
     libfuse-dev \
     libpthread-stubs0-dev
 ```
+
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 ```sh
 $ brew install \
     cmake \
     macfuse
+```
+
+**Note:** On some systems the standard version of CMake is less than 3.11.
+To install at least 3.11 version use the following approach:
+```sh
+$ wget https://github.com/Kitware/CMake/releases/download/v3.11.0/cmake-3.11.0.tar.gz
+$ tar -zxvf cmake-3.11.0.tar.gz
+$ cd cmake-3.11.0
+$ ./bootstrap
+$ make
+$ sudo make install
 ```
 
 ### Build steps
