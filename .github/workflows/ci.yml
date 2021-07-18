@@ -60,6 +60,14 @@ jobs:
             arch: x64
             version: '5.0'
 
+          - name: macos-clang-debug
+            build-type: Debug
+            os: macos-latest
+            ssl: mbedtls
+            compiler: apple-clang
+            arch: x64
+            version: '12.0'
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -86,6 +94,18 @@ jobs:
                  libfuse-dev \
                  libpthread-stubs0-dev
               ;;
+            macOS*)
+              sudo xcode-select -switch /Applications/Xcode.app
+
+              echo "CC=$(xcrun -f clang)" >> $GITHUB_ENV
+              echo "CXX=$(xcrun -f clang++)" >> $GITHUB_ENV
+              echo "SDKROOT=$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_ENV
+
+              echo "$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_PATH
+
+              # Install common tools
+              brew install cmake macfuse
+              ;;
           esac
 
       - name: Setup Python
@@ -101,7 +121,8 @@ jobs:
 
       - name: Verify Toolchain Version
         run: |
-          ${{ matrix.compiler }} --version
+          $CC --version
+          $CXX --version
           cmake --version
           conan --version
 
@@ -151,9 +172,7 @@ jobs:
         run: cmake --build build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
-        run: |
-          ldd install/bin/pcloudcc
-          install/bin/pcloudcc --help
+        run: install/bin/pcloudcc --help
 
       - name: Success Reporting
         if: success()
