@@ -30,6 +30,20 @@ target_link_libraries(pcloudcc
     PRIVATE pcloud::pclcli
             CONAN_PKG::boost)
 
+file(RELATIVE_PATH relative
+    ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+    ${CMAKE_INSTALL_PREFIX})
+
+if(APPLE)
+  set(rpath "@loader_path/${relative}")
+else()
+  set(rpath "\$ORIGIN/${relative}")
+endif()
+
+file(TO_NATIVE_PATH
+    "${rpath}/${CMAKE_INSTALL_LIBDIR}"
+    message_RPATH)
+
 set_target_properties(pcloudcc PROPERTIES
     VERSION ${PROJECT_VERSION}
     MACOSX_RPATH ON

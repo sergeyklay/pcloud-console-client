@@ -18,8 +18,6 @@
 #include "pcloudcc/psync/compiler.h"
 #include "pcloudcc/psync/compat.h"
 
-#define PSYNC_LIB_VERSION "1.6.0"
-
 #define PSYNC_API_HOST     getenv("PCLOUD_REGION_EU") ? "bineapi.pcloud.com" : "binapi.pcloud.com"
 #define PSYNC_API_PORT     80
 #define PSYNC_API_PORT_SSL 443

@@ -33,17 +33,10 @@ include(ConanHelper)
 # Project specific variables
 include(ProjectInfo)
 
-# Use a standard directory layout
-include(GNUInstallDirs)
-
 message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
 
-if(APPLE)
-  # We prefer libraries over frameworks
-  set(CMAKE_FIND_FRAMEWORK LAST)
-endif()
-
 if(UNIX)
+  # Use a standard directory layout
   include(GNUInstallDirs)
 elseif(WIN32)
   set(${CMAKE_INSTALL_LIBDIR} "lib")

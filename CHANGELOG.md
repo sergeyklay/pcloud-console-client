@@ -42,8 +42,7 @@ releases, in reverse chronological order.
 * CMake < 3.11 is no longer supported.
 * Reorganized project structure to follow modern C/C++ projects structure.
 * Instructed the compiler to use `-std=gnu99` when this is needed.
-* Project build no longer uses `pcloudcc_lib` shared library and from now the
-  entire runtime is in one file.
+* Rename `pcloudcc_lib` shared library to `libpsync`.
 * The previous version of the client used `lsb_release` on registration phase.
   However, this could lead to internal data structure overflow and was unstable
   due to the fact that `lsb_release` could return a string of arbitrary length.
