@@ -1,4 +1,4 @@
-Source: pcloudcc
+Source: pcloudcc3
 Section: bisection
 Priority: optional
 Maintainer: Serghei Iakovlev <egrep@protonmail.ch>
@@ -7,8 +7,11 @@ Standards-Version: 3.9.7
 Vcs-Git: git://github.com/sergeyklay/pcloud-console-client.git
 Vcs-Browser: https://github.com/sergeyklay/pcloud-console-client.git
 
-Package: pcloudcc
+Package: pcloudcc3
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: pCloud Console Client.
  A simple console client for pCloud cloud storage.
+ .
+ This is the up-to-date fork of the original "pcloudcc" (https://github.com/pcloudcom/console-client)
+ pCloud Console Client.

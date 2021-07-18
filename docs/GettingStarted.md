@@ -29,7 +29,9 @@ Optional prerequisites are:
 On Debian and its derivatives you can install the required packages this way:
 ```sh
 $ sudo apt install \
-    build-essential \
+    gcc \
+    g++ \
+    make \
     cmake \
     fuse \
     libfuse-dev \
@@ -53,7 +55,7 @@ $ cd pcloud-console-client
 
 Then, install Conan:
 ```sh
-$ pip install --user -r requirements.txt
+$ pip3 install --user -r requirements.txt
 ```
 
 Next, initialize project with Conan - this is using the `conanfile.txt`
