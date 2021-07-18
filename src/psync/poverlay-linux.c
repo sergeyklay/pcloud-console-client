@@ -40,7 +40,7 @@ static char * create_socket_path() {
     if (runtime_dir) {
       n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
     } else {
-      n = snprintf(path, strlen(POVERLAY_SOCKET) + 1, "/tmp/%s",
+      n = snprintf(path, strlen(POVERLAY_SOCKET) + 8, "/tmp/%s",
                    POVERLAY_SOCKET);
     }
   }
