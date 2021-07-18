@@ -62,6 +62,7 @@ RUN apt-get install --no-install-recommends -yq \
         libpthread-stubs0-dev \
         libssl-dev \
         make \
+        pkg-config \
         perl \
         python3 \
         python3-pip \

@@ -60,6 +60,7 @@ RUN apt-get install --no-install-recommends -yq \
         libfuse-dev \
         libpthread-stubs0-dev \
         make \
+        pkg-config \
         python3 \
         python3-pip \
         python3-setuptools \
