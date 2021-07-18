@@ -77,7 +77,7 @@ else()
 endif()
 
 # Add definition for psync library
-add_library(psync STATIC ${psync_sources})
+add_library(psync SHARED ${psync_sources})
 add_library(pcloud::psync ALIAS psync)
 unset(psync_sources)
 
@@ -135,3 +135,31 @@ endif()
 if (NOT WIN32)
   target_link_libraries(psync ${CMAKE_THREAD_LIBS_INIT})
 endif()
+
+# Library version info
+set(PSYNC_VERSION_MAJOR 1)
+set(PSYNC_VERSION_MINOR 6)
+set(PSYNC_VERSION_PATCH 0)
+
+set(PSYNC_VERSION_STRING
+    ${PSYNC_VERSION_MAJOR}.${PSYNC_VERSION_MINOR}.${PSYNC_VERSION_PATCH})
+
+target_compile_definitions(psync
+    PRIVATE "-DLIBPSYNC_VERSION=\"${PSYNC_VERSION_STRING}\"")
+
+# The SOVERSION is not necessarily the same as the major version. The rule is
+# that any breakage of the ABI must be indicated by incrementing the SOVERSION.
+# So, adding e.g. functions is no problem, modifying argument lists or removing
+# functions would required the SOVERSION to be incremented. Similar rules hold
+# of course for non-opaque data-structures.
+set_target_properties(psync PROPERTIES
+    VERSION   ${PSYNC_VERSION_STRING}
+    SOVERSION ${PSYNC_VERSION_MAJOR})
+
+# CMake treats shared libraries as runtime objects on "DLL platforms"
+# like Windows. Thus RUNTIME DESTINATION is required here.
+install(TARGETS psync
+    LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})

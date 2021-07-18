@@ -161,7 +161,7 @@ static void psync_stop_crypto_on_sleep(){
 
 int psync_init(){
   psync_thread_name="main app thread";
-  log_info("initializing library version %s", PSYNC_LIB_VERSION);
+  log_info("initializing library version %s", LIBPSYNC_VERSION);
 
   if (IS_DEBUG){
     pthread_mutex_lock(&psync_libstate_mutex);
