@@ -35,8 +35,7 @@ $ sudo apt install \
     cmake \
     fuse \
     libfuse-dev \
-    libpthread-stubs0-dev \
-    libudev-dev
+    libpthread-stubs0-dev
 ```
 On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
 ```sh

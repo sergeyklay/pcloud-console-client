@@ -59,7 +59,6 @@ RUN apt-get install --no-install-recommends -yq \
         gcc \
         libfuse-dev \
         libpthread-stubs0-dev \
-        libudev-dev \
         make \
         python3 \
         python3-pip \

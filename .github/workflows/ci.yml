@@ -83,12 +83,8 @@ jobs:
               sudo apt-get install --no-install-recommends -q -y \
                  cmake \
                  fuse \
-                 libboost-program-options-dev \
-                 libboost-system-dev \
                  libfuse-dev \
-                 libpthread-stubs0-dev \
-                 libudev-dev \
-                 zlib1g-dev
+                 libpthread-stubs0-dev
               ;;
           esac
 
@@ -155,7 +151,9 @@ jobs:
         run: cmake --build build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Load Test
-        run: install/bin/pcloudcc --help
+        run: |
+          ldd install/bin/pcloudcc
+          install/bin/pcloudcc --help
 
       - name: Success Reporting
         if: success()
