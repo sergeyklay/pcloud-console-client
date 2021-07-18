@@ -1,4 +1,17 @@
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2018 Alexander Dimitrov <alexander.dimitrov@pcloud.com>
+ * (c) 2016 Ivan Stoev <ivan.stoev@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
 #include "pcloudcc/psync/compat.h"
+
 #include "plibs.h"
 #include "psynclib.h"
 #include "pdevice_monitor.h"
@@ -6,15 +19,11 @@
 #include "pnetlibs.h"
 #include "pbusinessaccount.h"
 #include "pdevicemap.h"
+#include "logger.h"
 
 #define P_DEVICE_VERBOSE
-
-
-#ifdef P_OS_POSIX
-#define _strdup strdup
-#endif //P_OS_POSIX
-
 #define MAX_LOADSTRING 100
+
 device_event_callback *device_callbacks;
 
 int device_clbsize = 10;
@@ -99,12 +108,12 @@ static void arivalmonitor(device_event event, void * device_info_)
 {
 
   if (event == Dev_Event_arrival)
-    debug(D_NOTICE, "Device arrived. \n{");
+    log_debug("Device arrived. {");
   else
-    debug(D_NOTICE, "Device removed. \n{");
+    log_debug("Device removed. {");
   if (device_info_)
     print_device_info((pdevice_extended_info *)device_info_);
-  debug(D_NOTICE,"}\n");
+  log_debug("}");
 }
 
 #ifdef P_OS_MACOSX
@@ -134,7 +143,7 @@ static CFRunLoopRef             gRunLoop;
 #define USLEEPINT 500000
 
 
-static char * get_device_mountpoit (const char* device){
+static char * get_device_mountpoit (const char* device) {
   FILE *fp;
   char path[1035];
   int buffsize = 63 + strlen(device);
@@ -146,7 +155,7 @@ static char * get_device_mountpoit (const char* device){
   /* Open the command for reading. */
   fp = popen(command, "r");
   if (fp == NULL) {
-    fprintf(stderr, "Failed to run command\n" );
+    fprintf(stderr, "Failed to run command" );
     return 0;
   }
 
@@ -180,8 +189,8 @@ void DeviceNotification(void *refCon, io_service_t service, natural_t messageTyp
   MyPrivateData   *privateDataRef = (MyPrivateData *) refCon;
 
   if (messageType == kIOMessageServiceIsTerminated) {
-    //fprintf(stderr, "Device removed.\n");
-    //fprintf(stderr, "privateDataRef->deviceName: %s \n", privateDataRef->systempath);
+    log_debug("Device removed");
+    log_debug(stderr, "privateDataRef->deviceName: %s", privateDataRef->systempath);
     remove_device(privateDataRef->systempath);
     free(privateDataRef->systempath);
     kr = IOObjectRelease(privateDataRef->notification);
@@ -244,19 +253,19 @@ void DeviceAdded(void *refCon, io_iterator_t iterator)
 
     if (!deviceNameAsCFString) continue;
 
-    //fprintf(stderr, "Device added.\n");
-   // fprintf(stderr, "Serial number: "); CFShow(usbSerial);
-    //fprintf(stderr, "Vendor: "); CFShow(usbVendor);
-   // fprintf(stderr, "Product: "); CFShow(deviceNameAsCFString);
+    log_debug("Device added.");
+    log_debug("Serial number: "); CFShow(usbSerial);
+    log_debug("Vendor: "); CFShow(usbVendor);
+    log_debug("Product: "); CFShow(deviceNameAsCFString);
 
     systemPath = get_device_mountpoit(CFStringGetCStringPtr( usbSerial, kCFStringEncodingMacRoman ));
 
     while  (!systemPath ) {
       if (rpt < SYSPATHRPT) {
-        debug(D_NOTICE, "Giving up ... \n");
+        log_debug("Giving up ...");
         break;
       }
-      //fprintf(stderr, "Sleeping ... \n");
+      log_debug("Sleeping ...");
       usleep(USLEEPINT);
       systemPath = get_device_mountpoit(CFStringGetCStringPtr( usbSerial, kCFStringEncodingMacRoman ));
       rpt++;
@@ -300,7 +309,7 @@ void pinit_device_monitor() {
     matchingDict = IOServiceMatching(kIOUSBDeviceClassName);    // Interested in instances of class
                                                                 // IOUSBDevice and its subclasses
     if (matchingDict == NULL) {
-        debug(D_NOTICE, "IOServiceMatching returned NULL.\n");
+        log_debug("IOServiceMatching returned NULL");
         return;
     }
 
@@ -324,23 +333,25 @@ void pinit_device_monitor() {
     DeviceAdded(NULL, gAddedIter);
 
     // Start the run loop. Now we'll receive notifications.
-    debug(D_NOTICE, "Starting run loop.\n\n");
+    log_debug("Starting run loop.");
     CFRunLoopRun();
 
     // We should never get here
-    debug(D_NOTICE, "Unexpectedly back from CFRunLoopRun()!");
+    log_debug("Unexpectedly back from CFRunLoopRun()!");
     return;
 }
 
 #endif //P_OS_MACOSX
 
 #ifdef P_OS_LINUX
+
 #include <libudev.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <unistd.h>
-static char * get_device_mountpoit (const char* device){
+
+static char * get_device_mountpoit (const char* device) {
   FILE *fp;
   char path[1035];
   int buffsize = 50 + strlen(device);
@@ -351,7 +362,7 @@ static char * get_device_mountpoit (const char* device){
   /* Open the command for reading. */
   fp = popen(command, "r");
   if (fp == NULL) {
-    debug(D_NOTICE,"Failed to run command\n" );
+    log_debug("Failed to run command" );
     return 0;
   }
 
@@ -419,17 +430,17 @@ get_child(struct udev* udevs, struct udev_device* parent, const char* subsystem)
  if (block && scsi_disk) {
 
 
-  debug(D_NOTICE, "Device Node Path: %s\n", udev_device_get_devnode(block));
-  debug(D_NOTICE, "  VID/PID: %s %s\n",
+  log_debug("Device Node Path: %s", udev_device_get_devnode(block));
+  log_debug("  VID/PID: %s %s",
           udev_device_get_sysattr_value(usb,"idVendor"),
           udev_device_get_sysattr_value(usb, "idProduct"));
-  debug(D_NOTICE, "  %s\n  %s\n",
+  log_debug("  %s  %s",
           udev_device_get_sysattr_value(scsi,"vendor"),
           udev_device_get_sysattr_value(scsi,"model"));
-  debug(D_NOTICE, "  serial: %s\n",
+  log_debug("  serial: %s",
             udev_device_get_sysattr_value(usb, "serial"));
-  debug(D_NOTICE, "   Subsystem: %s\n", udev_device_get_subsystem(scsi));
-  debug(D_NOTICE,"   Devtype: %s\n", udev_device_get_devtype(scsi));
+  log_debug("   Subsystem: %s", udev_device_get_subsystem(scsi));
+  log_debug("   Devtype: %s", udev_device_get_devtype(scsi));
 
   udev_device_unref(block);
   udev_device_unref(scsi_disk);
@@ -446,16 +457,16 @@ static void print_hidrow (struct udev *udevs,struct udev_device *dev) {
   if (!dev1) {
     return;
   }
-  debug(D_NOTICE, "Device Node Path: %s\n", udev_device_get_devnode(dev));
-  debug(D_NOTICE, "  VID/PID: %s %s\n",
+  log_debug("Device Node Path: %s", udev_device_get_devnode(dev));
+  log_debug("  VID/PID: %s %s",
           udev_device_get_sysattr_value(dev1,"idVendor"),
           udev_device_get_sysattr_value(dev1, "idProduct"));
-  debug(D_NOTICE, "  %s\n  %s\n",
+  log_debug("  %s  %s",
           udev_device_get_sysattr_value(dev1,"manufacturer"),
           udev_device_get_sysattr_value(dev1,"product"));
-  debug(D_NOTICE, "  serial: %s\n", udev_device_get_sysattr_value(dev1, "serial"));
-  debug(D_NOTICE, "   Subsystem: %s\n", udev_device_get_subsystem(dev1));
-  debug(D_NOTICE, "   Devtype: %s\n", udev_device_get_devtype(dev1));
+  log_debug("  serial: %s", udev_device_get_sysattr_value(dev1, "serial"));
+  log_debug("   Subsystem: %s", udev_device_get_subsystem(dev1));
+  log_debug("   Devtype: %s", udev_device_get_devtype(dev1));
 }*/
 
 #define UDEV_SUBSYSTEMS_CNT 2
@@ -551,7 +562,7 @@ void monitor_usb_dev () {
   /* Create the udev object */
   udev = udev_new();
   if (!udev) {
-    debug(D_WARNING, "Can't create udev\n");
+    log_warn"Can't create udev");
     return;
   }
 
@@ -593,10 +604,6 @@ void monitor_usb_dev () {
       dev = udev_monitor_receive_device(mon);
       if (dev) {
         enumerate_devices(udev, Dev_Event_arrival);
-      //  debug_execute(D_NOTICE, print_stree());
-      }
-      else {
-       // printf("No Device from receive_device(). An error occured.\n");
       }
     }
     usleep(250*1000);
@@ -610,7 +617,7 @@ void monitor_usb_dev () {
 }
 
 void pinit_device_monitor() {
-  debug(D_NOTICE, "waiting for new devices..");
+  log_debug("waiting for new devices..");
   debug_execute(D_NOTICE, padd_device_monitor_callback(arivalmonitor));
   monitor_usb_dev();
 }
@@ -779,13 +786,13 @@ static LRESULT message_handler(HWND *hwnd, UINT uint, WPARAM wparam, LPARAM lpar
       switch (drivetype)
       {
       case 0:          // The drive type cannot be determined.
-        debug(D_NOTICE, "The drive type cannot be determined!");
+        log_debug("The drive type cannot be determined!");
         break;
       case 1:          // The root directory does not exist.
-        debug(D_NOTICE, "The root directory does not exist!");
+        log_debug("The root directory does not exist!");
         break;
       case DRIVE_CDROM:    // The drive is a CD-ROM drive.
-        debug(D_NOTICE, "The drive is a CD-ROM drive.");
+        log_debug("The drive is a CD-ROM drive.");
       case DRIVE_REMOVABLE:  // The drive can be removed from the drive.
       case DRIVE_FIXED:    // The disk cannot be removed from the drive.
       case DRIVE_REMOTE:    // The drive is a remote (network) drive.
@@ -820,10 +827,10 @@ static LRESULT message_handler(HWND *hwnd, UINT uint, WPARAM wparam, LPARAM lpar
 
 static void device_change(void *param) {
   pdevice_info * pd = (pdevice_info*)param;
-  debug(D_NOTICE, "type [%d] isex [%d] fspath [%s] \n", pd->type, pd->isextended, pd->filesystem_path);
+  log_debug("type [%d] isex [%d] fspath [%s]", pd->type, pd->isextended, pd->filesystem_path);
   if (pd->isextended) {
     pdevice_extended_info* pde = (pdevice_extended_info*)param;
-    debug(D_NOTICE, "vendor [%s] product [%s] deviceid [%s] \n", pde->vendor, pde->product, pde->device_id);
+    log_debug("vendor [%s] product [%s] deviceid [%s]", pde->vendor, pde->product, pde->device_id);
   }
 
 }
@@ -832,7 +839,7 @@ void pinit_device_monitor() {
   HWND hWnd = NULL;
   WNDCLASSEXA wx;
 
-  debug(D_NOTICE, "waiting for new devices..");
+  log_debug("waiting for new devices..");
   debug_execute(D_NOTICE, padd_device_monitor_callback(arivalmonitor));
 
   ZeroMemory(&wx, sizeof(wx));
@@ -852,7 +859,7 @@ void pinit_device_monitor() {
   }
 
   if (hWnd == NULL) {
-    debug(D_NOTICE, "Could not create message window! %d", GetLastError());
+    log_debug("Could not create message window! %d", GetLastError());
     return 1;
   }
 
@@ -872,15 +879,15 @@ void pinit_device_monitor() {
       &shCNE);
 
     if (m_ulSHChangeNotifyRegister == 0) {
-      debug(D_NOTICE, "Shell Device Notify registration CD failed with error %d", GetLastError());
+      log_debug("Shell Device Notify registration CD failed with error %d", GetLastError());
       return 2;
     }
   }
   else
-    debug(D_NOTICE, "Shell Device Notify registration CD failed with error %d ", GetLastError());
+    log_debug("Shell Device Notify registration CD failed with error %d ", GetLastError());
 
 
-  debug(D_NOTICE, "waiting for new devices..");
+  log_debug("waiting for new devices..");
 
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0))
