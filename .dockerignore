@@ -6,9 +6,10 @@
 # the LICENSE file that was distributed with this source code.
 
 /build
-/debian.dockerfile
+/build.sh
 /.gdb_history
 /.git
 /.github
 /.gitignore
 /.idea
+/tools/docker
