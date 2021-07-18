@@ -121,7 +121,8 @@ jobs:
 
       - name: Verify Toolchain Version
         run: |
-          ${{ matrix.compiler }} --version
+          $CC --version
+          $CXX --version
           cmake --version
           conan --version
 
