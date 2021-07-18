@@ -32,8 +32,8 @@ if [ "$1" = "gcc" ]; then
   sudo update-alternatives --install /usr/bin/c++ c++ "/usr/bin/g++-${2}" 90
   sudo update-alternatives --set c++ "/usr/bin/g++-${2}"
 
-  echo "CC=gcc" >> "$GITHUB_PATH"
-  echo "CXX=g++" >> "$GITHUB_PATH"
+  echo "CC=gcc" >> "$GITHUB_ENV"
+  echo "CXX=g++" >> "$GITHUB_ENV"
 else
   echo "Installing clang-${2}, llvm++-${2}..."
   sudo apt-get install --no-install-recommends -q -y "clang-${2}" "llvm-${2}"
@@ -62,6 +62,6 @@ else
   sudo update-alternatives --install /usr/bin/llvm-cov llvm-cov \
     "/usr/bin/llvm-cov-${2}" 90
 
-  echo "CC=clang" >> "$GITHUB_PATH"
-  echo "CXX=clang++" >> "$GITHUB_PATH"
+  echo "CC=clang" >> "$GITHUB_ENV"
+  echo "CXX=clang++" >> "$GITHUB_ENV"
 fi
