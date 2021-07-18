@@ -1,11 +1,22 @@
-#include "pdevicemap.h"
-#include "plibs.h"
-#include "pdevice_monitor.h"
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2018 Alexander Dimitrov <alexander.dimitrov@pcloud.com>
+ * (c) 2018 pCloud Ltd
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
 
-#include <search.h>
 #include <string.h>
 #include <stdio.h>
 #include <stddef.h>
+
+#include "pdevicemap.h"
+#include "plibs.h"
+#include "pdevice_monitor.h"
+#include "logger.h"
 
 extern device_event_callback *device_callbacks;
 
@@ -16,12 +27,10 @@ typedef const char* list_key;
 typedef pdevice_extended_info list_element;
 typedef int (*Compare_func)(const list_key l, const list_element *r);
 
-#define devicetree_step 128
 static list_element *stree_root = NULL;
 static list_element *stree_last = NULL;
 
-static list_element * list_find(list_key key, Compare_func cmp )
-{
+static list_element * list_find(list_key key, Compare_func cmp ) {
   if (stree_root) {
     list_element * dev = stree_root;
     for (; dev ;) {
@@ -35,8 +44,7 @@ static list_element * list_find(list_key key, Compare_func cmp )
   return NULL;
 }
 
-static void list_add(list_element* new1)
-{
+static void list_add(list_element* new1) {
   if (stree_root) {
     stree_last->next = new1;
     new1->prev = stree_last;
@@ -48,45 +56,33 @@ static void list_add(list_element* new1)
   stree_last->next = NULL;
 }
 
-static void list_remove(list_element* dev)
-{
-  
+static void list_remove(list_element* dev) {
   if (dev) {
     if (dev == stree_root)
       stree_root = dev->next;
     if (dev == stree_last)
       stree_last = dev->prev;
-      
+
     if (dev->prev)
       dev->prev->next = dev->next;
-    if (dev->next) 
+    if (dev->next)
       dev->next->prev = dev->prev;
-    
+
   }
 }
 
-/*static void list_remove_el(list_element* dev)
-{
-  if (dev) {
-    dev->prev->next = dev->next;
-    dev->next->prev = dev->prev;
-  }
-}*/
-
-static int key_compar(const char* l, const pdevice_extended_info *r)
-{
+static int key_compar(const char* l, const pdevice_extended_info *r) {
   if (r)
     return strcmp(l, r->filesystem_path);
   else return 1;
 }
 
-static int ext_compar(const pdevice_extended_info *lm, const pdevice_extended_info *lr)
-{
+static int ext_compar(const pdevice_extended_info *lm, const pdevice_extended_info *lr) {
   if (lm->isextended && lr->isextended)
   {
-    int res = strcmp(lm->filesystem_path, lr->filesystem_path)+  
-              strcmp(lm->device_id, lr->device_id) + 
-              strcmp(lm->vendor, lr->vendor) + 
+    int res = strcmp(lm->filesystem_path, lr->filesystem_path)+
+              strcmp(lm->device_id, lr->device_id) +
+              strcmp(lm->vendor, lr->vendor) +
               strcmp(lm->product, lr->product);
     return res;
   }
@@ -94,7 +90,7 @@ static int ext_compar(const pdevice_extended_info *lm, const pdevice_extended_in
 }
 
 static void do_notify_device_callbacks(void * param, device_event event) {
-  int i = 0; 
+  int i = 0;
   while (i < device_clbnum) {
     device_event_callback c = device_callbacks[i];
     c(event, param);
@@ -102,24 +98,21 @@ static void do_notify_device_callbacks(void * param, device_event event) {
   }
 };
 
-
-pdevice_extended_info* construct_deviceininfo( pdevice_types type, int isextended,const char *filesystem_path, 
-                                               const char *vendor,const char *product,const char *device_id);
-void destruct_deviceininfo(pdevice_extended_info* device);
-
 void do_notify_device_callbacks_in(void * param) {
   do_notify_device_callbacks(param, Dev_Event_arrival);
 }
+
 void do_notify_device_callbacks_out(void * param) {
   do_notify_device_callbacks(param, Dev_Event_removed);
   destruct_deviceininfo((pdevice_extended_info*)param);
 }
 
-pdevice_extended_info* construct_deviceininfo( pdevice_types type, int isextended,const char *filesystem_path, 
-                                               const char *vendor,const char *product,const char *device_id){
+pdevice_extended_info* construct_deviceininfo(
+    pdevice_types type, int isextended, const char *filesystem_path,
+    const char *vendor,const char *product,const char *device_id) {
   pdevice_extended_info* ret = (pdevice_extended_info*)psync_malloc(sizeof(pdevice_extended_info));
   memset(ret, 0, sizeof(pdevice_extended_info));
-  if (isextended && device_id){
+  if (isextended && device_id) {
     if (vendor)
       ret->vendor = psync_strdup(vendor);
     if (product)
@@ -148,12 +141,10 @@ void init_devices () {
   psync_sql_run_free(q);
 }
 
-void add_device (pdevice_types type, int isextended,const char *filesystem_path,const char *vendor,const char *product,const char *device_id)
-{
+void add_device (pdevice_types type, int isextended,const char *filesystem_path, const char *vendor,const char *product,const char *device_id) {
   psync_sql_res *q;
   pdevice_extended_info* data = construct_deviceininfo(type, isextended, filesystem_path, vendor,  product, device_id);
-  //pdevice_extended_info* data = construct_deviceininfo(Dev_Types_Unknown, 1, "/test/", "test",  "just a test", "test device id");
-  
+
   if (isextended) {
     uint64_t enabled = 1;
     psync_uint_row row;
@@ -165,7 +156,7 @@ void add_device (pdevice_types type, int isextended,const char *filesystem_path,
 
     if (!enabled)
       return;
-    
+
     q=psync_sql_prep_statement("INSERT or replace INTO devices (id, last_path, type, vendor, product, connected, enabled) VALUES (?, ?, ?, ?, ?, ?, ?)");
     psync_sql_bind_string(q, 1, device_id);
     psync_sql_bind_string(q, 2, filesystem_path);
@@ -175,9 +166,9 @@ void add_device (pdevice_types type, int isextended,const char *filesystem_path,
     psync_sql_bind_int(q, 6, 1);
     psync_sql_bind_int(q, 7, 0);
     psync_sql_run_free(q);
-  
+
     pdevice_extended_info * key = list_find(filesystem_path, key_compar);
-    
+
     if (key) {
       if (ext_compar(key, data)) {
         pnotify_device_callbacks(key, Dev_Event_removed);
@@ -199,8 +190,7 @@ void add_device (pdevice_types type, int isextended,const char *filesystem_path,
  pnotify_device_callbacks(data, Dev_Event_arrival);
 }
 
-void remove_device (const char *filesystem_path)
-{
+void remove_device (const char *filesystem_path) {
   pdevice_extended_info * key = list_find(filesystem_path, key_compar);
   if (key) {
     if (key->isextended && key->device_id) {
@@ -218,7 +208,7 @@ void filter_unconnected_device () {
   char * path;
   int64_t conn = 0;
   psync_sql_res * res=psync_sql_query("SELECT last_path, connected FROM devices WHERE connected = 0");
-  while ((row=psync_sql_fetch_row(res))){
+  while ((row=psync_sql_fetch_row(res))) {
       path=psync_dup_string(row[0]);
       conn=psync_get_number(row[1]);
       pdevice_extended_info * key = list_find(path, key_compar);
@@ -226,16 +216,12 @@ void filter_unconnected_device () {
         list_remove(key);
         pnotify_device_callbacks(key, Dev_Event_removed);
       }
-      if (conn&&!key) {
-        //printf("database connected but no device [%s] \n", path);
-      }
   }
   psync_sql_free_result(res);
 
 }
 
-void print_stree()
-{
+void print_stree() {
   if (stree_root) {
     pdevice_extended_info * dev = (pdevice_extended_info *) stree_root;
     for (; dev ;) {
@@ -251,13 +237,12 @@ void print_stree()
 
 void print_device_info(pdevice_extended_info *ret ) {
   if (ret->isextended )
-    debug(D_NOTICE, "DeviceID [%s]\n", ret->device_id );
-  debug(D_NOTICE,"File system path [%s] \n", ret->filesystem_path);
-  if (ret->isextended ) 
-    debug(D_NOTICE,"Vendor [%s] / Product [%s] \n", ret->vendor, ret->product);
-  debug(D_NOTICE,"Type [%d]; Extended [%d] \n",ret->type, ret->isextended);
+    log_debug("DeviceID [%s]\n", ret->device_id );
+  log_debug("File system path [%s] \n", ret->filesystem_path);
+  if (ret->isextended )
+    log_debug("Vendor [%s] / Product [%s] \n", ret->vendor, ret->product);
+  log_debug("Type [%d]; Extended [%d] \n",ret->type, ret->isextended);
 }
-
 
 void penable_device(const char* device_id) {
   psync_sql_res *q=psync_sql_prep_statement("UPDATE devices SET enabled = 1 WHERE id = ? ");
@@ -277,7 +262,7 @@ void premove_device(const char* device_id) {
   psync_sql_run_free(q);
 }
 
-static int create_device_item(psync_list_builder_t *builder, void *element, psync_variant_row row){
+static int create_device_item(psync_list_builder_t *builder, void *element, psync_variant_row row) {
   pdevice_item_t *device;
   const char *str;
   size_t len;
@@ -301,9 +286,7 @@ static int create_device_item(psync_list_builder_t *builder, void *element, psyn
   return 0;
 }
 
-
 pdevice_item_list_t * psync_list_devices(char **err /*OUT*/) {
-
   psync_list_builder_t *builder;
   psync_sql_res *res;
   *err = 0;
@@ -313,7 +296,6 @@ pdevice_item_list_t * psync_list_devices(char **err /*OUT*/) {
   res=psync_sql_query_rdlock("SELECT id, last_path, type, vendor, product, connected, enabled FROM devices");
 
   psync_list_bulder_add_sql(builder, res, create_device_item);
-
 
   return (pdevice_item_list_t *)psync_list_builder_finalize(builder);
 }
