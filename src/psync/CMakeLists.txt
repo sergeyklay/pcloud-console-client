@@ -47,7 +47,14 @@ set(psync_sources
     pcompression.c
     pasyncnet.c
     ppathstatus.c
-    pdevice_monitor.c
+    # It seems these ones are experimental features
+    # so disabled for now:
+    #
+    # pdevicemap.c
+    # pdevice_monitor.c
+    #
+    # Not:e After enable do not forget install 'libudev-dev' on Linux.
+    # Also amend documentation and CI workflow file.
     pfs.c
     ppagecache.c
     pfsfolder.c
@@ -113,6 +120,16 @@ target_link_libraries(psync
 
 if(APPLE)
   target_link_libraries(psync "-framework Cocoa")
+elseif(NOT WIN32)
+  # It seems device monitor is in experimental phase
+  # so disable it for now:
+  #
+  #  find_package(PkgConfig REQUIRED)
+  #  pkg_check_modules(UDEV REQUIRED libudev)
+  #  target_link_libraries(psync ${UDEV_LIBRARIES})
+  #
+  # Not:e After enable do not forget install 'libudev-dev' on Linux.
+  # Also amend documentation and CI workflow file.
 endif()
 
 if (NOT WIN32)
