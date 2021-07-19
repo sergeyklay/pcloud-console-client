@@ -177,7 +177,7 @@ jobs:
         run: install/bin/pcloudcc --help
 
       - name: Run Tests
-        run: cmake --build build --target check -j "$(getconf _NPROCESSORS_ONLN)"
+        run: cmake --build build --target test
 
       - name: Success Reporting
         if: success()

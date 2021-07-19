@@ -7,18 +7,18 @@
 
 define_property(
   GLOBAL
-  PROPERTY PROJECT_TESTS
-  BRIEF_DOCS "All project tests"
-  FULL_DOCS "The full list of all project tests")
+  PROPERTY PCLOUD_TESTS
+  BRIEF_DOCS "All pcloudcc tests"
+  FULL_DOCS "The full list of all pcloudcc tests")
 
-set(PROJECT_TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(PCLOUD_TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(compat)
+add_subdirectory(psync)
 
-get_property(PROJECT_TESTS GLOBAL PROPERTY PROJECT_TESTS)
+get_property(PCLOUD_TESTS GLOBAL PROPERTY PCLOUD_TESTS)
 add_custom_target(
   check
   COMMAND ctest --output-on-failure
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  DEPENDS ${PROJECT_TESTS}
+  DEPENDS ${PCLOUD_TESTS}
   COMMENT "Run all tests...")

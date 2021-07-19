@@ -44,7 +44,7 @@ extern "C" {
  *       strlcpy() only operate on true "C" strings. This means that for
  *       \a src must be NUL-terminated.
  */
-size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size);
+size_t strlcpy(char *dst, const char *src, size_t size);
 #endif  /* !defined(HAVE_STRLCPY) || !HAVE_STRLCPY */
 
 #ifdef __cplusplus
