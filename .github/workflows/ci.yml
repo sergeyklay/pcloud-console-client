@@ -50,7 +50,7 @@ jobs:
             ssl: mbedtls
             compiler: gcc
             arch: x64
-            version: '8'
+            version: '11'
 
           - name: linux-clang-debug
             build-type: Debug
