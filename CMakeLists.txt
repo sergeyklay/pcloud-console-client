@@ -50,6 +50,12 @@ endif()
 add_subdirectory(src)
 add_subdirectory(extras)
 
+option(PCLOUD_WITH_TESTS "Enable testing support" OFF)
 if(MASTER_PROJECT)
+  include(CTest)
   add_subdirectory(docs)
+
+  if(BUILD_TESTING AND PCLOUD_WITH_TESTS)
+    add_subdirectory(tests)
+  endif()
 endif()

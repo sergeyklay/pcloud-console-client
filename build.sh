@@ -23,15 +23,17 @@ BUILD_TYPE=${BUILD_TYPE:-Debug}
 
 INSTALL_PREFIX=${INSTALL_PREFIX:-"$HOME/.local"}
 SYSTEMD_UNIT_PATH=${SYSTEMD_UNIT_PATH:-"$HOME/.config/systemd/user"}
+CONAN_PROFILE=${CONAN_PROFILE:-default}
 
 WITH_LOGS=${WITH_LOGS:-ON}
 WITH_DOCS=${WITH_DOCS:-ON}
 WITH_SYSTEMD=${WITH_SYSTEMD:-ON}
+WITH_TESTS=${WITH_TESTS:-ON}
 
 # Clear any cache
 rm -rf "$(pwd)/build"
 
-conan install . -if=build --build=missing
+conan install . -if=build -pr="${CONAN_PROFILE}" --build=missing
 
 echo "Configure client"
 cmake -S . -B build \
@@ -41,15 +43,16 @@ cmake -S . -B build \
   -DPCLOUD_BUILD_DOC="${WITH_DOCS}" \
   -DPCLOUD_WITH_SYSTEMD="${WITH_SYSTEMD}" \
   -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR="${SYSTEMD_UNIT_PATH}" \
+  -DPCLOUD_WITH_TESTS="${WITH_TESTS}" \
   -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}"
 
 echo "Build client"
-cmake --build build --config "${BUILD_TYPE}"
+cmake --build build --config "${BUILD_TYPE}" -j "$(getconf _NPROCESSORS_ONLN)"
 
 if [ "${WITH_DOCS}" = "ON" ]; then
   echo "Generate the API documentation"
-  cmake --build build --target doc
+  cmake --build build --target doc -j "$(getconf _NPROCESSORS_ONLN)"
 fi
 
 echo "Install client"
