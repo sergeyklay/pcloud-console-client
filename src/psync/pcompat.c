@@ -2455,6 +2455,7 @@ int psync_select_in(psync_socket_t *sockets, int cnt, int64_t timeoutmillisec) {
   return SOCKET_ERROR;
 }
 
+/* TODO: Consider to move this, and other fs-related funcs to a dedicated place */
 int psync_list_dir(const char *path, psync_list_dir_callback callback, void *ptr) {
 #if defined(P_OS_POSIX)
   psync_pstat pst;
@@ -2463,11 +2464,13 @@ int psync_list_dir(const char *path, psync_list_dir_callback callback, void *ptr
   size_t pl;
   long namelen;
   struct dirent *de;
-  dh=opendir(path);
+
+  dh = opendir(path);
   if (unlikely(!dh)) {
-    log_warn("could not open directory %s", path);
+    log_error("failed to open directory %s: %s", path, strerror(errno));
     goto err1;
   }
+
   pl=strlen(path);
   namelen=pathconf(path, _PC_NAME_MAX);
   if (unlikely_log(namelen==-1))
@@ -2544,61 +2547,76 @@ err1:
 #endif
 }
 
+/* TODO: Consider to move this, and other fs-related funcs to a dedicated place */
 int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast callback, void *ptr) {
 #if defined(P_OS_POSIX)
   psync_pstat_fast pst;
   struct stat st;
-  DIR *dh;
+  DIR *dp;
   char *cpath;
-  size_t pl;
-  long namelen;
-  struct dirent *de;
-  dh=opendir(path);
-  if (unlikely_log(!dh))
-    goto err1;
-  pl=strlen(path);
-  namelen=pathconf(path, _PC_NAME_MAX);
-  if (namelen==-1)
-    namelen=255;
-  if (namelen<sizeof(de->d_name)-1)
-    namelen=sizeof(de->d_name)-1;
-  cpath=(char *)psync_malloc(pl+namelen+2);
-  memcpy(cpath, path, pl);
-  if (!pl || cpath[pl-1]!=PSYNC_DIRECTORY_SEPARATORC)
-    cpath[pl++]=PSYNC_DIRECTORY_SEPARATORC;
+  size_t path_len;
+  long name_max;
+  struct dirent *ent;
+  int ret;
 
-  while (NULL != (de = readdir(dh)))
-    if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))) {
-#if defined(DT_UNKNOWN) && defined(DT_DIR) && defined(DT_REG)
-      pst.name=de->d_name;
-      if (de->d_type==DT_UNKNOWN) {
-        psync_strlcpy(cpath+pl, de->d_name, namelen+1);
-        if (unlikely_log(lstat(cpath, &st)))
-          continue;
-        pst.isfolder=S_ISDIR(st.st_mode);
-      }
-      else if (de->d_type==DT_DIR)
-        pst.isfolder=1;
-      else if (de->d_type==DT_REG)
-        pst.isfolder=0;
-      else
-        continue;
-      callback(ptr, &pst);
-#else
-      psync_strlcpy(cpath+pl, de->d_name, namelen+1);
-      if (likely_log(!lstat(cpath, &st))) {
-        pst.name=de->d_name;
-        pst.isfolder=S_ISDIR(st.st_mode);
-        callback(ptr, &pst);
-      }
-#endif
+  dp = opendir(path);
+  if (unlikely(!dp)){
+    log_error("failed to open directory %s: %s", path, strerror(errno));
+    psync_error = PERROR_LOCAL_FOLDER_NOT_FOUND;
+    return -1;
+  }
+
+  path_len = strlen(path);
+  name_max = pathconf(path, _PC_NAME_MAX);
+  if (name_max == -1)
+    name_max = 255;
+
+  if (name_max < sizeof(ent->d_name) - 1)
+    name_max = sizeof(ent->d_name) - 1;
+
+  cpath = (char *)psync_malloc(path_len + name_max + 2);
+  memcpy(cpath, path, path_len);
+  if (!path_len || cpath[path_len - 1] != PSYNC_DIRECTORY_SEPARATORC)
+    cpath[path_len++] = PSYNC_DIRECTORY_SEPARATORC;
+
+  while (NULL != (ent = readdir(dp))) {
+    if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
+      continue;
     }
+
+#if defined(DT_UNKNOWN) && defined(DT_DIR) && defined(DT_REG)
+    pst.name=ent->d_name;
+    if (ent->d_type == DT_UNKNOWN) {
+      psync_strlcpy(cpath + path_len, ent->d_name, name_max + 1);
+      ret = lstat(cpath, &st);
+      if (unlikely(ret == -1)) {
+        log_error("filed to get status for %s: %s", cpath, strerror(errno));
+        continue;
+      }
+      pst.isfolder = S_ISDIR(st.st_mode);
+    } else if (ent->d_type == DT_DIR)
+      pst.isfolder = 1;
+    else if (ent->d_type == DT_REG)
+      pst.isfolder = 0;
+    else
+      continue;
+    callback(ptr, &pst);
+#else
+    psync_strlcpy(cpath + path_len, ent->d_name, name_max + 1);
+    ret = lstat(cpath, &st);
+    if (unlikely(ret == -1)) {
+      log_error("filed to get status for %s: %s", cpath, strerror(errno));
+        continue;
+    }
+
+    pst.name = ent->d_name;
+    pst.isfolder = S_ISDIR(st.st_mode);
+    callback(ptr, &pst);
+#endif
+  }
   psync_free(cpath);
-  closedir(dh);
+  closedir(dp);
   return 0;
-err1:
-  psync_error=PERROR_LOCAL_FOLDER_NOT_FOUND;
-  return -1;
 #elif defined(P_OS_WINDOWS)
   psync_pstat_fast pst;
   char *spath, *name;
