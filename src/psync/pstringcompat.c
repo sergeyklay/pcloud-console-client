@@ -10,8 +10,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "pstringcompat.h"
+#include "pcloudcc/psync/stringcompat.h"
 
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
 size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {
   size_t ret = strlen(src);
 
@@ -23,3 +24,4 @@ size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {
 
   return ret;
 }
+#endif  /* !defined(HAVE_STRLCPY) || !HAVE_STRLCPY */

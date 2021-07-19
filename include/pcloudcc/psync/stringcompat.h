@@ -11,11 +11,14 @@
  *  \brief Some extra string manipulation functions not present in all
  *         standard C runtimes.
  */
-//
 #ifndef PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_
 #define PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_
 
 #include <stddef.h>
+
+#ifdef HAVE_CONFIG_H
+#include "pcloudcc/config.h"
+#endif
 
 #include "pcloudcc/psync/compiler.h"
 
@@ -23,6 +26,7 @@
 extern "C" {
 #endif
 
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
 /*! \brief Size-bounded string copying.
  *
  * Is designed to be safer, more consistent, and less error prone replacements
@@ -41,9 +45,10 @@ extern "C" {
  *       \a src must be NUL-terminated.
  */
 size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size);
+#endif  /* !defined(HAVE_STRLCPY) || !HAVE_STRLCPY */
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
 #endif  /* PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_ */

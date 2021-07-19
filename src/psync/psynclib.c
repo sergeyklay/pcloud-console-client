@@ -10,14 +10,7 @@
  */
 
 #include "pcloudcc/psync/compat.h"
-
-#ifdef HAVE_CONFIG_H
-#include "pcloudcc/config.h"
-#endif
-
-#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
-#include "pstringcompat.h"
-#endif
+#include "pcloudcc/psync/stringcompat.h"
 
 #include "plibs.h"
 #include "psynclib.h"
