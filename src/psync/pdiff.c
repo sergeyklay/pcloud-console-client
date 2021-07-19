@@ -277,10 +277,10 @@ static psync_socket *get_connected_socket() {
     psync_sql_start_transaction();
     strlcpy(psync_my_auth, psync_find_result(res, "auth", PARAM_STR)->str, sizeof(psync_my_auth));
     if (luserid) {
-      if (unlikely_log(luserid!=userid)) {
+      if (unlikely(luserid != userid)) {
         psync_sql_rollback_transaction();
-        log_info(
-            "user mistmatch, db userid=%lu, connected userid=%lu",
+        log_error(
+            "user mismatch, db userid=%lu, connected userid=%lu",
             (unsigned long)luserid,
             (unsigned long)userid
         );
