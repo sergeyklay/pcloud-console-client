@@ -3455,7 +3455,7 @@ char *psync_deviceid() {
   }
   len=sizeof(modelname);
   if (sysctlbyname("hw.model", modelname, &len, NULL, 0))
-    strlcpy(modelname, "Mac", sizeof(modelname));
+    strlcpy(modelname, "Mac", len);
   versbuff[sizeof(versbuff)-1]=0;
   device=psync_strcat(modelname, ", ", ver, ", ", psync_software_name, NULL);
 #elif defined(P_OS_LINUX)

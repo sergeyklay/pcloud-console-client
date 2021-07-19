@@ -7,7 +7,7 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-/*! \file pstring.h
+/*! \file pstringcompat.h
  *  \brief Some extra string manipulation functions not present in all
  *         standard C runtimes.
  */
