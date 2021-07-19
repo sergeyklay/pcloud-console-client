@@ -8,8 +8,15 @@
 # Setup TLS implementation
 include(TLSImplementation)
 
+include(CheckSymbolExists)
+message(STATUS "Checking symbols")
+# macOS, *BSD, Cygwin, musl
+check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
+message(STATUS "Checking symbols - done")
+
 set(psync_sources
     pcompat.c
+    pstringcompat.c
     psynclib.c
     plocks.c
     plibs.c
@@ -111,6 +118,11 @@ else()
   target_link_libraries(psync CONAN_PKG::mbedtls)
   target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
 endif()
+
+configure_file("${PROJECT_SOURCE_DIR}/cmake/config.h.in"
+    "${PROJECT_SOURCE_DIR}/include/pcloudcc/config.h")
+target_compile_definitions(psync
+    PUBLIC HAVE_CONFIG_H)
 
 target_link_libraries(psync
     pcloud::logger

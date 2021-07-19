@@ -12,6 +12,8 @@
 #include <ctype.h>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/stringcompat.h"
+
 #include "pdiff.h"
 #include "pstatus.h"
 #include "psettings.h"
@@ -266,12 +268,12 @@ static psync_socket *get_connected_socket() {
     luserid=psync_sql_cellint("SELECT value FROM setting WHERE id='userid'", 0);
     psync_is_business=psync_find_result(res, "business", PARAM_BOOL)->num;
     psync_sql_start_transaction();
-    psync_strlcpy(psync_my_auth, psync_find_result(res, "auth", PARAM_STR)->str, sizeof(psync_my_auth));
+    strlcpy(psync_my_auth, psync_find_result(res, "auth", PARAM_STR)->str, sizeof(psync_my_auth));
     if (luserid) {
-      if (unlikely_log(luserid!=userid)) {
+      if (unlikely(luserid != userid)) {
         psync_sql_rollback_transaction();
-        log_info(
-            "user mistmatch, db userid=%lu, connected userid=%lu",
+        log_error(
+            "user mismatch, db userid=%lu, connected userid=%lu",
             (unsigned long)luserid,
             (unsigned long)userid
         );

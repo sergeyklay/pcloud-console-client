@@ -115,6 +115,14 @@
 #define PSYNC_PACKED_STRUCT struct
 #endif
 
+#if __has_attribute(weak)
+/*! \brief Functions defined with PSYNC_WEAK export their
+ *         symbols weakly (if supported). */
+#define PSYNC_WEAK __attribute__ ((weak))
+#else
+#define PSYNC_WEAK
+#endif
+
 #if _MSC_VER >= 1500 && _MSC_VER < 1600
 #define inline __inline
 #define restrict __restrict
