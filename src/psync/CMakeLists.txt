@@ -54,6 +54,7 @@ set(psync_sources
     pcompression.c
     pasyncnet.c
     ppathstatus.c
+    pdeviceid.c
     # It seems these ones are experimental features
     # so disabled for now:
     #
@@ -119,8 +120,10 @@ else()
   target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
 endif()
 
+
 configure_file("${PROJECT_SOURCE_DIR}/cmake/config.h.in"
     "${PROJECT_SOURCE_DIR}/include/pcloudcc/config.h")
+
 target_compile_definitions(psync
     PUBLIC HAVE_CONFIG_H)
 
@@ -156,8 +159,8 @@ set(PSYNC_VERSION_PATCH 0)
 set(PSYNC_VERSION_STRING
     ${PSYNC_VERSION_MAJOR}.${PSYNC_VERSION_MINOR}.${PSYNC_VERSION_PATCH})
 
-target_compile_definitions(psync
-    PRIVATE "-DLIBPSYNC_VERSION=\"${PSYNC_VERSION_STRING}\"")
+configure_file("${PROJECT_SOURCE_DIR}/cmake/psync-version.h.in"
+    "${PROJECT_SOURCE_DIR}/include/pcloudcc/psync/version.h")
 
 # The SOVERSION is not necessarily the same as the major version. The rule is
 # that any breakage of the ABI must be indicated by incrementing the SOVERSION.

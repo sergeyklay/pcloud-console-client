@@ -595,7 +595,8 @@ typedef void (*pnotification_callback_t)(uint32_t notificationcnt, uint32_t newn
 
 void psync_set_database_path(const char *databasepath);
 void psync_set_alloc(psync_malloc_t malloc_call, psync_realloc_t realloc_call, psync_free_t free_call);
-void psync_set_software_string(const char *str);
+// TODO: Remove
+//oid psync_set_software_string(const char *str);
 
 int psync_init();
 void psync_start_sync(pstatus_change_callback_t status_callback, pevent_callback_t event_callback);

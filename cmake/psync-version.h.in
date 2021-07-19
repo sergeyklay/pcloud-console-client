@@ -1,0 +1,29 @@
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+#ifndef PCLOUD_PSYNC_VERSION_H_
+#define PCLOUD_PSYNC_VERSION_H_
+
+/*! \file config.h
+ *  \brief Provides libpsync version information.
+ */
+
+/*! \brief Represents libpsync major version. */
+#define PSYNC_VERSION_MAJOR "@PSYNC_VERSION_MAJOR@"
+
+/*! \brief Represents libpsync minor version. */
+#define PSYNC_VERSION_MINOR "@PSYNC_VERSION_MINOR@"
+
+/*! \brief Represents libpsync patch version. */
+#define PSYNC_VERSION_PATCH "@PSYNC_VERSION_PATCH@"
+
+/*! \brief Represents libpsync version string. */
+#define PSYNC_VERSION_STRING "@PSYNC_VERSION_STRING@"
+
+#endif  /* PCLOUD_PSYNC_VERSION_H_ */

@@ -74,6 +74,7 @@ extern char **environ;
 #include "psettings.h"
 #include "pssl.h"
 #include "ptimer.h"
+#include "pdeviceid.h"
 #include "logger.h"
 
 #define PROXY_NONE    0
@@ -103,8 +104,6 @@ static char proxy_host[256];
 static char proxy_port[8];
 
 static int psync_page_size;
-
-static const char *psync_software_name="pCloudSync library "LIBPSYNC_VERSION;
 
 PSYNC_THREAD const char *psync_thread_name="no name";
 static pthread_mutex_t socket_mutex=PTHREAD_MUTEX_INITIALIZER;
@@ -1424,7 +1423,14 @@ static psync_socket_t connect_socket_connect_proxy(const char *host, const char 
     log_info("connection to proxy %s:%s failed", proxy_host, proxy_port);
     goto err0;
   }
-  ln=psync_slprintf(buff, sizeof(buff), "CONNECT %s:%s HTTP/1.0\015\012User-Agent: %s\015\012\015\012", host, port, psync_software_name);
+  ln = psync_slprintf(
+      buff,
+      sizeof(buff),
+      "CONNECT %s:%s HTTP/1.0\015\012User-Agent: %s\015\012\015\012",
+      host,
+      port,
+      psync_get_software_name()
+  );
   wr=0;
   while (wr<ln) {
     r=psync_write_socket(sock, buff+wr, ln-wr);
@@ -2036,7 +2042,6 @@ int psync_socket_readall(psync_socket *sock, void *buff, int num) {
     return psync_socket_readall_plain(sock, buff, num);
 }
 
-
 static int psync_socket_writeall_ssl(psync_socket *sock, const void *buff, int num) {
   int br, r;
   br=0;
@@ -2158,7 +2163,6 @@ int psync_socket_readall_thread(psync_socket *sock, void *buff, int num) {
   else
     return psync_socket_readall_plain_thread(sock, buff, num);
 }
-
 
 static int psync_socket_writeall_ssl_thread(psync_socket *sock, const void *buff, int num) {
   int br, r;
@@ -3404,10 +3408,7 @@ int64_t psync_file_size(psync_file_t fd) {
 #endif
 }
 
-void psync_set_software_name(const char *snm) {
-  psync_software_name=snm;
-}
-
+/* TODO: Remove */
 char *psync_deviceid() {
   char *device;
 #if defined(P_OS_WINDOWS)
@@ -3451,7 +3452,7 @@ char *psync_deviceid() {
     psync_slprintf(versbuff, sizeof(versbuff), "%u.%u", (unsigned int)vmajor, (unsigned int)vminor);
     ver=versbuff;
   }
-  device=psync_strcat(hardware, ", Windows ", ver, ", ", psync_software_name, NULL);
+  device = psync_strcat(hardware, ", Windows ", ver, NULL);
 #elif defined(P_OS_MACOSX)
   struct utsname un;
   const char *ver;
@@ -3482,7 +3483,7 @@ char *psync_deviceid() {
   if (sysctlbyname("hw.model", modelname, &len, NULL, 0))
     strlcpy(modelname, "Mac", len);
   versbuff[sizeof(versbuff)-1]=0;
-  device=psync_strcat(modelname, ", ", ver, ", ", psync_software_name, NULL);
+  device = psync_strcat(modelname, ", ", ver, NULL);
 #elif defined(P_OS_LINUX)
   DIR *dh;
   struct dirent *de;
@@ -3508,9 +3509,9 @@ char *psync_deviceid() {
       }
     closedir(dh);
   }
-  device=psync_strcat(hardware, ", Linux, ", psync_software_name, NULL);
+  device = psync_strcat(hardware, ", Linux", NULL);
 #else
-  device=psync_strcat("Desktop, ", psync_software_name, NULL);
+  device=psync_strcat("Desktop", NULL);
 #endif
   log_info("detected device: %s", device);
   return device;

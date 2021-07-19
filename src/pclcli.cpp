@@ -12,14 +12,17 @@
 #include <termios.h>
 #include <unistd.h>
 #include <cstring>
+#include <array>
+#include <memory>
 
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
 #include "poverlay.h"
+#include "pdeviceid.h"
+#include "logger.h"
 
 #include "pcloudcc/version.hpp"
 #include "pclcli.hpp"
-#include "logger.h"
 
 namespace cc = console_client;
 namespace clib = cc::clibrary;
@@ -31,23 +34,22 @@ clib::pclcli& clib::pclcli::get_lib() {
   return g_lib;
 }
 
-// TODO: See note in 'clib::pclcli::init'
-// static std::string exec(const char* cmd) {
-//   std::array<char, 128> buffer{};
-//   std::string result;
-//   size_t size = 0;
-//
-//   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-//   if (!pipe) {
-//     throw std::runtime_error("popen() failed");
-//   }
-//
-//   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-//     result += buffer.data();
-//   }
-//
-//   return result;
-// }
+static std::string exec(const char* cmd) {
+  std::array<char, 128> buffer{};
+  std::string result;
+  size_t size;
+
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+  if (!pipe) {
+    throw std::runtime_error("popen() failed");
+  }
+
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    result += buffer.data();
+  }
+
+  return result;
+}
 
 char * clib::pclcli::get_token(){
   return psync_get_token();
@@ -223,17 +225,26 @@ int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   return 0;
 }
 
+#ifdef P_CONSOLE_CLIENT
+static const char *software_string = PCLOUD_VERSION_FULL;
+#endif
 int clib::pclcli::init() {
-  // TODO: Old behavior leads to char overflow. Try to sort out
-  // const std::string client_name = " Console Client v3.0.0";
-  // std::string software_string = exec("lsb_release -ds");
-  // psync_set_software_string(software_string.append(client_name).c_str());
+#ifdef P_CONSOLE_CLIENT
+  std::string os_string_tmp = exec("lsb_release -ds").substr(0, 20);
+  static const char *os_string = strndup(os_string_tmp.c_str(), os_string_tmp.size());
+  psync_set_software_name(software_string);
+  psync_set_os_name(os_string);
+#endif
+  //const std::string client_name = " Console Client v3.0.0";
+  //std::string software_string = exec("lsb_release -ds");
+  //std::string software_string = "XXXXXX";
+  //psync_set_software_string(software_string.append(client_name).c_str());
   if (pthread_mutex_init(&MAINTAINER_LOG_MUTEX, nullptr) == 0) {
     log_set_lock(log_lock, &MAINTAINER_LOG_MUTEX);
   }
 
   setup_logging();
-  psync_set_software_string(PCLOUD_VERSION_FULL);
+  // psync_set_software_string(PCLOUD_VERSION_FULL);
   if (setup_crypto_ && crypto_pass_.empty())
     return 3;
 

@@ -54,15 +54,15 @@
 #endif
 
 #if defined(_MSC_VER)
-#define PSYNC_THREAD   __declspec(thread)
-#define PSYNC_NOINLINE __declspec(noinline)
+# define PSYNC_THREAD   __declspec(thread)
+# define PSYNC_NOINLINE __declspec(noinline)
 #else
 #if __has_attribute(noinline)
-#define PSYNC_NOINLINE __attribute__((noinline))
+# define PSYNC_NOINLINE __attribute__((noinline))
 #else
-#define PSYNC_NOINLINE
+# define PSYNC_NOINLINE
 #endif
-#define PSYNC_THREAD __thread
+# define PSYNC_THREAD __thread
 #endif
 
 #if __has_attribute(malloc)

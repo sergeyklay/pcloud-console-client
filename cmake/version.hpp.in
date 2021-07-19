@@ -12,27 +12,27 @@
 #define PCLOUD_VERSION_HPP_
 
 /// \file version.hpp
-/// \brief Provides compiler version information.
+/// \brief Provides project version information.
 
-/// \brief Represents compiler major version.
+/// \brief Represents project major version.
 #define PCLOUD_VERSION_MAJOR "@PCLOUD_VERSION_MAJOR@"
 
-/// \brief Represents compiler minor version.
+/// \brief Represents project minor version.
 #define PCLOUD_VERSION_MINOR "@PCLOUD_VERSION_MINOR@"
 
-/// \brief Represents compiler patch version.
+/// \brief Represents project patch version.
 #define PCLOUD_VERSION_PATCH "@PCLOUD_VERSION_PATCH@"
 
-/// \brief Represents compiler suffix version.
+/// \brief Represents project suffix version.
 #define PCLOUD_VERSION_SUFFIX "@PCLOUD_VERSION_SUFFIX@"
 
-/// \brief Represents compiler version string.
+/// \brief Represents project version string.
 #define PCLOUD_VERSION "@PCLOUD_VERSION@"
 
-/// \brief Represents full compiler version string.
+/// \brief Represents full project version string.
 #define PCLOUD_VERSION_FULL "@PCLOUD_VERSION_FULL@"
 
-/// \brief Represents compiler version ID.
+/// \brief Represents project version ID.
 #define PCLOUD_VERSION_ID "@PCLOUD_VERSION_ID@"
 
 /// \brief Represents project package string.

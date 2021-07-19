@@ -849,6 +849,8 @@ dl.bug {
     border-color: #C08050;
 }
 
+dl.todo dt,
+dl.todo dd,
 dl.section dt,
 dl.section dd {
     margin-left: 6px;

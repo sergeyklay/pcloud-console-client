@@ -11,6 +11,7 @@
 
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/psync/version.h"
 
 #include "plibs.h"
 #include "psynclib.h"
@@ -149,10 +150,11 @@ void psync_set_alloc(psync_malloc_t malloc_call, psync_realloc_t realloc_call, p
   psync_real_free=free_call;
 }
 
-void psync_set_software_string(const char *str) {
-  log_info("setting software name to %s", str);
-  psync_set_software_name(str);
-}
+// TODO: Remove
+//void psync_set_software_string(const char *str) {
+//  log_info("setting software name to %s", str);
+//  psync_set_software_name(str);
+//}
 
 static void psync_stop_crypto_on_sleep(){
   if (psync_setting_get_bool(_PS(sleepstopcrypto)) && psync_crypto_isstarted()){
@@ -163,7 +165,7 @@ static void psync_stop_crypto_on_sleep(){
 
 int psync_init(){
   psync_thread_name="main app thread";
-  log_info("initializing library version %s", LIBPSYNC_VERSION);
+  log_info("initializing library version %s", PSYNC_VERSION_STRING);
 
   if (IS_DEBUG){
     pthread_mutex_lock(&psync_libstate_mutex);
@@ -842,9 +844,13 @@ int psync_lost_password(const char *email, char **err){
 }
 
 int psync_change_password(const char *currentpass, const char *newpass, char **err){
-  char * device; int ret;binresult *res;
+  char * device;
+  int ret;
+  binresult *res;
+  /* TODO: Replace by 'os_version = psync_get_device_os();' */
   device=psync_deviceid();
   {
+    /* TODO: Update regarding get_connected_socket */
     binparam params[]={P_STR("auth", psync_my_auth), P_STR("oldpassword", currentpass), P_STR("newpassword", newpass), P_STR("device", device), P_BOOL("regetauth", 1)};
     ret = run_command_get_res("changepassword", params, err, &res);
   }
