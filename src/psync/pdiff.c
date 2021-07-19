@@ -37,6 +37,7 @@
 #include "pcontacts.h"
 #include "pcloudcrypto.h"
 #include "ppathstatus.h"
+#include "pdeviceid.h"
 #include "logger.h"
 
 #define PSYNC_SQL_DOWNLOAD "synctype&"NTO_STR(PSYNC_DOWNLOAD_ONLY)"="NTO_STR(PSYNC_DOWNLOAD_ONLY)
@@ -98,21 +99,33 @@ static void delete_cached_crypto_keys() {
   psync_sql_statement("DELETE FROM cryptofilekey");
 }
 
-static binresult *get_userinfo_user_digest(psync_socket *sock, const char *username, size_t userlen, const char *pwddig, const char *digest, uint32_t diglen,
-                                           const char *device) {
-  binparam params[] = {P_STR("timeformat", "timestamp"),
-                      P_LSTR("username", username, userlen),
-                      P_LSTR("digest", digest, diglen),
-                      P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
-                      P_STR("device", device),
-                      P_BOOL("getauth", 1),
-                      P_BOOL("getapiserver", 1),
-                      P_BOOL("cryptokeyssign", 1),
-                      P_NUM("os", P_OS_ID)};
+static binresult *get_userinfo_user_digest(
+    psync_socket *sock, const char *username, size_t userlen,
+    const char *pwddig, const char *digest, uint32_t diglen,
+    const char *os_version, const char *appname, const char *deviceid,
+    const char *device_string) {
+  binparam params[] = {
+      P_STR("timeformat", "timestamp"),
+      P_LSTR("username", username, userlen),
+      P_LSTR("digest", digest, diglen),
+      P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
+      P_STR("osversion", os_version),
+      P_STR("appversion", appname),
+      P_STR("deviceid", deviceid),
+      P_STR("device", device_string),
+      P_BOOL("getauth", 1),
+      P_BOOL("getapiserver", 1),
+      P_BOOL("cryptokeyssign", 1),
+      P_NUM("os", P_OS_ID)
+  };
+
   return send_command(sock, "login", params);
 }
 
-static binresult *get_userinfo_user_pass(psync_socket *sock, const char *username, const char *password, const char *device) {
+static binresult *get_userinfo_user_pass(
+    psync_socket *sock, const char *username, const char *password,
+    const char *os_version, const char *appname, const char *deviceid,
+    const char *device_string) {
   binparam empty_params[] = {P_STR("MS", "sucks")};
   psync_sha1_ctx ctx;
   binresult *res, *ret;
@@ -143,23 +156,63 @@ static binresult *get_userinfo_user_pass(psync_socket *sock, const char *usernam
   psync_sha1_update(&ctx, dig->str, dig->length);
   psync_sha1_final(sha1bin, &ctx);
   psync_binhex(sha1hex, sha1bin, PSYNC_SHA1_DIGEST_LEN);
-  ret=get_userinfo_user_digest(sock, username, ul, sha1hex, dig->str, dig->length, device);
+  ret = get_userinfo_user_digest(
+      sock,
+      username,
+      ul,
+      sha1hex,
+      dig->str,
+      dig->length,
+      os_version,
+      appname,
+      deviceid,
+      device_string
+  );
   psync_free(res);
   return ret;
 }
 
+/* TODO: move to deviceid.c */
+static char *generate_device_id() {
+  psync_sql_res *q;
+  unsigned char deviceidbin[16];
+  char deviceidhex[32+2];
+  psync_ssl_rand_strong(deviceidbin, sizeof(deviceidbin));
+  psync_binhex(deviceidhex, deviceidbin, sizeof(deviceidbin));
+  deviceidhex[sizeof(deviceidbin)*2]=0;
+  q = psync_sql_prep_statement("REPLACE INTO setting (id, value) VALUES ('deviceid', ?)");
+  psync_sql_bind_string(q, 1, deviceidhex);
+  psync_sql_run_free(q);
+  return psync_strdup(deviceidhex);
+}
+
 static psync_socket *get_connected_socket() {
-  char *auth, *user, *pass;
+  char *auth = NULL;
+  char *user = NULL;
+  char *pass = NULL;
+  char *deviceid = NULL;
+  char *os_version = NULL;
+  char *device_string = NULL;
+  const char *appname;
   psync_socket *sock;
   binresult *res;
   const binresult *cres;
   psync_sql_res *q;
-  char *device;
   uint64_t result, userid, luserid;
   int saveauth, isbusiness, cryptosetup;
-  auth=user=pass=NULL;
+
   psync_is_business = 0;
   int digest = 1;
+
+  deviceid = psync_sql_cellstr("SELECT value FROM setting WHERE id='deviceid'");
+  if (!deviceid) {
+    deviceid = generate_device_id();
+  }
+  log_info("using deviceid: %s", deviceid);
+
+  appname = psync_get_appname();
+  device_string = psync_get_device_string();
+
   while (1) {
     psync_free(auth);
     psync_free(user);
@@ -188,17 +241,29 @@ static psync_socket *get_connected_socket() {
       psync_milisleep(PSYNC_SLEEP_BEFORE_RECONNECT);
       continue;
     }
-    device=psync_deviceid();
+
+    os_version = psync_get_device_os();
 
     if (user && pass && pass[0]) {
       if (digest) {
-        res = get_userinfo_user_pass(sock, user, pass, device);
+        res = get_userinfo_user_pass(
+            sock,
+            user,
+            pass,
+            os_version,
+            appname,
+            deviceid,
+            device_string
+        );
       } else {
         binparam params[] = {
             P_STR("timeformat", "timestamp"),
             P_STR("username", user),
             P_STR("password", pass),
-            P_STR("device", device),
+            P_STR("osversion", os_version),
+            P_STR("appversion", appname),
+            P_STR("deviceid", deviceid),
+            P_STR("device", device_string),
             P_BOOL("getauth", 1),
             P_BOOL("cryptokeyssign", 1),
             P_BOOL("getapiserver", 1),
@@ -210,7 +275,10 @@ static psync_socket *get_connected_socket() {
       binparam params[] = {
           P_STR("timeformat", "timestamp"),
           P_STR("auth", auth),
-          P_STR("device", device),
+          P_STR("osversion", os_version),
+          P_STR("appversion", appname),
+          P_STR("deviceid", deviceid),
+          P_STR("device", device_string),
           P_BOOL("getauth", 1),
           P_BOOL("cryptokeyssign", 1),
           P_BOOL("getapiserver", 1),
@@ -219,7 +287,8 @@ static psync_socket *get_connected_socket() {
       res = send_command(sock, "userinfo", params);
     }
 
-    psync_free(device);
+    psync_free(os_version);
+
     if (unlikely_log(!res)) {
       psync_socket_close(sock);
       psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_OFFLINE);
@@ -427,6 +496,8 @@ static psync_socket *get_connected_socket() {
     psync_free(auth);
     psync_free(user);
     psync_free(pass);
+    psync_free(deviceid);
+    psync_free(device_string);
     psync_sql_sync();
     return sock;
   }

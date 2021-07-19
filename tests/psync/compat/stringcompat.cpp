@@ -26,6 +26,10 @@ TEST(CompatTest, stringcompat) {
   EXPECT_EQ(0, memcmp(&s, "################################", sizeof(s)));
 
   memset(&s, '#', sizeof(s));
+  EXPECT_EQ(6, strlcpy(s.buf1, "Hello!", 42));
+  EXPECT_EQ(0, memcmp(&s, "Hello!\0#########################", sizeof(s)));
+
+  memset(&s, '#', sizeof(s));
   EXPECT_EQ(6, strlcpy(s.buf1, "Hello!", sizeof(s.buf1)));
   EXPECT_EQ(0, memcmp(&s, "Hello!\0#########################", sizeof(s)));
 
