@@ -12,6 +12,7 @@ boost/1.76.0
 openssl/1.1.1k
 sqlite3/3.36.0
 log.c/cci.20200620
+gtest/cci.20210126
 
 [options]
 boost:bzip2=False
@@ -48,6 +49,8 @@ boost:without_type_erasure=True
 boost:without_wave=True
 
 mbedtls:shared=False
+
+gtest:no_main=True
 
 [generators]
 cmake

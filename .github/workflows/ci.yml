@@ -163,6 +163,7 @@ jobs:
           cmake
           -S .
           -B build
+          -DPCLOUD_WITH_TESTS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
           -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
 
@@ -172,8 +173,11 @@ jobs:
       - name: Install client
         run: cmake --build build --config ${{ matrix.build-type }} --target install
 
-      - name: Minimal Load Test
+      - name: Minimal Install Test
         run: install/bin/pcloudcc --help
+
+      - name: Run Tests
+        run: cmake --build build --target check -j "$(getconf _NPROCESSORS_ONLN)"
 
       - name: Success Reporting
         if: success()

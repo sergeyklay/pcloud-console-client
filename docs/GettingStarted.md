@@ -110,6 +110,7 @@ recognized during the project configuration phase:
 | `PCLOUD_MAINTAINER_LOGS_LEVEL`        | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
 | `PCLOUD_WITH_SYSTEMD`                 | `ON`, `OFF`                                                         | Enable systemd integration.                                       |
 | `PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR` | A path recognized by systemd                                        | System or user unit search path for systemd (see bellow).         |
+| `PCLOUD_WITH_TESTS`                   | `ON`, `OFF`                                                         | Enable testing support (see bellow).                              |
 | `CMAKE_BUILD_TYPE`                    | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
 | `CMAKE_INSTALL_PREFIX`                | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
 
@@ -153,6 +154,25 @@ Follow these steps:
 2. Build project
 3. Call `cmake --build build --target doc` from the project root directory
 4. Open `build/docs/html/index.html` in your browser to view the API documentation
+
+#### Running the tests
+
+To build with testing support, you have to configure project with special flags:
+
+```shell
+# Configure client
+$ cd build
+$ cmake -DCMAKE_BUILD_TYPE=Debug -DPCLOUD_WITH_TESTS=ON ..
+
+# Build client
+$ cmake --build . --config Release
+```
+
+The run tests as follows:
+```sh
+# Under the build directory:
+$ cmake --build . --target check
+```
 
 ### Install
 
