@@ -682,7 +682,8 @@ static int task_download_file(download_task_t *dt) {
         psync_hash_update(&hashctx, buff, rd);
         pthread_mutex_lock(&current_downloads_mutex);
         psync_status.bytesdownloaded+=rd;
-        if (current_downloads_waiters && psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded<=PSYNC_START_NEW_DOWNLOADS_TRESHOLD)
+        if (current_downloads_waiters && psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded<=
+                PSYNC_START_NEW_DOWNLOADS_THRESHOLD)
           pthread_cond_signal(&current_downloads_cond);
         pthread_mutex_unlock(&current_downloads_mutex);
         psync_send_status_update();
@@ -718,7 +719,8 @@ static int task_download_file(download_task_t *dt) {
         psync_hash_update(&hashctx, buff, rd);
         pthread_mutex_lock(&current_downloads_mutex);
         psync_status.bytesdownloaded+=rd;
-        if (current_downloads_waiters && psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded<=PSYNC_START_NEW_DOWNLOADS_TRESHOLD)
+        if (current_downloads_waiters && psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded<=
+                PSYNC_START_NEW_DOWNLOADS_THRESHOLD)
           pthread_cond_signal(&current_downloads_cond);
         pthread_mutex_unlock(&current_downloads_mutex);
         psync_send_status_update();
@@ -1135,7 +1137,8 @@ static int task_run_download_file(uint64_t taskid, psync_syncid_t syncid, psync_
   pthread_mutex_lock(&current_downloads_mutex);
   psync_list_add_tail(&downloads, &dt->dwllist.list);
   while (!dt->dwllist.stop && (started_downloads>=PSYNC_MAX_PARALLEL_DOWNLOADS ||
-          psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded>PSYNC_START_NEW_DOWNLOADS_TRESHOLD)) {
+          psync_status.bytestodownloadcurrent-psync_status.bytesdownloaded>
+              PSYNC_START_NEW_DOWNLOADS_THRESHOLD)) {
     current_downloads_waiters++;
     pthread_cond_wait(&current_downloads_cond, &current_downloads_mutex);
     current_downloads_waiters--;

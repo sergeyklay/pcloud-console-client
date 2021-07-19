@@ -459,7 +459,8 @@ static int copy_file_if_exists(const unsigned char *hashhex, uint64_t fsize, psy
 
 static void wake_upload_when_ready(){
   if (current_uploads_waiters && psync_status.filesuploading<PSYNC_MAX_PARALLEL_UPLOADS &&
-      psync_status.bytestouploadcurrent-psync_status.bytesuploaded<=PSYNC_START_NEW_UPLOADS_TRESHOLD)
+      psync_status.bytestouploadcurrent-psync_status.bytesuploaded<=
+          PSYNC_START_NEW_UPLOADS_THRESHOLD)
     pthread_cond_signal(&current_uploads_cond);
 }
 
@@ -1299,7 +1300,8 @@ static int task_run_uploadfile(uint64_t taskid, psync_syncid_t syncid, psync_fol
   pthread_mutex_lock(&current_uploads_mutex);
   psync_list_add_tail(&uploads, &ut->upllist.list);
   while (!ut->upllist.stop && (psync_status.filesuploading>=PSYNC_MAX_PARALLEL_UPLOADS ||
-         psync_status.bytestouploadcurrent-psync_status.bytesuploaded>PSYNC_START_NEW_UPLOADS_TRESHOLD)){
+         psync_status.bytestouploadcurrent-psync_status.bytesuploaded>
+              PSYNC_START_NEW_UPLOADS_THRESHOLD)){
     current_uploads_waiters++;
     pthread_cond_wait(&current_uploads_cond, &current_uploads_mutex);
     current_uploads_waiters--;

@@ -59,3 +59,4 @@ releases, in reverse chronological order.
   if there are no such environment variables.
 * Provided ability to run tests (although there are still few of them, there
   is a technical possibility).
+* The default mount point on macOS where drive to be mounted is "pCloud Drive" now.
