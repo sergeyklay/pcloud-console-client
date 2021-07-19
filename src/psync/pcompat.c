@@ -17,6 +17,14 @@
 
 #include "pcloudcc/psync/compat.h"
 
+#ifdef HAVE_CONFIG_H
+#include "pcloudcc/config.h"
+#endif
+
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
+#include "pstringcompat.h"
+#endif
+
 #ifdef P_OS_LINUX
 #include <sys/sysinfo.h>
 #endif
@@ -2485,7 +2493,7 @@ int psync_list_dir(const char *path, psync_list_dir_callback callback, void *ptr
 
   while (NULL != (de = readdir(dh)))
     if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))) {
-      psync_strlcpy(cpath+pl, de->d_name, namelen+1);
+      strlcpy(cpath+pl, de->d_name, namelen+1);
       if (likely_log(!lstat(cpath, &pst.stat)) && (S_ISREG(pst.stat.st_mode) || S_ISDIR(pst.stat.st_mode))) {
         pst.name=de->d_name;
         callback(ptr, &pst);
@@ -2587,7 +2595,7 @@ int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast callback,
 #if defined(DT_UNKNOWN) && defined(DT_DIR) && defined(DT_REG)
     pst.name=ent->d_name;
     if (ent->d_type == DT_UNKNOWN) {
-      psync_strlcpy(cpath + path_len, ent->d_name, name_max + 1);
+      strlcpy(cpath + path_len, ent->d_name, name_max + 1);
       ret = lstat(cpath, &st);
       if (unlikely(ret == -1)) {
         log_error("filed to get status for %s: %s", cpath, strerror(errno));
@@ -2602,7 +2610,7 @@ int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast callback,
       continue;
     callback(ptr, &pst);
 #else
-    psync_strlcpy(cpath + path_len, ent->d_name, name_max + 1);
+    strlcpy(cpath + path_len, ent->d_name, name_max + 1);
     ret = lstat(cpath, &st);
     if (unlikely(ret == -1)) {
       log_error("filed to get status for %s: %s", cpath, strerror(errno));
@@ -3447,7 +3455,7 @@ char *psync_deviceid() {
   }
   len=sizeof(modelname);
   if (sysctlbyname("hw.model", modelname, &len, NULL, 0))
-    psync_strlcpy(modelname, "Mac", sizeof(modelname));
+    strlcpy(modelname, "Mac", sizeof(modelname));
   versbuff[sizeof(versbuff)-1]=0;
   device=psync_strcat(modelname, ", ", ver, ", ", psync_software_name, NULL);
 #elif defined(P_OS_LINUX)

@@ -9,8 +9,17 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include "plibs.h"
 #include "pcloudcc/psync/compat.h"
+
+#ifdef HAVE_CONFIG_H
+#include "pcloudcc/config.h"
+#endif
+
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
+#include "pstringcompat.h"
+#endif
+
+#include "plibs.h"
 #include "psynclib.h"
 #include "pcallbacks.h"
 #include "pstatus.h"
@@ -322,7 +331,7 @@ void psync_set_auth(const char *auth, int save){
   if (save)
     psync_set_string_value("auth", auth);
   else
-    psync_strlcpy(psync_my_auth, auth, sizeof(psync_my_auth));
+    strlcpy(psync_my_auth, auth, sizeof(psync_my_auth));
   psync_set_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_PROVIDED);
 }
 
@@ -849,7 +858,7 @@ int psync_change_password(const char *currentpass, const char *newpass, char **e
   psync_free(device);
   if (ret)
     return ret;
-  psync_strlcpy(psync_my_auth, psync_find_result(res, "auth", PARAM_STR)->str, sizeof(psync_my_auth));
+  strlcpy(psync_my_auth, psync_find_result(res, "auth", PARAM_STR)->str, sizeof(psync_my_auth));
   psync_free(res);
   return 0;
 }

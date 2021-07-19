@@ -26,6 +26,15 @@
  */
 
 #include "pcloudcc/psync/compat.h"
+
+#ifdef HAVE_CONFIG_H
+#include "pcloudcc/config.h"
+#endif
+
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
+#include "pstringcompat.h"
+#endif
+
 #include "plocalnotify.h"
 #include "plocalscan.h"
 #include "psettings.h"
@@ -104,7 +113,7 @@ static void add_dir_scan(localnotify_dir *dir, const char *path){
       cpath[pl++]=PSYNC_DIRECTORY_SEPARATORC;
     while (NULL != (de = readdir(dh)))
       if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))) {
-        psync_strlcpy(cpath+pl, de->d_name, namelen+1);
+        strlcpy(cpath+pl, de->d_name, namelen+1);
         if (!lstat(cpath, &st) && S_ISDIR(st.st_mode))
           add_dir_scan(dir, cpath);
       }
@@ -205,7 +214,7 @@ static uint32_t process_notification(localnotify_dir *dir){
       while (wch){
         if (wch->watchid==ev.wd){
           wch->path[wch->pathlen]='/';
-          psync_strlcpy(wch->path+wch->pathlen+1, buff+off+offsetof(struct inotify_event, name), wch->namelen+1);
+          strlcpy(wch->path+wch->pathlen+1, buff+off+offsetof(struct inotify_event, name), wch->namelen+1);
           if (!lstat(wch->path, &st) && S_ISDIR(st.st_mode))
             add_dir_scan(dir, wch->path);
           wch->path[wch->pathlen]=0;
@@ -627,7 +636,7 @@ static localnotify_dir *get_dir_scan(const char *path, psync_syncid_t syncid){
       cpath[len++]=PSYNC_DIRECTORY_SEPARATORC;
     while (NULL != (de = readdir(dh)))
       if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))){
-        psync_strlcpy(cpath+len, de->d_name, namelen+1);
+        strlcpy(cpath+len, de->d_name, namelen+1);
         if (!lstat(cpath, &st) && S_ISDIR(st.st_mode)){
           child=get_dir_scan(cpath, syncid);
           if (child)

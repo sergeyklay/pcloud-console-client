@@ -345,20 +345,4 @@ static inline void psync_get_string_id2(char *dst, const char *prefix, uint64_t 
   *dst=0;
 }
 
-static inline size_t psync_strlcpy(char *dst, const char *src, size_t size) {
-  size_t len;
-  len=strlen(src);
-  if (likely_log(len<size)) {
-    memcpy(dst, src, len+1);
-    return len;
-  }
-  else if (likely_log(size)) {
-    memcpy(dst, src, size-1);
-    dst[size-1]=0;
-    return size-1;
-  }
-  else
-    return 0;
-}
-
 #endif  /* PCLOUD_PSYNC_PLIBS_H_ */

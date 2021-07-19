@@ -1,0 +1,24 @@
+/*
+ * This file is part of the pCloud Console Client.
+ *
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+/*! \file config.h
+ *  \brief Configuration options (set of defines)
+ *
+ *  This set of compile-time options may be used to enable
+ *  or disable features selectively, and reduce the global
+ *  memory footprint.
+ */
+
+#ifndef PCLOUD_CONFIG_H_
+#define PCLOUD_CONFIG_H_
+
+/*! \brief Define to 1 if you have the `strlcpy' function. */
+#cmakedefine01 HAVE_STRLCPY
+
+#endif /* PCLOUD_CONFIG_H_ */
