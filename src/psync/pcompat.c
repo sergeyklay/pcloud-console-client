@@ -2687,10 +2687,13 @@ int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast cb, void 
 int64_t psync_get_free_space_by_path(const char *path) {
 #if defined(P_OS_POSIX)
   struct statvfs buf;
-  if (unlikely_log(statvfs(path, &buf)))
+  if (statvfs(path, &buf) == -1) {
+    log_error("filed retrieve file system information for path: %s",
+              path, strerror(errno));
     return -1;
-  else
-    return (int64_t)buf.f_bavail*(int64_t)buf.f_frsize;
+  }
+
+  return (int64_t)buf.f_bavail * (int64_t)buf.f_frsize;
 #elif defined(P_OS_WINDOWS)
   ULARGE_INTEGER free;
   wchar_t *wpath;
