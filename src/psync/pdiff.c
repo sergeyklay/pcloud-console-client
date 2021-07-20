@@ -138,7 +138,7 @@ static binresult *get_userinfo_user_pass(
   if (!res)
     return res;
 
-  if (psync_find_result(res, "result", PARAM_NUM)->num!=0) {
+  if (psync_find_result(res, "result", PARAM_NUM)->num != 0) {
     psync_free(res);
     return NULL;
   }
