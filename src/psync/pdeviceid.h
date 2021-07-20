@@ -30,8 +30,6 @@ char *psync_get_device_os();
 
 char *psync_get_device_string();
 
-const char *psync_get_appname();
-
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif
