@@ -1,29 +1,15 @@
-/* Copyright (c) 2014 Anton Titov.
- * Copyright (c) 2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2014 Anton Titov <anton@pcloud.com>
+ * (c) 2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <string.h>
 
 #include "pfsfolder.h"
 #include "plibs.h"
@@ -32,15 +18,15 @@
 #include "pfolder.h"
 #include "pcloudcrypto.h"
 #include "pfs.h"
-#include <string.h>
+#include "logger.h"
 
 static PSYNC_THREAD int cryptoerr=0;
 
-static char *get_encname_for_folder(psync_fsfolderid_t folderid, const char *path, size_t len){
+static char *get_encname_for_folder(psync_fsfolderid_t folderid, const char *path, size_t len) {
   char *name, *encname;
   psync_crypto_aes256_text_encoder_t enc;
   enc=psync_cloud_crypto_get_folder_encoder(folderid);
-  if (psync_crypto_is_error(enc)){
+  if (psync_crypto_is_error(enc)) {
     cryptoerr=psync_crypto_to_error(enc);
     return NULL;
   }
@@ -51,14 +37,14 @@ static char *get_encname_for_folder(psync_fsfolderid_t folderid, const char *pat
   return encname;
 }
 
-static psync_fspath_t *ret_folder_data(psync_fsfolderid_t folderid, const char *name, uint32_t permissions, uint32_t flags, uint32_t shareid){
+static psync_fspath_t *ret_folder_data(psync_fsfolderid_t folderid, const char *name, uint32_t permissions, uint32_t flags, uint32_t shareid) {
   psync_fspath_t *ret;
-  if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED && strncmp(psync_fake_prefix, name, psync_fake_prefix_len)){
+  if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED && strncmp(psync_fake_prefix, name, psync_fake_prefix_len)) {
     psync_crypto_aes256_text_encoder_t enc;
     char *encname;
     size_t len;
     enc=psync_cloud_crypto_get_folder_encoder(folderid);
-    if (psync_crypto_is_error(enc)){
+    if (psync_crypto_is_error(enc)) {
       cryptoerr=psync_crypto_to_error(enc);
       return NULL;
     }
@@ -74,7 +60,7 @@ static psync_fspath_t *ret_folder_data(psync_fsfolderid_t folderid, const char *
     ret->permissions=permissions;
     ret->flags=flags;
   }
-  else{
+  else {
     ret=psync_new(psync_fspath_t);
     ret->folderid=folderid;
     ret->name=name;
@@ -85,7 +71,7 @@ static psync_fspath_t *ret_folder_data(psync_fsfolderid_t folderid, const char *
   return ret;
 }
 
-PSYNC_NOINLINE void do_check_userid(uint64_t userid, uint64_t folderid, uint32_t *shareid){
+PSYNC_NOINLINE void do_check_userid(uint64_t userid, uint64_t folderid, uint32_t *shareid) {
   psync_sql_res *res;
   psync_uint_row row;
   res=psync_sql_query_rdlock("SELECT id FROM sharedfolder WHERE userid=? AND folderid=?");
@@ -94,18 +80,19 @@ PSYNC_NOINLINE void do_check_userid(uint64_t userid, uint64_t folderid, uint32_t
   if ((row=psync_sql_fetch_rowint(res)))
     *shareid=row[0];
   else
-    debug(D_WARNING, "came up to a folder %lu owned by userid %lu but can't find it in sharedfolder", (unsigned long)folderid, (unsigned long)userid);
+    log_warn("came up to a folder %lu owned by userid %lu but can't find it in sharedfolder",
+             (unsigned long)folderid, (unsigned long)userid);
   psync_sql_free_result(res);
 }
 
-static void check_userid(uint64_t userid, uint64_t folderid, uint32_t *shareid){
+static void check_userid(uint64_t userid, uint64_t folderid, uint32_t *shareid) {
   if (userid==psync_my_userid || *shareid)
     return;
   else
     do_check_userid(userid, folderid, shareid);
 }
 
-psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
+psync_fspath_t *psync_fsfolder_resolve_path(const char *path) {
   psync_fsfolderid_t cfolderid;
   const char *sl;
   psync_fstask_folder_t *folder;
@@ -124,10 +111,10 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
   shareid=0;
   permissions=PSYNC_PERM_ALL;
   flags=0;
-  while (1){
+  while (1) {
     while (*path=='/')
       path++;
-    if (*path==0){
+    if (*path==0) {
       if (res)
         psync_sql_free_result(res);
       return NULL;
@@ -135,7 +122,7 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
     sl=strchr(path, '/');
     if (sl)
       len=sl-path;
-    else{
+    else {
       if (res)
         psync_sql_free_result(res);
       return ret_folder_data(cfolderid, path, permissions, flags, shareid);
@@ -145,24 +132,24 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
     else
       psync_sql_reset(res);
     psync_sql_bind_int(res, 1, cfolderid);
-    if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED){
+    if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED) {
       ename=get_encname_for_folder(cfolderid, path, len);
       if (!ename)
         break;
       elen=strlen(ename);
       psync_sql_bind_lstring(res, 2, ename, elen);
     }
-    else{
+    else {
       psync_sql_bind_lstring(res, 2, path, len);
       ename=(char *)path;
       elen=len;
     }
     row=psync_sql_fetch_rowint(res);
     folder=psync_fstask_get_folder_tasks_rdlocked(cfolderid);
-    if (folder){
+    if (folder) {
       char *name=psync_strndup(ename, elen);
-      if ((mk=psync_fstask_find_mkdir(folder, name, 0))){
-        if (mk->flags&PSYNC_FOLDER_FLAG_INVISIBLE){
+      if ((mk=psync_fstask_find_mkdir(folder, name, 0))) {
+        if (mk->flags&PSYNC_FOLDER_FLAG_INVISIBLE) {
           psync_free(name);
           break;
         }
@@ -170,7 +157,7 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
         flags=mk->flags;
         hasit=1;
       }
-      else if (row && !psync_fstask_find_rmdir(folder, name, 0)){
+      else if (row && !psync_fstask_find_rmdir(folder, name, 0)) {
         cfolderid=row[0];
         permissions&=row[1];
         flags=row[2];
@@ -181,8 +168,8 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
         hasit=0;
       psync_free(name);
     }
-    else{
-      if (row){
+    else {
+      if (row) {
         cfolderid=row[0];
         permissions=row[1];
         flags=row[2];
@@ -203,7 +190,7 @@ psync_fspath_t *psync_fsfolder_resolve_path(const char *path){
   return NULL;
 }
 
-psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags){
+psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags) {
   psync_fsfolderid_t cfolderid;
   const char *sl;
   psync_fstask_folder_t *folder;
@@ -220,10 +207,10 @@ psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags){
     return PSYNC_INVALID_FSFOLDERID;
   cfolderid=0;
   flags=0;
-  while (1){
+  while (1) {
     while (*path=='/')
       path++;
-    if (*path==0){
+    if (*path==0) {
       if (res)
         psync_sql_free_result(res);
       if (pflags)
@@ -240,28 +227,28 @@ psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags){
     else
       psync_sql_reset(res);
     psync_sql_bind_int(res, 1, cfolderid);
-    if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED){
+    if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED) {
       ename=get_encname_for_folder(cfolderid, path, len);
       if (!ename)
         break;
       elen=strlen(ename);
       psync_sql_bind_lstring(res, 2, ename, elen);
     }
-    else{
+    else {
       psync_sql_bind_lstring(res, 2, path, len);
       ename=(char *)path;
       elen=len;
     }
     row=psync_sql_fetch_rowint(res);
     folder=psync_fstask_get_folder_tasks_rdlocked(cfolderid);
-    if (folder){
+    if (folder) {
       char *name=psync_strndup(ename, elen);
-      if ((mk=psync_fstask_find_mkdir(folder, name, 0))){
+      if ((mk=psync_fstask_find_mkdir(folder, name, 0))) {
         cfolderid=mk->folderid;
         flags=mk->flags;
         hasit=1;
       }
-      else if (row && !psync_fstask_find_rmdir(folder, name, 0)){
+      else if (row && !psync_fstask_find_rmdir(folder, name, 0)) {
         cfolderid=row[0];
         flags=row[1];
         hasit=1;
@@ -270,8 +257,8 @@ psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags){
         hasit=0;
       psync_free(name);
     }
-    else{
-      if (row){
+    else {
+      if (row) {
         cfolderid=row[0];
         flags=row[1];
         hasit=1;
@@ -290,6 +277,6 @@ psync_fsfolderid_t psync_fsfolderid_by_path(const char *path, uint32_t *pflags){
   return PSYNC_INVALID_FSFOLDERID;
 }
 
-int psync_fsfolder_crypto_error(){
+int psync_fsfolder_crypto_error() {
   return cryptoerr;
 }
