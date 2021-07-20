@@ -7,12 +7,13 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-/*! \file pstringcompat.h
+#ifndef PCLOUDCC_PSYNC_STRINGCOMPAT_H_
+#define PCLOUDCC_PSYNC_STRINGCOMPAT_H_
+
+/*! \file stringcompat.h
  *  \brief Some extra string manipulation functions not present in all
  *         standard C runtimes.
  */
-#ifndef PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_
-#define PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_
 
 #include <stddef.h>
 
@@ -51,4 +52,4 @@ size_t strlcpy(char *dst, const char *src, size_t size);
 }  /* extern "C" */
 #endif
 
-#endif  /* PCLOUDCC_SRC_PSYNC_PSTRINGCOMPAT_H_ */
+#endif  /* PCLOUDCC_PSYNC_STRINGCOMPAT_H_ */

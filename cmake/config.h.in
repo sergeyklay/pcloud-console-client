@@ -7,6 +7,9 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#ifndef PCLOUD_CONFIG_H_
+#define PCLOUD_CONFIG_H_
+
 /*! \file config.h
  *  \brief Configuration options (set of defines)
  *
@@ -14,9 +17,6 @@
  *  or disable features selectively, and reduce the global
  *  memory footprint.
  */
-
-#ifndef PCLOUD_CONFIG_H_
-#define PCLOUD_CONFIG_H_
 
 /*! \brief Define to 1 if you have the `strlcpy' function. */
 #cmakedefine01 HAVE_STRLCPY

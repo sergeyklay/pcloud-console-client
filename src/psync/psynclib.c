@@ -150,12 +150,6 @@ void psync_set_alloc(psync_malloc_t malloc_call, psync_realloc_t realloc_call, p
   psync_real_free=free_call;
 }
 
-// TODO: Remove
-//void psync_set_software_string(const char *str) {
-//  log_info("setting software name to %s", str);
-//  psync_set_software_name(str);
-//}
-
 static void psync_stop_crypto_on_sleep(){
   if (psync_setting_get_bool(_PS(sleepstopcrypto)) && psync_crypto_isstarted()){
     psync_cloud_crypto_stop();

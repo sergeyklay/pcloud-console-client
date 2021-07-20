@@ -10,6 +10,10 @@
 #ifndef PCLOUD_PSYNC_PDEVICEID_H_
 #define PCLOUD_PSYNC_PDEVICEID_H_
 
+/*! \file deviceid.h
+ *  \brief Provides device information used during the API calls.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
