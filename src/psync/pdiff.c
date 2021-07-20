@@ -126,7 +126,7 @@ static binresult *get_userinfo_user_pass(
     psync_socket *sock, const char *username, const char *password,
     const char *osversion, const char *appversion, const char *deviceid,
     const char *device) {
-  binparam empty_params[] = {P_STR("MS", "sucks")};
+  binparam empty_params[] = { P_STR("MS", "sucks") };
   psync_sha1_ctx ctx;
   binresult *res, *ret;
   const binresult *dig;
@@ -134,19 +134,22 @@ static binresult *get_userinfo_user_pass(
   size_t ul, i;
   unsigned char sha1bin[PSYNC_SHA1_DIGEST_LEN];
   char sha1hex[PSYNC_SHA1_DIGEST_HEXLEN];
-  res=send_command(sock, "getdigest", empty_params);
+  res = send_command(sock, "getdigest", empty_params);
   if (!res)
     return res;
+
   if (psync_find_result(res, "result", PARAM_NUM)->num!=0) {
     psync_free(res);
     return NULL;
   }
-  dig=psync_find_result(res, "digest", PARAM_STR);
+
+  dig = psync_find_result(res, "digest", PARAM_STR);
   log_debug("got digest %s", dig->str);
-  ul=strlen(username);
-  uc=psync_new_cnt(unsigned char, ul);
+  ul = strlen(username);
+  uc = psync_new_cnt(unsigned char, ul);
   for (i=0; i<ul; i++)
-    uc[i]=tolower(username[i]);
+    uc[i] = tolower(username[i]);
+
   psync_sha1(uc, ul, sha1bin);
   psync_free(uc);
   psync_binhex(sha1hex, sha1bin, PSYNC_SHA1_DIGEST_LEN);
