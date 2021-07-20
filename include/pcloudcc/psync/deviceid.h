@@ -50,6 +50,14 @@ const char *psync_get_software_name();
  */
 char *psync_get_device_string();
 
+/*! \brief Get current device ID.
+ *
+ * This function tries to get the device ID from the database, generated from
+ * previous launches. If it fails, a new identifier will be generated and
+ * saved to the database.
+ */
+char *psync_get_device_id();
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif

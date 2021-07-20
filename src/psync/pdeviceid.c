@@ -10,6 +10,7 @@
 #include "pcloudcc/psync/version.h"
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/deviceid.h"
+#include "pssl.h"
 #include "plibs.h"
 #include "logger.h"
 
@@ -175,4 +176,34 @@ char *psync_get_device_string() {
   char *ret = psync_strcat(osname, ", ", psync_software_name, NULL);
   free(osname);
   return ret;
+}
+
+static char *generate_device_id() {
+  unsigned char device_id_bin[16];
+  char device_id_hex[32+2];
+
+  psync_ssl_rand_strong(device_id_bin, sizeof(device_id_bin));
+  psync_binhex(device_id_hex, device_id_bin, sizeof(device_id_bin));
+
+  device_id_hex[sizeof(device_id_bin) * 2] = 0;
+  psync_sql_res *query = psync_sql_prep_statement(
+      "REPLACE INTO setting (id, value) VALUES ('deviceid', ?)"
+  );
+
+  psync_sql_bind_string(query, 1, device_id_hex);
+  psync_sql_run_free(query);
+
+  return psync_strdup(device_id_hex);
+}
+
+char *psync_get_device_id() {
+  char *deviceid = psync_sql_cellstr(
+      "SELECT value FROM setting WHERE id='deviceid'"
+  );
+
+  if (!deviceid) {
+    deviceid = generate_device_id();
+  }
+
+  return deviceid;
 }
