@@ -232,10 +232,12 @@ static const char *software_string = PCLOUD_VERSION_FULL;
 
 int clib::pclcli::init() {
 #ifdef P_CONSOLE_CLIENT
+#if defined(P_OS_POSIX) && !defined(P_OS_MACOSX)
   std::string os_string_tmp = exec("lsb_release -ds").substr(0, 20);
   static const char *os_string = strndup(os_string_tmp.c_str(), os_string_tmp.size());
-  psync_set_software_name(software_string);
   psync_set_os_name(os_string);
+#endif
+  psync_set_software_name(software_string);
 #endif
 
   if (pthread_mutex_init(&MAINTAINER_LOG_MUTEX, nullptr) == 0) {
