@@ -10,8 +10,6 @@
 #ifndef PCLOUD_TOOLS_SOCKETS_H_
 #define PCLOUD_TOOLS_SOCKETS_H_
 
-#include "pcloudcc/psync/compat.h"
-
 #define POVERLAY_BUFSIZE 512
 #define POVERLAY_PROTOCOL 0
 #define POVERLAY_PORT 8989

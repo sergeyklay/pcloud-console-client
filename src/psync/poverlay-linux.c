@@ -16,7 +16,7 @@
 
 #include "poverlay.h"
 #include "plibs.h"
-#include "sockets.h"
+#include "psockets.h"
 #include "logger.h"
 
 #define POVERLAY_BUFSIZE 512

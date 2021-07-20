@@ -21,7 +21,7 @@
 #define THREADCOUNT 12
 
 #include "poverlay.h"
-#include "sockets.h"
+#include "psockets.h"
 #include "logger.h"
 
 LPCWSTR PORT = TEXT("\\\\.\\pipe\\pStatusPipe");

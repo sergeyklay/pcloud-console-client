@@ -18,7 +18,7 @@
 
 #include "pcloudcc/psync/compat.h"
 #include "overlay_client.h"
-#include "sockets.h"
+#include "psockets.h"
 #include "logger.h"
 
 /* TODO: Duplicate. See: poverlay.h. Move to sockets.h? */

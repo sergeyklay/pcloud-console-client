@@ -74,6 +74,7 @@ set(psync_sources
     pfscrypto.c
     pcrc32c.c
     pfsstatic.c
+    psockets.c
     plocks.c)
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
@@ -107,8 +108,8 @@ target_compile_definitions(psync
 target_include_directories(psync
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-          ${FUSE_INCLUDE_DIR}
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          ${FUSE_INCLUDE_DIR})
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PRIVATE CONAN_PKG::openssl)
@@ -129,7 +130,6 @@ target_compile_definitions(psync
 
 target_link_libraries(psync
     PRIVATE pcloud::logger
-            pcloud::tools
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
             ${FUSE_LIBRARY})

@@ -18,7 +18,7 @@
 #include <netinet/in.h>
 
 #include "poverlay.h"
-#include "sockets.h"
+#include "psockets.h"
 #include "logger.h"
 
 void overlay_main_loop() {
