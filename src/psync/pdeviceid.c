@@ -19,6 +19,8 @@
 #include <winuser.h>
 #include <windows.h>
 #elif defined(P_OS_MACOSX)
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/utsname.h>
 #include <sys/sysctl.h>
@@ -88,7 +90,20 @@ static char *psync_detect_os_name() {
   if (uname(&un))
     ver = "macOS";
   else {
-    v = atoi(un.release);
+    v = strtol(un.release, &endptr, 10);
+    /*  out of range,      not X.Y.Z,        no conversion at all */
+    if (errno == ERANGE || *endptr != '.' || un.release == endptr) {
+      log_error("failed determine OS release: %s", strerror(errno));
+      v = 0;
+    }
+#if LONG_MIN < INT_MIN || LONG_MAX > INT_MAX
+    else if (v < INT_MIN || v > INT_MAX) {
+      errno = ERANGE;
+      log_error("failed determine OS release: %s", strerror(errno));
+      v = 0;
+    }
+#endif
+
     switch (v) {
       case 21: ver="macOS 12 Monterey"; break;
       case 20: ver="macOS 11 Big Sur"; break;
