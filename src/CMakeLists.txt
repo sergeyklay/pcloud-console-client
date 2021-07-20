@@ -5,6 +5,8 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
+add_compile_definitions(P_CONSOLE_CLIENT)
+
 add_subdirectory(logger)
 add_subdirectory(psync)
 add_subdirectory(overlay_client)
@@ -18,10 +20,8 @@ target_include_directories(pclcli
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/overlay_client)
 
-target_compile_definitions(pclcli PUBLIC P_CONSOLE_CLIENT)
-
 target_link_libraries(pclcli
-    PUBLIC pcloud::psync
+    PRIVATE pcloud::psync
             pcloud::overlay_client
             CONAN_PKG::sqlite3
             ${CMAKE_THREAD_LIBS_INIT})
@@ -29,7 +29,7 @@ target_link_libraries(pclcli
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
-    PUBLIC pcloud::pclcli
+    PRIVATE pcloud::pclcli
             CONAN_PKG::boost)
 
 file(RELATIVE_PATH relative
