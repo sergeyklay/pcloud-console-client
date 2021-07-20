@@ -24,12 +24,10 @@
 #endif
 
 #ifdef P_OS_MACOSX
-#include <sys/sysctl.h>
 #include <sys/attr.h>
 #endif
 
 #ifdef P_OS_POSIX
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/statvfs.h>
@@ -40,7 +38,6 @@
 #include <netinet/tcp.h>
 #include <net/if.h>
 #include <utime.h>
-#include <limits.h>
 #include <unistd.h>
 #include <ifaddrs.h>
 #include <dirent.h>
