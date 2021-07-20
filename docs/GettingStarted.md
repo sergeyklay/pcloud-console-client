@@ -17,7 +17,7 @@ Also, you'll need the following build tools:
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
-- [CMake](https://cmake.org/) >= 3.11
+- [CMake](https://cmake.org/) >= 3.12
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
 - [Conan](https://conan.io/) decentralized package manager with a client-server architecture
 
@@ -48,12 +48,12 @@ $ brew install \
     macfuse
 ```
 
-**Note:** On some systems the standard version of CMake is less than 3.11.
-To install at least 3.11 version use the following approach:
+**Note:** On some systems the standard version of CMake is less than 3.12.
+To install at least 3.12 version use the following approach:
 ```sh
-$ wget https://github.com/Kitware/CMake/releases/download/v3.11.0/cmake-3.11.0.tar.gz
-$ tar -zxvf cmake-3.11.0.tar.gz
-$ cd cmake-3.11.0
+$ wget https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0.tar.gz
+$ tar -zxvf cmake-3.12.0.tar.gz
+$ cd cmake-3.12.0
 $ ./bootstrap
 $ make
 $ sudo make install
