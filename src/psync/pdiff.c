@@ -172,20 +172,6 @@ static binresult *get_userinfo_user_pass(
   return ret;
 }
 
-/* TODO: move to deviceid.c */
-static char *generate_device_id() {
-  psync_sql_res *q;
-  unsigned char deviceidbin[16];
-  char deviceidhex[32+2];
-  psync_ssl_rand_strong(deviceidbin, sizeof(deviceidbin));
-  psync_binhex(deviceidhex, deviceidbin, sizeof(deviceidbin));
-  deviceidhex[sizeof(deviceidbin)*2]=0;
-  q = psync_sql_prep_statement("REPLACE INTO setting (id, value) VALUES ('deviceid', ?)");
-  psync_sql_bind_string(q, 1, deviceidhex);
-  psync_sql_run_free(q);
-  return psync_strdup(deviceidhex);
-}
-
 static psync_socket *get_connected_socket() {
   char *auth = NULL;
   char *user = NULL;
@@ -204,10 +190,7 @@ static psync_socket *get_connected_socket() {
   psync_is_business = 0;
   int digest = 1;
 
-  deviceid = psync_sql_cellstr("SELECT value FROM setting WHERE id='deviceid'");
-  if (!deviceid) {
-    deviceid = generate_device_id();
-  }
+  deviceid = psync_get_device_id();
   log_info("using deviceid: %s", deviceid);
 
   appversion = psync_get_software_name();
