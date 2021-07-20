@@ -131,10 +131,10 @@ void psync_api_conn_fail_inc() {
 }
 
 void psync_api_conn_fail_reset() {
-  if (connfailures%5==4)
-    connfailures=4;
+  if (connfailures %5 == 4)
+    connfailures = 4;
   else
-    connfailures=0;
+    connfailures = 0;
 }
 
 #define _NEED_DATA(cnt) if (unlikely_log(*datalen<(cnt))) return -1
