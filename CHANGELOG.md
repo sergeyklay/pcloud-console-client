@@ -27,6 +27,8 @@ releases, in reverse chronological order.
 * Provide ability to enable maintainer logs using `log.c` library.
 * Added possibility to use EU region servers.
 * Provided ability to generate the API documentation.
+* Provided a brand-new libpsync API to get and set device information used
+  during the pCloud API calls.
 
 ### Bugfix
 
@@ -43,11 +45,6 @@ releases, in reverse chronological order.
 * Reorganized project structure to follow modern C/C++ projects structure.
 * Instructed the compiler to use `-std=gnu99` when this is needed.
 * Rename `pcloudcc_lib` shared library to `libpsync`.
-* The previous version of the client used `lsb_release` on registration phase.
-  However, this could lead to internal data structure overflow and was unstable
-  due to the fact that `lsb_release` could return a string of arbitrary length.
-  This behavior was disabled in the current client version. Now the client send
-  only the OS name and client version.
 * Bumped Mbed TLS from 1.3.10 to 2.25.0.
 * Bumped SQLite3 from 3.12.0 to 3.36.0.
 * Replaced deprecated `readdir_r()` function with `readdir()`.
