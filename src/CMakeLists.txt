@@ -8,6 +8,7 @@
 add_compile_definitions(P_CONSOLE_CLIENT)
 
 add_subdirectory(logger)
+add_subdirectory(tools)
 add_subdirectory(psync)
 add_subdirectory(overlay_client)
 
