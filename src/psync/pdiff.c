@@ -109,9 +109,13 @@ static binresult *get_userinfo_user_digest(
       P_LSTR("username", username, userlen),
       P_LSTR("digest", digest, diglen),
       P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
-      P_STR("osversion", osversion),
-      P_STR("appversion", appversion),
-      P_STR("deviceid", deviceid),
+      /* TODO: Sending the following params leads to PSTATUS_AUTH_BADLOGIN
+       * (possible the bug in the code or specific to API):
+       *
+       * P_STR("osversion", osversion),
+       * P_STR("appversion", appversion),
+       * P_STR("deviceid", deviceid),
+       */
       P_STR("device", device),
       P_BOOL("getauth", 1),
       P_BOOL("getapiserver", 1),
@@ -2348,22 +2352,27 @@ static void psync_run_analyze_if_needed() {
 }
 
 static int psync_diff_check_quota(psync_socket *sock) {
-  binparam diffparams[] = {P_STR("timeformat", "timestamp"), P_BOOL("getapiserver", 1)};
+  binparam diffparams[] = {
+      P_STR("timeformat", "timestamp"),
+      P_BOOL("getapiserver", 1)
+  };
   binresult *res;
   const binresult *uq;
   uint64_t oused_quota, result;
   oused_quota=used_quota;
-  res=send_command(sock, "userinfo", diffparams);
+  res = send_command(sock, "userinfo", diffparams);
   if (!res)
     return -1;
-  result=psync_find_result(res, "result", PARAM_NUM)->num;
-  if (unlikely(result))
-    log_warn(
-        "userinfo returned error %u: %s",
-        (unsigned)result, psync_find_result(res, "error", PARAM_STR)->str
+
+  result = psync_find_result(res, "result", PARAM_NUM)->num;
+  if (unlikely(result)) {
+    log_error(
+        "api returned error %lu during the \"userinfo\" command: %s",
+        (unsigned)result,
+        psync_find_result(res, "error", PARAM_STR)->str
     );
-  else{
-    uq=psync_check_result(res, "usedquota", PARAM_NUM);
+  } else {
+    uq = psync_check_result(res, "usedquota", PARAM_NUM);
     if (likely_log(uq))
       used_quota=uq->num;
   }
