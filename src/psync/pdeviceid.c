@@ -146,8 +146,7 @@ static char *psync_detect_os_name() {
 #else
   device=psync_strcat("Desktop", NULL);
 #endif
-  /* TODO: Rephrase to avoid confusion with log in get_connected_socket() */
-  log_info("detected device: %s", device);
+  log_info("automatically detected device: %s", device);
   return device;
 }
 
