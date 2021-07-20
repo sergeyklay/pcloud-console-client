@@ -26,4 +26,7 @@
 /*! \brief Represents libpsync version string. */
 #define PSYNC_VERSION_STRING "@PSYNC_VERSION_STRING@"
 
+/*! \brief Represents full libpsync version string. */
+#define PSYNC_VERSION_FULL "@PSYNC_VERSION_FULL@"
+
 #endif  /* PCLOUD_PSYNC_VERSION_H_ */

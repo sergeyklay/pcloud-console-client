@@ -23,7 +23,7 @@
 #include <dirent.h>
 #endif  /* P_OS_WINDOWS */
 
-static const char *psync_software_name = PSYNC_VERSION_STRING;
+static const char *psync_software_name = PSYNC_VERSION_FULL;
 static const char *psync_os_name = NULL;
 
 static char *psync_detect_os_name() {
@@ -168,7 +168,7 @@ const char *psync_get_software_name() {
     return psync_software_name;
   }
 
-  return PSYNC_VERSION_STRING;
+  return PSYNC_VERSION_FULL;
 }
 
 char *psync_get_device_string() {

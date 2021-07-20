@@ -43,7 +43,7 @@ void psync_set_software_name(const char *name);
 /*! \brief Get the name (and version) of the software that is passed to the
  *         server during token creation.
  *
- *  If not set by psync_set_software_name() will return PSYNC_VERSION_STRING.
+ *  If not set by psync_set_software_name() will return #PSYNC_VERSION_FULL.
  */
 const char *psync_get_software_name();
 
