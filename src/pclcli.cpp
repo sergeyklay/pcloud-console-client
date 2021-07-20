@@ -238,10 +238,17 @@ int clib::pclcli::init() {
 #ifdef P_CONSOLE_CLIENT
 #ifdef P_OS_LINUX
   std::string os_string_tmp = exec("lsb_release -ds").substr(0, 20);
-  std:: regex pattern(R"([ \t\r\v\n",]+(.*)[ \t\r\v\n",]+)");
-  os_string_tmp = regex_replace(os_string_tmp, pattern, "$1");
-  static const char *os_string = strndup(os_string_tmp.c_str(), os_string_tmp.size());
-  psync_set_os_name(os_string);
+  if (os_string_tmp.length()) {
+    std:: regex pattern(R"([ \t\r\v\n",]+(.*)[ \t\r\v\n",]+)");
+    os_string_tmp = regex_replace(os_string_tmp, pattern, "$1");
+
+    static const char *os_string = strndup(
+        os_string_tmp.c_str(),
+        os_string_tmp.size()
+    );
+
+    psync_set_os_name(os_string);
+  }
 #endif  // P_OS_LINUX
   psync_set_software_name(software_string);
 #endif  // P_CONSOLE_CLIENT
