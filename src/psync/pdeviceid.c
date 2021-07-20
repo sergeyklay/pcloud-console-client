@@ -17,8 +17,12 @@
 /* TODO: amend headers here */
 #ifdef P_OS_WINDOWS
 #include <winuser.h>
-#elif defined(P_OS_MACOS)
+#elif defined(P_OS_MACOSX)
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
+#include <sys/utsname.h>
+#include <sys/sysctl.h>
 #elif defined(P_OS_POSIX)
 #include <dirent.h>
 #endif  /* P_OS_WINDOWS */
@@ -77,13 +81,28 @@ static char *psync_detect_os_name() {
 #elif defined(P_OS_MACOSX)
   struct utsname un;
   const char *ver;
+  char *endptr;
   size_t len;
   char versbuff[64], modelname[256];
-  int v;
+  long v;
+
   if (uname(&un))
     ver="Mac OS X";
   else {
-    v = atoi(un.release);
+    v = strtol(un.release, &endptr, 0);
+    /*  out of range,      extra junk at end,  no conversion at all */
+    if (errno == ERANGE || *endptr != '\0' || un.release == endptr) {
+      log_error("failed determine OS release: %s", strerror(errno));
+      v = 0;
+    }
+#if LONG_MIN < INT_MIN || LONG_MAX > INT_MAX
+    else if (v < INT_MIN || v > INT_MAX) {
+      errno = ERANGE;
+      log_error("failed determine OS release: %s", strerror(errno));
+      v = 0;
+    }
+#endif
+
     switch (v) {
       case 21: ver="macOS 12 Monterey"; break;
       case 20: ver="macOS 11 Big Sur"; break;
@@ -102,6 +121,7 @@ static char *psync_detect_os_name() {
         ver = versbuff;
     }
   }
+
   len = sizeof(modelname);
   if (sysctlbyname("hw.model", modelname, &len, NULL, 0))
     strlcpy(modelname, "Mac", len);
