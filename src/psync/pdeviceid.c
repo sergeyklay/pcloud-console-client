@@ -22,9 +22,9 @@
 #include <dirent.h>
 #endif  /* P_OS_WINDOWS */
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static const char *psync_software_name = PSYNC_VERSION_STRING;
 static const char *psync_os_name = NULL;
@@ -165,7 +165,11 @@ void psync_set_software_name(const char *name) {
 }
 
 const char *psync_get_software_name() {
-  return psync_software_name;
+  if (psync_software_name) {
+    return psync_software_name;
+  }
+
+  return PSYNC_VERSION_STRING;
 }
 
 char *psync_get_device_os() {
@@ -183,10 +187,6 @@ char *psync_get_device_string() {
   return psync_strcat(psync_get_device_id(), ", ", psync_software_name, NULL);
 }
 
-const char *psync_get_appname() {
-  return psync_software_name;
-}
-
-//#ifdef __cplusplus
-//}  /* extern "C" */
-//#endif
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
