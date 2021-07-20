@@ -102,20 +102,12 @@ static void delete_cached_crypto_keys() {
 static binresult *get_userinfo_user_digest(
     psync_socket *sock, const char *username, size_t userlen,
     const char *pwddig, const char *digest, uint32_t diglen,
-    const char *osversion, const char *appversion, const char *deviceid,
     const char *device) {
   binparam params[] = {
       P_STR("timeformat", "timestamp"),
       P_LSTR("username", username, userlen),
       P_LSTR("digest", digest, diglen),
       P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
-      /* TODO: Sending the following params leads to PSTATUS_AUTH_BADLOGIN
-       * (possible the bug in the code or specific to API):
-       *
-       * P_STR("osversion", osversion),
-       * P_STR("appversion", appversion),
-       * P_STR("deviceid", deviceid),
-       */
       P_STR("device", device),
       P_BOOL("getauth", 1),
       P_BOOL("getapiserver", 1),
@@ -128,7 +120,6 @@ static binresult *get_userinfo_user_digest(
 
 static binresult *get_userinfo_user_pass(
     psync_socket *sock, const char *username, const char *password,
-    const char *osversion, const char *appversion, const char *deviceid,
     const char *device) {
   binparam empty_params[] = { P_STR("MS", "sucks") };
   psync_sha1_ctx ctx;
@@ -170,9 +161,6 @@ static binresult *get_userinfo_user_pass(
       sha1hex,
       dig->str,
       dig->length,
-      osversion,
-      appversion,
-      deviceid,
       device
   );
   psync_free(res);
@@ -183,11 +171,8 @@ static psync_socket *get_connected_socket() {
   char *auth = NULL;
   char *user = NULL;
   char *pass = NULL;
-  char *deviceid = NULL;
-  char *osversion = NULL;
   char *device = NULL;
   char *command = NULL;
-  const char *appversion;
   psync_socket *sock;
   binresult *res;
   const binresult *cres;
@@ -198,11 +183,8 @@ static psync_socket *get_connected_socket() {
   psync_is_business = 0;
   int digest = 1;
 
-  deviceid = psync_get_device_id();
-  log_info("using deviceid: %s", deviceid);
-
-  appversion = psync_get_software_name();
   device = psync_get_device_string();
+  log_info("using device name: %s", device);
 
   while (1) {
     psync_free(auth);
@@ -233,8 +215,6 @@ static psync_socket *get_connected_socket() {
       continue;
     }
 
-    osversion = psync_get_os_name();
-
     if (user && pass && pass[0]) {
       if (digest) {
         command = "digest";
@@ -242,9 +222,6 @@ static psync_socket *get_connected_socket() {
             sock,
             user,
             pass,
-            osversion,
-            appversion,
-            deviceid,
             device
         );
       } else {
@@ -253,9 +230,6 @@ static psync_socket *get_connected_socket() {
             P_STR("timeformat", "timestamp"),
             P_STR("username", user),
             P_STR("password", pass),
-            P_STR("osversion", osversion),
-            P_STR("appversion", appversion),
-            P_STR("deviceid", deviceid),
             P_STR("device", device),
             P_BOOL("getauth", 1),
             P_BOOL("cryptokeyssign", 1),
@@ -269,9 +243,6 @@ static psync_socket *get_connected_socket() {
       binparam params[] = {
           P_STR("timeformat", "timestamp"),
           P_STR("auth", auth),
-          P_STR("osversion", osversion),
-          P_STR("appversion", appversion),
-          P_STR("deviceid", deviceid),
           P_STR("device", device),
           P_BOOL("getauth", 1),
           P_BOOL("cryptokeyssign", 1),
@@ -280,8 +251,6 @@ static psync_socket *get_connected_socket() {
       };
       res = send_command(sock, command, params);
     }
-
-    psync_free(osversion);
 
     if (unlikely_log(!res)) {
       psync_socket_close(sock);
@@ -489,7 +458,6 @@ static psync_socket *get_connected_socket() {
     psync_free(auth);
     psync_free(user);
     psync_free(pass);
-    psync_free(deviceid);
     psync_free(device);
     psync_sql_sync();
     return sock;
