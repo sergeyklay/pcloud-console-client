@@ -225,9 +225,11 @@ int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   return 0;
 }
 
+// Has to be static
 #ifdef P_CONSOLE_CLIENT
 static const char *software_string = PCLOUD_VERSION_FULL;
 #endif
+
 int clib::pclcli::init() {
 #ifdef P_CONSOLE_CLIENT
   std::string os_string_tmp = exec("lsb_release -ds").substr(0, 20);
@@ -235,10 +237,7 @@ int clib::pclcli::init() {
   psync_set_software_name(software_string);
   psync_set_os_name(os_string);
 #endif
-  //const std::string client_name = " Console Client v3.0.0";
-  //std::string software_string = exec("lsb_release -ds");
-  //std::string software_string = "XXXXXX";
-  //psync_set_software_string(software_string.append(client_name).c_str());
+
   if (pthread_mutex_init(&MAINTAINER_LOG_MUTEX, nullptr) == 0) {
     log_set_lock(log_lock, &MAINTAINER_LOG_MUTEX);
   }
