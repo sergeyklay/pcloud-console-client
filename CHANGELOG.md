@@ -37,6 +37,8 @@ releases, in reverse chronological order.
 * Fixed `control_tools` function signatures.
 * Add missed return for `clib::pclcli::start_crypto`,
   `clib::pclcli::stop_crypto` and `clib::pclcli::finalize`.
+* Fixed device name by removing extra characters from output `lsb_release`
+  on some systems. For example double quotes in `"Gentoo Base System release 2.7"`
 
 ### Changes
 
