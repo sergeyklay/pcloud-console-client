@@ -5,7 +5,7 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(pcloudcc LANGUAGES C CXX)
 

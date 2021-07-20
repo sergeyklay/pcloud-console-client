@@ -39,7 +39,7 @@ releases, in reverse chronological order.
 ### Changes
 
 * Improved documentation.
-* CMake < 3.11 is no longer supported.
+* CMake < 3.12 is no longer supported.
 * Reorganized project structure to follow modern C/C++ projects structure.
 * Instructed the compiler to use `-std=gnu99` when this is needed.
 * Rename `pcloudcc_lib` shared library to `libpsync`.

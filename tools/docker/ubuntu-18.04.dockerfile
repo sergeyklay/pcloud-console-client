@@ -71,9 +71,9 @@ RUN apt-get install --no-install-recommends -yq \
         wget \
     && export PATH="${PATH}" \
     && printf "export PATH=\"%s\"\n" "${PATH}" >> /root/.profile \
-    && wget https://github.com/Kitware/CMake/releases/download/v3.11.0/cmake-3.11.0.tar.gz \
-    && tar -zxvf cmake-3.11.0.tar.gz \
-    && cd cmake-3.11.0 && ./bootstrap && make && make install
+    && wget https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0.tar.gz \
+    && tar -zxvf cmake-3.12.0.tar.gz \
+    && cd cmake-3.12.0 && ./bootstrap && make && make install
 
 ADD . /usr/src/pcloudcc
 
