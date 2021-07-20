@@ -102,14 +102,14 @@ static void delete_cached_crypto_keys() {
 static binresult *get_userinfo_user_digest(
     psync_socket *sock, const char *username, size_t userlen,
     const char *pwddig, const char *digest, uint32_t diglen,
-    const char *os_version, const char *appname, const char *deviceid,
+    const char *osversion, const char *appname, const char *deviceid,
     const char *device_string) {
   binparam params[] = {
       P_STR("timeformat", "timestamp"),
       P_LSTR("username", username, userlen),
       P_LSTR("digest", digest, diglen),
       P_LSTR("passworddigest", pwddig, PSYNC_SHA1_DIGEST_HEXLEN),
-      P_STR("osversion", os_version),
+      P_STR("osversion", osversion),
       P_STR("appversion", appname),
       P_STR("deviceid", deviceid),
       P_STR("device", device_string),
@@ -124,7 +124,7 @@ static binresult *get_userinfo_user_digest(
 
 static binresult *get_userinfo_user_pass(
     psync_socket *sock, const char *username, const char *password,
-    const char *os_version, const char *appname, const char *deviceid,
+    const char *osversion, const char *appname, const char *deviceid,
     const char *device_string) {
   binparam empty_params[] = {P_STR("MS", "sucks")};
   psync_sha1_ctx ctx;
@@ -163,7 +163,7 @@ static binresult *get_userinfo_user_pass(
       sha1hex,
       dig->str,
       dig->length,
-      os_version,
+      osversion,
       appname,
       deviceid,
       device_string
@@ -191,7 +191,7 @@ static psync_socket *get_connected_socket() {
   char *user = NULL;
   char *pass = NULL;
   char *deviceid = NULL;
-  char *os_version = NULL;
+  char *osversion = NULL;
   char *device_string = NULL;
   const char *appname;
   psync_socket *sock;
@@ -242,7 +242,7 @@ static psync_socket *get_connected_socket() {
       continue;
     }
 
-    os_version = psync_get_device_os();
+    osversion = psync_get_os_name();
 
     if (user && pass && pass[0]) {
       if (digest) {
@@ -250,7 +250,7 @@ static psync_socket *get_connected_socket() {
             sock,
             user,
             pass,
-            os_version,
+            osversion,
             appname,
             deviceid,
             device_string
@@ -260,7 +260,7 @@ static psync_socket *get_connected_socket() {
             P_STR("timeformat", "timestamp"),
             P_STR("username", user),
             P_STR("password", pass),
-            P_STR("osversion", os_version),
+            P_STR("osversion", osversion),
             P_STR("appversion", appname),
             P_STR("deviceid", deviceid),
             P_STR("device", device_string),
@@ -275,7 +275,7 @@ static psync_socket *get_connected_socket() {
       binparam params[] = {
           P_STR("timeformat", "timestamp"),
           P_STR("auth", auth),
-          P_STR("osversion", os_version),
+          P_STR("osversion", osversion),
           P_STR("appversion", appname),
           P_STR("deviceid", deviceid),
           P_STR("device", device_string),
@@ -287,7 +287,7 @@ static psync_socket *get_connected_socket() {
       res = send_command(sock, "userinfo", params);
     }
 
-    psync_free(os_version);
+    psync_free(osversion);
 
     if (unlikely_log(!res)) {
       psync_socket_close(sock);
