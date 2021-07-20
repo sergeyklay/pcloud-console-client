@@ -32,38 +32,50 @@ enum command_ids_ {
 
 void start_crypto(const char * pass) {
   int ret;
-  char* errm;
+  char* errm = nullptr;
+
   if (SendCall(STARTCRYPTO, pass, &ret, &errm))
-    std::cout << "Start Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
+    std::cout << "Failed to start crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
   else
-    std::cout << "Crypto started. "<< std::endl;
-  free(errm);
+    std::cout << "Crypto started" << std::endl;
+
+  if (errm)
+    free(errm);
 }
 
-
-void stop_crypto(){
+void stop_crypto() {
   int ret;
-  char* errm;
+  char* errm = nullptr;
+
   if (SendCall(STOPCRYPTO, "", &ret, &errm))
-    std::cout << "Stop Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
+    std::cout << "Failed to stop crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
   else
-    std::cout << "Crypto Stopped. "<< std::endl;
-  free(errm);
+    std::cout << "Crypto Stopped" << std::endl;
+
+  if (errm)
+    free(errm);
 }
 
-void finalize(){
-   int ret;
-  char* errm;
+void finalize() {
+  int ret;
+  char* errm = nullptr;
+
   if (SendCall(FINALIZE, "", &ret, &errm))
-    std::cout << "Finalize failed. return is " << ret<< " and message is "<<errm << std::endl;
+    std::cout << "Failed to finalize crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
   else
-    std::cout << "Exiting ..."<< std::endl;
+    std::cout << "Exiting..." << std::endl;
 
-  free(errm);
+  if (errm)
+    free(errm);
 }
 
-void process_commands()
-{
+void process_commands() {
   std::cout<< "Supported commands are:" << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
   std::cout<< "> " ;
   for (std::string line; std::getline(std::cin, line);) {
