@@ -43,6 +43,11 @@ void psync_set_software_name(const char *name);
  */
 const char *psync_get_software_name();
 
+/*! \brief Get the full name of the device.
+ *
+ * This function uses psync_get_os_name() and psync_get_software_name() to
+ * provide the full name of the device.
+ */
 char *psync_get_device_string();
 
 #ifdef __cplusplus
