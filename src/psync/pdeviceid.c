@@ -29,8 +29,7 @@ extern "C" {
 static const char *psync_software_name = PSYNC_VERSION_STRING;
 static const char *psync_os_name = NULL;
 
-/* TODO: Consider to rename to avoid confusion with generate_device_id() */
-char *psync_get_device_id() {
+static char *psync_detect_os_name() {
   char *device;
 #ifdef P_OS_WINDOWS
   SYSTEM_POWER_STATUS bat;
@@ -160,6 +159,10 @@ void psync_set_os_name(const char *name) {
   psync_os_name = name;
 }
 
+char *psync_get_os_name() {
+  return psync_os_name ? psync_strdup(psync_os_name) : psync_detect_os_name();
+}
+
 void psync_set_software_name(const char *name) {
   psync_software_name = name;
 }
@@ -172,19 +175,11 @@ const char *psync_get_software_name() {
   return PSYNC_VERSION_STRING;
 }
 
-char *psync_get_device_os() {
-  return psync_os_name ? psync_strdup(psync_os_name) : psync_get_device_id();
-}
-
 char *psync_get_device_string() {
-  /* TODO: Do we need ifdef here? */
-#ifdef P_OS_LINUX
-  char *osname = psync_get_device_os();
+  char *osname = psync_get_os_name();
   char *ret = psync_strcat(osname, ", ", psync_software_name, NULL);
   free(osname);
   return ret;
-#endif
-  return psync_strcat(psync_get_device_id(), ", ", psync_software_name, NULL);
 }
 
 #ifdef __cplusplus

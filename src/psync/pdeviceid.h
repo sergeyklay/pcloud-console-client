@@ -14,13 +14,16 @@
 extern "C" {
 #endif
 
-char *psync_get_device_id();
-
 /*! \brief Set the name (and version) of the operating system that is passed
  *         to the server during token creation. If not set, it will be
  *         automatically detected.
  */
 void psync_set_os_name(const char *name);
+
+/*! \brief Get the name (and version) of the operating system that was set by
+ *         psync_set_os_name(). If not set, it will be automatically detected.
+ */
+char *psync_get_os_name();
 
 /*! \brief Set the name (and version) of the software that is passed to the
  *         server during token creation.
@@ -39,8 +42,6 @@ void psync_set_software_name(const char *name);
  *  If not set by psync_set_software_name() will return PSYNC_VERSION_STRING.
  */
 const char *psync_get_software_name();
-
-char *psync_get_device_os();
 
 char *psync_get_device_string();
 
