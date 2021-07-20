@@ -16,9 +16,9 @@
 #include <memory>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/deviceid.h"
 #include "psynclib.h"
 #include "poverlay.h"
-#include "pdeviceid.h"
 #include "logger.h"
 
 #include "pcloudcc/version.hpp"

@@ -17,6 +17,7 @@
 
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/psync/deviceid.h"
 
 #ifdef P_OS_LINUX
 #include <sys/sysinfo.h>
@@ -74,7 +75,6 @@ extern char **environ;
 #include "psettings.h"
 #include "pssl.h"
 #include "ptimer.h"
-#include "pdeviceid.h"
 #include "logger.h"
 
 #define PROXY_NONE    0

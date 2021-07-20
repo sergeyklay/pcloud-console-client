@@ -13,6 +13,7 @@
 
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/psync/deviceid.h"
 
 #include "pdiff.h"
 #include "pstatus.h"
@@ -37,7 +38,6 @@
 #include "pcontacts.h"
 #include "pcloudcrypto.h"
 #include "ppathstatus.h"
-#include "pdeviceid.h"
 #include "logger.h"
 
 #define PSYNC_SQL_DOWNLOAD "synctype&"NTO_STR(PSYNC_DOWNLOAD_ONLY)"="NTO_STR(PSYNC_DOWNLOAD_ONLY)

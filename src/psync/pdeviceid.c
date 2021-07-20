@@ -9,7 +9,7 @@
 
 #include "pcloudcc/psync/version.h"
 #include "pcloudcc/psync/compat.h"
-#include "pdeviceid.h"
+#include "pcloudcc/psync/deviceid.h"
 #include "plibs.h"
 #include "logger.h"
 
