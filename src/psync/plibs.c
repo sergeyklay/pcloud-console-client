@@ -808,37 +808,19 @@ int psync_sql_sync() {
     return 0;
 }
 
-#if IS_DEBUG
 int psync_sql_do_statement(const char *sql, const char *file, unsigned line) {
   char *errmsg;
   int code;
   log_debug("SQL: %s", sql);
   psync_sql_do_lock(file, line);
-#else
-int psync_sql_statement(const char *sql) {
-  char *errmsg;
-  int code;
-  psync_sql_lock();
-#endif
-  code=sqlite3_exec(psync_db, sql, NULL, NULL, &errmsg);
+  code = sqlite3_exec(psync_db, sql, NULL, NULL, &errmsg);
   psync_sql_unlock();
-  if (likely(code==SQLITE_OK))
+  if (likely(code == SQLITE_OK))
     return 0;
-  else{
-#if IS_DEBUG
-    log_error(
-        "error running sql statement: %s: %s called from %s:%u",
-        sql,
-        errmsg,
-        file,
-        line
-    );
-#else
-    log_error("error running sql statement: %s: %s", sql, errmsg);
-#endif
-    sqlite3_free(errmsg);
-    return -1;
-  }
+
+  log_error("error running sql statement: %s: %s", sql, errmsg);
+  sqlite3_free(errmsg);
+  return -1;
 }
 
 #if IS_DEBUG
