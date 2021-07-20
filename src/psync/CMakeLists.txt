@@ -158,6 +158,7 @@ set(PSYNC_VERSION_PATCH 0)
 
 set(PSYNC_VERSION_STRING
     ${PSYNC_VERSION_MAJOR}.${PSYNC_VERSION_MINOR}.${PSYNC_VERSION_PATCH})
+set(PSYNC_VERSION_FULL "libpsync v${PSYNC_VERSION_STRING}")
 
 configure_file("${PROJECT_SOURCE_DIR}/cmake/psync-version.h.in"
     "${PROJECT_SOURCE_DIR}/include/pcloudcc/psync/version.h")
