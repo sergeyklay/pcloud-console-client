@@ -210,7 +210,7 @@ static psync_socket *get_connected_socket() {
   }
   log_info("using deviceid: %s", deviceid);
 
-  appname = psync_get_appname();
+  appname = psync_get_software_name();
   device_string = psync_get_device_string();
 
   while (1) {
