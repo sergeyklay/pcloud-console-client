@@ -22,10 +22,6 @@
 #include <dirent.h>
 #endif  /* P_OS_WINDOWS */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static const char *psync_software_name = PSYNC_VERSION_STRING;
 static const char *psync_os_name = NULL;
 
@@ -181,7 +177,3 @@ char *psync_get_device_string() {
   free(osname);
   return ret;
 }
-
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
