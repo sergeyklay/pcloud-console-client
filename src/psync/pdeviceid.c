@@ -14,9 +14,10 @@
 #include "plibs.h"
 #include "logger.h"
 
-/* TODO: amend headers here */
 #ifdef P_OS_WINDOWS
+#include <winbase.h>
 #include <winuser.h>
+#include <windows.h>
 #elif defined(P_OS_MACOSX)
 #include <errno.h>
 #include <limits.h>
