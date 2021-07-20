@@ -1,29 +1,19 @@
-/* Copyright (c) 2016 Anton Titov.
- * Copyright (c) 2016 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2016 Anton Titov <anton@pcloud.com>
+ * (c) 2016 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <string.h>
+
+#ifdef P_OS_WINDOWS
+#include <ctype.h>  /* tolower */
+#endif
 
 #include "ppathstatus.h"
 #include "plist.h"
@@ -34,8 +24,7 @@
 #include "ptree.h"
 #include "ptasks.h"
 #include "pstatus.h"
-#include <string.h>
-#include <ctype.h>
+#include "logger.h"
 
 #define PATH_CACHE_SIZE 512
 #define PATH_HASH_SIZE 512
@@ -156,7 +145,7 @@ void psync_path_status_init() {
   psync_sql_unlock();
 }
 
-static int create_sync_list_entry(psync_list_builder_t *builder, void *element, psync_variant_row row){
+static int create_sync_list_entry(psync_list_builder_t *builder, void *element, psync_variant_row row) {
   path_sync_list_entry_t *entry;
   const char *str;
   size_t len;
@@ -263,7 +252,7 @@ static folder_tasks_t *get_folder_tasks(psync_folderid_t folderid, int create) {
     ft->folderid=folderid;
     ft->child_task_cnt=0;
     ft->own_tasks=0;
-    debug(D_NOTICE, "marking folderid %lu as having (sub)tasks", (unsigned long)folderid);
+    log_debug("marking folderid %lu as having (sub)tasks", (unsigned long)folderid);
     return ft;
   } else {
     return NULL;
@@ -271,7 +260,7 @@ static folder_tasks_t *get_folder_tasks(psync_folderid_t folderid, int create) {
 }
 
 static void free_folder_tasks(folder_tasks_t *ft) {
-  debug(D_NOTICE, "marking folderid %lu as clean", (unsigned long)ft->folderid);
+  log_debug("marking folderid %lu as clean", (unsigned long)ft->folderid);
   psync_tree_del(&folder_tasks, &ft->tree);
   psync_free(ft);
 }
@@ -294,7 +283,7 @@ static psync_folderid_t get_parent_folder(psync_folderid_t folderid) {
   psync_sql_bind_uint(res, 1, folderid);
   row=psync_sql_fetch_rowint(res);
   if (unlikely(!row)) {
-    debug(D_WARNING, "can not find parent folder for folderid %lu", (unsigned long)folderid);
+    log_warn("can not find parent folder for folderid %lu", (unsigned long)folderid);
     psync_sql_free_result(res);
     return PSYNC_INVALID_FOLDERID;
   }
@@ -493,7 +482,7 @@ static folder_tasks_t *get_sync_folder_tasks(sync_data_t *sd, psync_folderid_t f
     ft->folderid=folderid;
     ft->child_task_cnt=0;
     ft->own_tasks=0;
-    debug(D_NOTICE, "marking folderid %lu in syncid %u as having (sub)tasks", (unsigned long)folderid, (unsigned)sd->syncid);
+    log_debug("marking folderid %lu in syncid %u as having (sub)tasks", (unsigned long)folderid, (unsigned)sd->syncid);
     return ft;
   } else {
     return NULL;
@@ -518,7 +507,7 @@ static psync_folderid_t get_sync_parent_folder(sync_data_t *sd, psync_folderid_t
   psync_sql_bind_uint(res, 1, folderid);
   row=psync_sql_fetch_rowint(res);
   if (unlikely(!row)) {
-    debug(D_WARNING, "can not find parent folder for localfolderid %lu", (unsigned long)folderid);
+    log_warn("can not find parent folder for localfolderid %lu", (unsigned long)folderid);
     psync_sql_free_result(res);
     return PSYNC_INVALID_FOLDERID;
   }
@@ -535,7 +524,6 @@ static psync_folderid_t get_sync_parent_folder(sync_data_t *sd, psync_folderid_t
 void psync_path_status_sync_folder_task_added_locked(psync_syncid_t syncid, psync_folderid_t localfolderid) {
   sync_data_t *sd;
   folder_tasks_t *ft;
-//  debug(D_NOTICE, "syncid %u localfolderid %lu", (unsigned)syncid, (unsigned long)localfolderid);
   sd=get_sync_data(syncid, 1);
   ft=get_sync_folder_tasks(sd, localfolderid, 1);
   if (ft->child_task_cnt || ft->own_tasks) {
@@ -598,7 +586,7 @@ static int local_folder_has_tasks(psync_syncid_t syncid, psync_folderid_t localf
 }
 
 static void free_sync_folder_tasks(sync_data_t *sd, folder_tasks_t *ft) {
-  debug(D_NOTICE, "marking folderid %lu from syncid %u as clean", (unsigned long)ft->folderid, (unsigned)sd->syncid);
+  log_debug("marking folderid %lu from syncid %u as clean", (unsigned long)ft->folderid, (unsigned)sd->syncid);
   psync_tree_del(&sd->folder_tasks, &ft->tree);
   psync_free(ft);
 }
@@ -606,7 +594,6 @@ static void free_sync_folder_tasks(sync_data_t *sd, folder_tasks_t *ft) {
 void psync_path_status_sync_folder_task_completed(psync_syncid_t syncid, psync_folderid_t localfolderid) {
   sync_data_t *sd;
   folder_tasks_t *ft;
-//  debug(D_NOTICE, "syncid %u localfolderid %lu lfht %d", (unsigned)syncid, (unsigned long)localfolderid, local_folder_has_tasks(syncid, localfolderid));
   psync_sql_lock();
   psync_path_status_clear_sync_path_cache();
   if (local_folder_has_tasks(syncid, localfolderid) || !(sd=get_sync_data(syncid, 0)) || !(ft=get_sync_folder_tasks(sd, localfolderid, 0))) {
