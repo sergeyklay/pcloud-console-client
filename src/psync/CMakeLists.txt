@@ -111,12 +111,12 @@ target_include_directories(psync
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
-  target_link_libraries(psync CONAN_PKG::openssl)
+  target_link_libraries(psync PRIVATE CONAN_PKG::openssl)
   target_compile_definitions(psync PRIVATE P_SSL_OPENSSL)
 elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   target_compile_definitions(psync PRIVATE P_SSL_SECURETRANSPORT)
 else()
-  target_link_libraries(psync CONAN_PKG::mbedtls)
+  target_link_libraries(psync PRIVATE CONAN_PKG::mbedtls)
   target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
 endif()
 
@@ -128,10 +128,11 @@ target_compile_definitions(psync
     PUBLIC HAVE_CONFIG_H)
 
 target_link_libraries(psync
-    pcloud::logger
-    CONAN_PKG::zlib
-    CONAN_PKG::sqlite3
-    ${FUSE_LIBRARY})
+    PRIVATE pcloud::logger
+            pcloud::tools
+            CONAN_PKG::zlib
+            CONAN_PKG::sqlite3
+            ${FUSE_LIBRARY})
 
 if(APPLE)
   target_link_libraries(psync "-framework Cocoa")
@@ -148,7 +149,7 @@ elseif(NOT WIN32)
 endif()
 
 if (NOT WIN32)
-  target_link_libraries(psync ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(psync PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # Library version info

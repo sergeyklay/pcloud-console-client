@@ -18,11 +18,8 @@
 #include <netinet/in.h>
 
 #include "poverlay.h"
+#include "sockets.h"
 #include "logger.h"
-
-#define POVERLAY_BUFSIZE  512
-#define POVERLAY_PORT     8989
-#define POVERLAY_PROTOCOL 0
 
 void overlay_main_loop() {
   struct sockaddr_in addr;
