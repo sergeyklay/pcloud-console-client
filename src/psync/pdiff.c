@@ -182,6 +182,7 @@ static psync_socket *get_connected_socket() {
   char *deviceid = NULL;
   char *osversion = NULL;
   char *device = NULL;
+  char *command = NULL;
   const char *appversion;
   psync_socket *sock;
   binresult *res;
@@ -232,6 +233,7 @@ static psync_socket *get_connected_socket() {
 
     if (user && pass && pass[0]) {
       if (digest) {
+        command = "digest";
         res = get_userinfo_user_pass(
             sock,
             user,
@@ -242,6 +244,7 @@ static psync_socket *get_connected_socket() {
             device
         );
       } else {
+        command = "login";
         binparam params[] = {
             P_STR("timeformat", "timestamp"),
             P_STR("username", user),
@@ -255,9 +258,10 @@ static psync_socket *get_connected_socket() {
             P_BOOL("getapiserver", 1),
             P_NUM("os", P_OS_ID)
         };
-        res = send_command(sock, "login", params);
+        res = send_command(sock, command, params);
       }
     } else {
+      command = "userinfo";
       binparam params[] = {
           P_STR("timeformat", "timestamp"),
           P_STR("auth", auth),
@@ -270,7 +274,7 @@ static psync_socket *get_connected_socket() {
           P_BOOL("getapiserver", 1),
           P_NUM("os", P_OS_ID)
       };
-      res = send_command(sock, "userinfo", params);
+      res = send_command(sock, command, params);
     }
 
     psync_free(osversion);
@@ -283,15 +287,17 @@ static psync_socket *get_connected_socket() {
       continue;
     }
     psync_api_conn_fail_reset();
-    result=psync_find_result(res, "result", PARAM_NUM)->num;
+    result = psync_find_result(res, "result", PARAM_NUM)->num;
     if (unlikely(result)) {
       log_warn(
-          "userinfo returned error %lu %s",
+          "api returned error %lu during the \"%s\" command: %s",
           (unsigned long)result,
+          command,
           psync_find_result(res, "error", PARAM_STR)->str
       );
       psync_socket_close(sock);
       psync_free(res);
+
       if (result==2000) {
         if (user && pass)
           psync_set_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_BADLOGIN);
@@ -308,13 +314,10 @@ static psync_socket *get_connected_socket() {
       else if (result==2205 || result==2229) {
         psync_set_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_EXPIRED);
         psync_wait_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_PROVIDED);
-      } else if (result == 2237)
-      {
+      } else if (result == 2237) {
         digest = 0;
         continue;
-      }
-
-      else
+      } else
         psync_milisleep(PSYNC_SLEEP_BEFORE_RECONNECT);
       continue;
     }
