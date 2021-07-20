@@ -88,7 +88,7 @@ static char *psync_detect_os_name() {
   long v;
 
   if (uname(&un))
-    ver="Mac OS X";
+    ver = "macOS";
   else {
     v = strtol(un.release, &endptr, 0);
     /*  out of range,      extra junk at end,  no conversion at all */
