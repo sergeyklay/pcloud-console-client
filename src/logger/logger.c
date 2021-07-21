@@ -54,7 +54,7 @@ static const char *resolve_filepath(const char* rawpath) {
       return NULL;
     }
 
-    newpath = (char *)malloc(sizeof(char) * (PATH_MAX + 1));
+    newpath = (char *)malloc(sizeof(char) * PATH_MAX);
     if (!newpath) {
       /* unable to allocate memory */
       return NULL;

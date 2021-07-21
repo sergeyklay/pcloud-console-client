@@ -34,7 +34,7 @@ char *psync_unix_socket_path() {
       n = snprintf(path, PATH_MAX, "%s/%s", runtime_dir,
                    POVERLAY_SOCKET_NAME);
     } else {
-      n = snprintf(path, strlen(POVERLAY_SOCKET_NAME) + 5, "/tmp/%s",
+      n = snprintf(path, sizeof(POVERLAY_SOCKET_NAME), "/tmp/%s",
                    POVERLAY_SOCKET_NAME);
     }
   }
