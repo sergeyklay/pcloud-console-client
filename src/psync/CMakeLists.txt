@@ -74,7 +74,6 @@ set(psync_sources
     pfscrypto.c
     pcrc32c.c
     pfsstatic.c
-    psockets.c
     plocks.c)
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
@@ -83,6 +82,10 @@ elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   list(APPEND psync_sources pssl-securetransport.c)
 else()
   list(APPEND psync_sources pssl-mbedtls.c)
+endif()
+
+if(NOT WIN32)
+  list(APPEND psync_sources psockets.c)
 endif()
 
 # Add definition for psync library

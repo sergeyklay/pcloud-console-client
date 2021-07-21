@@ -17,8 +17,8 @@
 #include <netinet/in.h>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/sockets.h"
 #include "overlay_client.h"
-#include "psockets.h"
 #include "logger.h"
 
 /* TODO: Duplicate. See: poverlay.h. Move to sockets.h? */
@@ -102,7 +102,7 @@ int SendCall(int id, const char * path, int * ret, void * out) {
     return - 2;
   }
 #else
-  const char *socket_path = create_socket_path();
+  const char *socket_path = psync_unix_socket_path();
   if (!socket_path) {
     log_error("send_call[%d]: socket path is empty", id);
     if (out)

@@ -9,18 +9,14 @@
 
 #include "pcloudcc/psync/compat.h"
 
-#ifdef P_OS_POSIX
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#endif
 
-#include "pcloudcc/psync/compat.h"
-#include "psockets.h"
+#include "pcloudcc/psync/sockets.h"
 #include "logger.h"
 
-#ifdef P_OS_POSIX
-char * create_socket_path() {
+char *psync_unix_socket_path() {
   char *path = (char *)malloc(sizeof(char) * (FILENAME_MAX + 1));
   if (!path) {
     return NULL;
@@ -50,4 +46,3 @@ char * create_socket_path() {
 
   return path;
 }
-#endif  /* P_OS_POSIX */

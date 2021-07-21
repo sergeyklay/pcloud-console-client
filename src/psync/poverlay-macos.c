@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 
+#include "pcloudcc/psync/sockets.h"
 #include "poverlay.h"
-#include "psockets.h"
 #include "logger.h"
 
 void overlay_main_loop() {

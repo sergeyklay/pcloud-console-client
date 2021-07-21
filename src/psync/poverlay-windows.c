@@ -17,11 +17,11 @@
 #include <tchar.h>
 #include <strsafe.h>
 
+#define POVERLAY_BUFSIZE 600
 #define MAX_SEM_COUNT 10
 #define THREADCOUNT 12
 
 #include "poverlay.h"
-#include "psockets.h"
 #include "logger.h"
 
 LPCWSTR PORT = TEXT("\\\\.\\pipe\\pStatusPipe");

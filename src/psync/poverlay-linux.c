@@ -14,19 +14,16 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "pcloudcc/psync/sockets.h"
 #include "poverlay.h"
 #include "plibs.h"
-#include "psockets.h"
 #include "logger.h"
-
-#define POVERLAY_BUFSIZE 512
-#define POVERLAY_PROTOCOL 0
 
 void overlay_main_loop() {
   struct sockaddr_un addr;
   int fd, cl;
 
-  const char *socket_path = create_socket_path();
+  const char *socket_path = psync_unix_socket_path();
   if (!socket_path) {
     log_debug("socket path is empty");
     return;
