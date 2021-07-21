@@ -22,7 +22,8 @@ Also, you'll need the following build tools:
 - [Conan](https://conan.io/) decentralized package manager with a client-server architecture
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
-thus your compiler should support `-std=gnu99`.
+thus your compiler should support `-std=gnu99`. Also notice, MSVC does not
+support C99, and only halfway supports the older versions of the C standard.
 
 Optional prerequisites are:
 - Documentation generation tool: [Doxygen](http://www.doxygen.org/)

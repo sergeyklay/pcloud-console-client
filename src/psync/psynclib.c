@@ -67,6 +67,7 @@ const char *psync_database=NULL;
 
 static int psync_libstate=0;
 static pthread_mutex_t psync_libstate_mutex=PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t psync_maintainer_logs_mutex;
 
 #define return_error(err) do {psync_error=err; return -1;} while (0)
 #define return_isyncid(err) do {psync_error=err; return PSYNC_INVALID_SYNCID;} while (0)
@@ -159,6 +160,12 @@ static void psync_stop_crypto_on_sleep() {
 }
 
 int psync_init() {
+  if (pthread_mutex_init(&psync_maintainer_logs_mutex, NULL) == 0) {
+    log_set_lock(log_lock, &psync_maintainer_logs_mutex);
+  }
+
+  setup_logging();
+
   psync_thread_name = "main app thread";
   log_info("initializing libpsync: %s", PSYNC_VERSION_FULL);
 
@@ -268,6 +275,7 @@ void psync_destroy() {
   psync_sql_lock();
   psync_cache_clean_all();
   psync_sql_close();
+  pthread_mutex_destroy(&psync_maintainer_logs_mutex);
 }
 
 void psync_get_status(pstatus_t *status) {

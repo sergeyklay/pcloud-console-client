@@ -9,6 +9,7 @@
 
 #include "pcloudcc/psync/compat.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@
 #include "logger.h"
 
 char *psync_unix_socket_path() {
-  char *path = (char *)malloc(sizeof(char) * (FILENAME_MAX + 1));
+  char *path = (char *)malloc(sizeof(char) * PATH_MAX);
   if (!path) {
     return NULL;
   }
@@ -25,15 +26,15 @@ char *psync_unix_socket_path() {
   int n;
   const char *runtime_dir = getenv("XDG_RUNTIME_DIR");
   if (runtime_dir) {
-    n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir,
+    n = snprintf(path, PATH_MAX, "%s/%s", runtime_dir,
                  POVERLAY_SOCKET_NAME);
   } else {
     runtime_dir = getenv("TMPDIR");
     if (runtime_dir) {
-      n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir,
+      n = snprintf(path, PATH_MAX, "%s/%s", runtime_dir,
                    POVERLAY_SOCKET_NAME);
     } else {
-      n = snprintf(path, strlen(POVERLAY_SOCKET_NAME) + 8, "/tmp/%s",
+      n = snprintf(path, sizeof(POVERLAY_SOCKET_NAME), "/tmp/%s",
                    POVERLAY_SOCKET_NAME);
     }
   }

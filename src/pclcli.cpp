@@ -31,8 +31,6 @@
 namespace cc = console_client;
 namespace clib = cc::clibrary;
 
-pthread_mutex_t MAINTAINER_LOG_MUTEX;
-
 clib::pclcli& clib::pclcli::get_lib() {
   static clib::pclcli g_lib;
   return g_lib;
@@ -252,12 +250,6 @@ int clib::pclcli::init() {
 #endif  // P_OS_LINUX
   psync_set_software_name(software_string);
 #endif  // P_CONSOLE_CLIENT
-
-  if (pthread_mutex_init(&MAINTAINER_LOG_MUTEX, nullptr) == 0) {
-    log_set_lock(log_lock, &MAINTAINER_LOG_MUTEX);
-  }
-
-  setup_logging();
   if (setup_crypto_ && crypto_pass_.empty())
     return 3;
 
@@ -323,6 +315,4 @@ clib::pclcli::pclcli():
   setup_crypto_(false),
   status_callback_{} {}
 
-clib::pclcli::~pclcli() {
-  pthread_mutex_destroy(&MAINTAINER_LOG_MUTEX);
-};
+clib::pclcli::~pclcli() = default;

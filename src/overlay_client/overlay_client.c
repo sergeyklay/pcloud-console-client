@@ -28,6 +28,8 @@ typedef struct message_ {
   char value[];
 } message;
 
+static int logger_initialized = 0;
+
 static void read_x_bytes(int socket, unsigned int x, void *buffer) {
   int bytesRead = 0;
   int result;
@@ -43,6 +45,11 @@ static void read_x_bytes(int socket, unsigned int x, void *buffer) {
 int query_state(overlay_file_state_t *state, char *path) {
   int rep = 0;
   char *errm = NULL;
+
+  if (!logger_initialized) {
+    setup_logging();
+    logger_initialized = 1;
+  }
 
   if (!send_call(4, path, &rep, &errm)) {
     log_debug("query_state: response code: %d, path: %s", rep, path);
@@ -88,6 +95,11 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   message *rep = NULL;
   uint32_t bufflen = 0;
   uint64_t msg_type;
+
+  if (!logger_initialized) {
+    setup_logging();
+    logger_initialized = 1;
+  }
 
   log_debug("send_call[%d]: start processing for the path: %s", cmd, path);
 
