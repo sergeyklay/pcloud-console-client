@@ -28,13 +28,12 @@ static const char *resolve_filepath(const char* rawpath) {
   const char *homedir;
   int n;
 
-  /* Do not try use file for logging if:
+  /* do not try use file for logging if:
    * - rawpath == NULL
    * - rawpath == ""
    * - rawpath == "/"
    */
   if (!rawpath || strlen(rawpath) <= 1) {
-    // PCLOUD_MAINTAINER_LOGS
     return NULL;
   }
 
@@ -74,15 +73,15 @@ static const char *resolve_filepath(const char* rawpath) {
 }
 
 void setup_logging() {
-  log_set_level(PCLOUD_LOG_LEVEL);
-
-  /* Do nothing if maintainer logs are disabled */
+  /* do nothing if maintainer logs are disabled */
   if (!PCLOUD_MAINTAINER_LOGS) {
     log_set_quiet(true);
     return;
   }
 
+  log_set_level(PCLOUD_LOG_LEVEL);
   const char *filename = resolve_filepath(PCLOUD_LOG_FILE);
+
   if (filename) {
     FILE* log_file = fopen(filename, "w");
     if (log_file) {
