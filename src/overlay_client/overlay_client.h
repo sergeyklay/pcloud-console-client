@@ -22,9 +22,18 @@ typedef enum overlay_file_state_ {
   FILE_STATE_INVALID
 } overlay_file_state_t;
 
-int query_state(overlay_file_state_t *state, char* path);
+typedef enum overlay_command_ {
+  STARTCRYPTO = 20,
+  STOPCRYPTO,
+  FINALIZE,
+  LISTSYNC,
+  ADDSYNC,
+  STOPSYNC
+} overlay_command_t;
 
-int send_call(int id, const char * path, int * ret, void * out);
+int query_state(overlay_file_state_t *state, char *path);
+
+int send_call(overlay_command_t cmd, const char *path, int *ret, void * out);
 
 #ifdef __cplusplus
 }  /* extern "C" */

@@ -13,28 +13,21 @@
 #include <unistd.h>
 #include <string>
 
+#include "overlay_client.h"
+
 #include "control_tools.hpp"
 #include "pclcli.hpp"
-#include "overlay_client.h"
 
 namespace control_tools {
 
 static const int STOP = 0;
 
-enum command_ids_ {
-  STARTCRYPTO = 20,
-  STOPCRYPTO,
-  FINALIZE,
-  LISTSYNC,
-  ADDSYNC,
-  STOPSYNC
-};
-
 void start_crypto(const char * pass) {
   int ret;
-  char* errm = nullptr;
+  overlay_command_t cmd = STARTCRYPTO;
+  char *errm = nullptr;
 
-  if (send_call(STARTCRYPTO, pass, &ret, &errm))
+  if (send_call(cmd, pass, &ret, &errm) < 0)
     std::cout << "Failed to start crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;
@@ -47,9 +40,10 @@ void start_crypto(const char * pass) {
 
 void stop_crypto() {
   int ret;
+  overlay_command_t cmd = STOPCRYPTO;
   char* errm = nullptr;
 
-  if (send_call(STOPCRYPTO, "", &ret, &errm))
+  if (send_call(cmd, "", &ret, &errm) < 0)
     std::cout << "Failed to stop crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;
@@ -62,9 +56,10 @@ void stop_crypto() {
 
 void finalize() {
   int ret;
+  overlay_command_t cmd = FINALIZE;
   char* errm = nullptr;
 
-  if (send_call(FINALIZE, "", &ret, &errm))
+  if (send_call(cmd, "", &ret, &errm) < 0)
     std::cout << "Failed to finalize crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;

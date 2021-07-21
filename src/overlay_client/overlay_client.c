@@ -42,7 +42,7 @@ static void read_x_bytes(int socket, unsigned int x, void *buffer) {
 
 int query_state(overlay_file_state_t *state, char *path) {
   int rep = 0;
-  char * errm = NULL;
+  char *errm = NULL;
 
   if (!send_call(4, path, &rep, &errm)) {
     log_debug("query_state: response code: %d, path: %s", rep, path);
@@ -71,7 +71,7 @@ int query_state(overlay_file_state_t *state, char *path) {
   return 0;
 }
 
-int send_call(int id, const char * path, int * ret, void * out) {
+int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
 #ifdef P_OS_MACOSX
   struct sockaddr_in addr;
 #else
@@ -88,7 +88,7 @@ int send_call(int id, const char * path, int * ret, void * out) {
   char sendbuf[mess_size];
   message *rep = NULL;
 
-  log_debug("send_call[%d]: start processing for the path: %s", id, path);
+  log_debug("send_call[%d]: start processing for the path: %s", cmd, path);
 
 #ifdef P_OS_MACOSX
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == - 1) {
@@ -113,16 +113,16 @@ int send_call(int id, const char * path, int * ret, void * out) {
 #else
   const char *socket_path = psync_unix_socket_path();
   if (!socket_path) {
-    log_error("send_call[%d]: socket path is empty", id);
+    log_error("send_call[%d]: socket path is empty", cmd);
     if (out)
-      out = (void *)strdup("Unable to create UNIX socket");
+      out = (void *)strdup("Unable to determine a path for UNIX socket");
     *ret = - 1;
     return -1;
   }
 
   /* 1. Open a socket */
   if ((fd = socket(AF_UNIX, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
-    log_error("send_call[%d]: failed to create socket %s", id, socket_path);
+    log_error("send_call[%d]: failed to create socket %s", cmd, socket_path);
     if (out)
       out = (void *)strdup("Unable to create UNIX socket");
     *ret = - 3;
@@ -137,7 +137,7 @@ int send_call(int id, const char * path, int * ret, void * out) {
   /* 3. Initiate a connection on a socket */
   if (connect(fd, (struct sockaddr*)&addr, SUN_LEN(&addr)) == - 1) {
     log_error("send_call[%d]: failed to connect to socket %s",
-              id, strerror(errno));
+              cmd, strerror(errno));
     if (out)
       out = (void *)strdup("Unable to connect to UNIX socket");
     *ret = - 4;
@@ -147,7 +147,7 @@ int send_call(int id, const char * path, int * ret, void * out) {
 
   message *mes = (message *)sendbuf;
   memset (mes, 0, mess_size);
-  mes->type = id;
+  mes->type = cmd;
   strncpy(mes->value, path, path_size);
   mes->length = mess_size;
   curbuf = (char *)mes;
@@ -157,9 +157,9 @@ int send_call(int id, const char * path, int * ret, void * out) {
     curbuf = curbuf + rc;
   }
 
-  log_debug("send_call[%d]: send %d bytes", id, bytes_writen);
+  log_debug("send_call[%d]: send %d bytes", cmd, bytes_writen);
   if (bytes_writen != mes->length) {
-    log_error("send_call[%d]: communication error", id);
+    log_error("send_call[%d]: communication error", cmd);
     if (out)
       out = (void *)strdup("Communication error");
       close(fd);
@@ -169,7 +169,7 @@ int send_call(int id, const char * path, int * ret, void * out) {
 
   read_x_bytes(fd, 4, &bufflen);
   if (bufflen <= 0) {
-    log_error("send_call[%d]: message size could not be read: %d", id, bufflen);
+    log_error("send_call[%d]: message size could not be read: %d", cmd, bufflen);
     return -6;
   }
 
