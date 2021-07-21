@@ -49,7 +49,7 @@ void psync_timer_do_notify_exception();
 void psync_timer_wait_next_sec();
 
 #define psync_timer_notify_exception() do { \
-    log_info("sending exception");          \
+    log_debug("sending exception");         \
     psync_timer_do_notify_exception();      \
   } while (0)
 

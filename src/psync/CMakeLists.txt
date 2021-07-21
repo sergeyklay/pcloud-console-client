@@ -138,7 +138,7 @@ target_link_libraries(psync
             ${FUSE_LIBRARY})
 
 if(APPLE)
-  target_link_libraries(psync "-framework Cocoa")
+  target_link_libraries(psync PRIVATE "-framework Cocoa")
 elseif(NOT WIN32)
   # It seems device monitor is in experimental phase
   # so disable it for now:
