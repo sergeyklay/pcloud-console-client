@@ -15,6 +15,7 @@
 #include <sys/un.h>
 
 #include "pcloudcc/psync/sockets.h"
+#include "pcloudcc/psync/stringcompat.h"
 #include "poverlay.h"
 #include "plibs.h"
 #include "logger.h"
@@ -38,7 +39,7 @@ void overlay_main_loop() {
   /* 2. Create an address */
   bzero((char *)&addr, sizeof(addr));
   addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+  strlcpy(addr.sun_path, socket_path, sizeof(addr.sun_path));
   unlink(socket_path);
 
   /* 3. Bind the address to the socket */
