@@ -29,6 +29,7 @@ releases, in reverse chronological order.
 * Provided ability to generate the API documentation.
 * Provided a brand-new libpsync API to get and set device information used
   during the pCloud API calls.
+* Reworked commands mode to provide better user experience.
 
 ### Bugfix
 

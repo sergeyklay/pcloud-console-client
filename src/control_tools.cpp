@@ -20,17 +20,13 @@
 
 namespace control_tools {
 
-static const int STOP = 0;
-
 void start_crypto(const char * pass) {
   int ret;
   overlay_command_t cmd = STARTCRYPTO;
   char *errm = nullptr;
 
-  if (send_call(cmd, pass, &ret, &errm) < 0)
-    std::cout << "Failed to start crypto. Return code is "
-              << ret << " and message is \""
-              << errm << "\"" << std::endl;
+  if (send_call(cmd, pass, &ret, &errm) == -1)
+    std::cout << "Failed to start crypto: " << errm << std::endl;
   else
     std::cout << "Crypto started" << std::endl;
 
@@ -43,10 +39,8 @@ void stop_crypto() {
   overlay_command_t cmd = STOPCRYPTO;
   char* errm = nullptr;
 
-  if (send_call(cmd, "", &ret, &errm) < 0)
-    std::cout << "Failed to stop crypto. Return code is "
-              << ret << " and message is \""
-              << errm << "\"" << std::endl;
+  if (send_call(cmd, "", &ret, &errm) == -1)
+    std::cout << "Failed to stop crypto: " << errm << std::endl;
   else
     std::cout << "Crypto Stopped" << std::endl;
 
@@ -57,12 +51,10 @@ void stop_crypto() {
 void finalize() {
   int ret;
   overlay_command_t cmd = FINALIZE;
-  char* errm = nullptr;
+  char *errm = nullptr;
 
-  if (send_call(cmd, "", &ret, &errm) < 0)
-    std::cout << "Failed to finalize crypto. Return code is "
-              << ret << " and message is \""
-              << errm << "\"" << std::endl;
+  if (send_call(cmd, "", &ret, &errm) == -1)
+    std::cout << "Failed to finalize crypto: " << errm << std::endl;
   else
     std::cout << "Exiting..." << std::endl;
 
@@ -71,7 +63,7 @@ void finalize() {
 }
 
 void process_commands() {
-  std::cout<< "Supported commands are:" << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
+  std::cout<< "Supported commands are: " << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
   std::cout<< "> " ;
   for (std::string line; std::getline(std::cin, line);) {
     if (!line.compare("finalize")) {
