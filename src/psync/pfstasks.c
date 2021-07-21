@@ -910,7 +910,8 @@ int psync_fstask_unlink(psync_fsfolderid_t folderid, const char *name) {
   if (fileid<0 && -fileid!=depend)
     psync_fstask_depend(taskid, -fileid);
   psync_fstask_depend_on_name(taskid, folderid, name, len);
-  if (unlikely_log(psync_sql_commit_transaction())) {
+  if (unlikely(psync_sql_commit_transaction()) != 0) {
+    log_error("failed to commit sql transaction");
     psync_fstask_release_folder_tasks_locked(folder);
     return -EIO;
   }
