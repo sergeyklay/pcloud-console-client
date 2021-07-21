@@ -84,9 +84,10 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   int bytes_writen = 0;
   char *curbuf = NULL;
   char *buf = NULL;
-  uint32_t bufflen = 0;
   char sendbuf[mess_size];
   message *rep = NULL;
+  uint32_t bufflen = 0;
+  uint64_t msg_type;
 
   log_debug("send_call[%d]: start processing for the path: %s", cmd, path);
 
@@ -157,7 +158,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
     curbuf = curbuf + rc;
   }
 
-  log_debug("send_call[%d]: send %d bytes", cmd, bytes_writen);
+  log_trace("send_call[%d]: send %d bytes", cmd, bytes_writen);
   if (bytes_writen != mes->length) {
     log_error("send_call[%d]: communication error", cmd);
     if (out)
@@ -167,7 +168,10 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
     return - 5;
   }
 
-  read_x_bytes(fd, 4, &bufflen);
+  /* read 2x8 bytes because the message structure is not packed and
+   * the members are aligned on a 8-byte boundary */
+  read_x_bytes(fd, sizeof(uint64_t), &msg_type);
+  read_x_bytes(fd, sizeof(uint64_t), &bufflen);
   if (bufflen <= 0) {
     log_error("send_call[%d]: message size could not be read: %d", cmd, bufflen);
     return -6;
@@ -176,10 +180,13 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   buf = (char *)malloc(bufflen);
   rep = ( message *)buf;
   rep->length = bufflen;
+  rep->type = msg_type;
 
-  read_x_bytes(fd, bufflen - 4, buf + 4);
+  read_x_bytes(fd, bufflen - 2 * sizeof(uint64_t), buf + 2 * sizeof(uint64_t));
 
   *ret = rep->type;
+  log_debug("send_call[%d]: response message: %s", cmd, rep->value);
+
   if (out)
     out = (void *)strndup(rep->value, rep->length - sizeof(message));
   close(fd);
