@@ -28,7 +28,7 @@ typedef struct message_ {
   char value[];
 } message;
 
-static void read_x_bytes(int socket, unsigned int x, void * buffer) {
+static void read_x_bytes(int socket, unsigned int x, void *buffer) {
   int bytesRead = 0;
   int result;
   while (bytesRead < x) {
@@ -40,29 +40,38 @@ static void read_x_bytes(int socket, unsigned int x, void * buffer) {
   }
 }
 
-int QueryState( pCloud_FileState *state, char * path) {
+int query_state(overlay_file_state_t *state, char *path) {
   int rep = 0;
-  char * errm;
-  if (!SendCall(4, path, &rep, &errm)) {
-    log_info("QueryState response rep[%d] path[%s]", rep, path);
+  char * errm = NULL;
+
+  if (!send_call(4, path, &rep, &errm)) {
+    log_debug("query_state: response code: %d, path: %s", rep, path);
     if (errm)
-      log_error("The error is %s", errm);
-    if (rep == 10)
-      *state = FileStateInSync;
-    else if (rep == 12)
-      *state = FileStateInProgress;
-    else if (rep == 11)
-      *state = FileStateNoSync;
-    else
-      *state = FileStateInvalid;
+      log_error("query_state: %s", errm);
+
+    switch (rep) {
+      case 10:
+        *state = FILE_STATE_IN_SYNC;
+        break;
+      case 11:
+        *state = FILE_STATE_NO_SYNC;
+        break;
+      case 12:
+        *state = FILE_STATE_IN_PROGRESS;
+        break;
+      default:
+        *state = FILE_STATE_INVALID;
+    }
   } else
-    log_error("QueryState ERROR rep[%d] path[%s]", rep, path);
-  free (errm);
+    log_error("query_state: response code: %d, path: %s", rep, path);
+
+  if (errm)
+    free(errm);
 
   return 0;
 }
 
-int SendCall(int id, const char * path, int * ret, void * out) {
+int send_call(int id, const char * path, int * ret, void * out) {
 #ifdef P_OS_MACOSX
   struct sockaddr_in addr;
 #else
@@ -71,7 +80,7 @@ int SendCall(int id, const char * path, int * ret, void * out) {
 
   int fd,rc;
   int path_size = strlen(path);
-  int mess_size = sizeof( message ) + path_size + 1;
+  int mess_size = sizeof(message) + path_size + 1;
   int bytes_writen = 0;
   char *curbuf = NULL;
   char *buf = NULL;

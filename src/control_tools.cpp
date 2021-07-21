@@ -34,7 +34,7 @@ void start_crypto(const char * pass) {
   int ret;
   char* errm = nullptr;
 
-  if (SendCall(STARTCRYPTO, pass, &ret, &errm))
+  if (send_call(STARTCRYPTO, pass, &ret, &errm))
     std::cout << "Failed to start crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;
@@ -49,7 +49,7 @@ void stop_crypto() {
   int ret;
   char* errm = nullptr;
 
-  if (SendCall(STOPCRYPTO, "", &ret, &errm))
+  if (send_call(STOPCRYPTO, "", &ret, &errm))
     std::cout << "Failed to stop crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;
@@ -64,7 +64,7 @@ void finalize() {
   int ret;
   char* errm = nullptr;
 
-  if (SendCall(FINALIZE, "", &ret, &errm))
+  if (send_call(FINALIZE, "", &ret, &errm))
     std::cout << "Failed to finalize crypto. Return code is "
               << ret << " and message is \""
               << errm << "\"" << std::endl;

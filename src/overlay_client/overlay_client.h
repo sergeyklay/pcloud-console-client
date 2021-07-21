@@ -8,25 +8,26 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef OVERLAY_CLIENT_H
-#define OVERLAY_CLIENT_H
+#ifndef PCLOUD_OVERLAY_CLIENT_H_
+#define PCLOUD_OVERLAY_CLIENT_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum _pCloud_FileState
-{
-  FileStateInSync = 0,
-  FileStateNoSync,
-  FileStateInProgress,
-  FileStateInvalid
-}pCloud_FileState;
+typedef enum overlay_file_state_ {
+  FILE_STATE_IN_SYNC = 0,
+  FILE_STATE_NO_SYNC,
+  FILE_STATE_IN_PROGRESS,
+  FILE_STATE_INVALID
+} overlay_file_state_t;
 
-int QueryState(pCloud_FileState *state /*OUT*/, char* path /*IN*/);
+int query_state(overlay_file_state_t *state, char* path);
 
-int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void * out /*OUT*/ );
+int send_call(int id, const char * path, int * ret, void * out);
+
 #ifdef __cplusplus
-}
+}  /* extern "C" */
 #endif
-#endif //OVERLAY_CLIENT_H
+
+#endif  /* PCLOUD_OVERLAY_CLIENT_H_ */
