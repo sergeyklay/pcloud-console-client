@@ -332,7 +332,7 @@ void psync_locked_free(void *ptr) {
 #if IS_DEBUG
   origsize=size;
   size=((size+LM_ALIGN_TO-1))/LM_ALIGN_TO*LM_ALIGN_TO;
-  log_trace("block of size at %p: %lu", ptr, (unsigned long)origsize);
+  log_trace("block size at %p: %lu", ptr, (unsigned long)origsize);
   for (i=origsize; i<size; i++)
     assert(((unsigned char *)ptr)[i]==(((size_t)0xff+origsize-i)&0xff));
   size+=LM_OVERHEAD;

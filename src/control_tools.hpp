@@ -11,7 +11,7 @@
 #define PCLOUD_CONTROL_TOOLS_HPP_
 
 namespace control_tools {
-  void start_crypto(const char * pass);
+  void start_crypto(const char *pass);
   void stop_crypto();
   void finalize();
   void daemonize(bool do_commands);
