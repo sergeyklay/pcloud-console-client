@@ -84,6 +84,10 @@ else()
   list(APPEND psync_sources pssl-mbedtls.c)
 endif()
 
+if(NOT WIN32)
+  list(APPEND psync_sources psockets.c)
+endif()
+
 # Add definition for psync library
 add_library(psync SHARED ${psync_sources})
 add_library(pcloud::psync ALIAS psync)
@@ -107,16 +111,16 @@ target_compile_definitions(psync
 target_include_directories(psync
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-          ${FUSE_INCLUDE_DIR}
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          ${FUSE_INCLUDE_DIR})
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
-  target_link_libraries(psync CONAN_PKG::openssl)
+  target_link_libraries(psync PRIVATE CONAN_PKG::openssl)
   target_compile_definitions(psync PRIVATE P_SSL_OPENSSL)
 elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   target_compile_definitions(psync PRIVATE P_SSL_SECURETRANSPORT)
 else()
-  target_link_libraries(psync CONAN_PKG::mbedtls)
+  target_link_libraries(psync PRIVATE CONAN_PKG::mbedtls)
   target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
 endif()
 
@@ -128,13 +132,13 @@ target_compile_definitions(psync
     PUBLIC HAVE_CONFIG_H)
 
 target_link_libraries(psync
-    pcloud::logger
-    CONAN_PKG::zlib
-    CONAN_PKG::sqlite3
-    ${FUSE_LIBRARY})
+    PRIVATE pcloud::logger
+            CONAN_PKG::zlib
+            CONAN_PKG::sqlite3
+            ${FUSE_LIBRARY})
 
 if(APPLE)
-  target_link_libraries(psync "-framework Cocoa")
+  target_link_libraries(psync PRIVATE "-framework Cocoa")
 elseif(NOT WIN32)
   # It seems device monitor is in experimental phase
   # so disable it for now:
@@ -148,7 +152,7 @@ elseif(NOT WIN32)
 endif()
 
 if (NOT WIN32)
-  target_link_libraries(psync ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(psync PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # Library version info

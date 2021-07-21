@@ -13,57 +13,64 @@
 #include <unistd.h>
 #include <string>
 
+#include "overlay_client.h"
+
 #include "control_tools.hpp"
 #include "pclcli.hpp"
-#include "overlay_client.h"
 
 namespace control_tools {
 
 static const int STOP = 0;
 
-enum command_ids_ {
-  STARTCRYPTO = 20,
-  STOPCRYPTO,
-  FINALIZE,
-  LISTSYNC,
-  ADDSYNC,
-  STOPSYNC
-};
-
 void start_crypto(const char * pass) {
   int ret;
-  char* errm;
-  if (SendCall(STARTCRYPTO, pass, &ret, &errm))
-    std::cout << "Start Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
+  overlay_command_t cmd = STARTCRYPTO;
+  char *errm = nullptr;
+
+  if (send_call(cmd, pass, &ret, &errm) < 0)
+    std::cout << "Failed to start crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
   else
-    std::cout << "Crypto started. "<< std::endl;
-  free(errm);
+    std::cout << "Crypto started" << std::endl;
+
+  if (errm)
+    free(errm);
 }
 
-
-void stop_crypto(){
+void stop_crypto() {
   int ret;
-  char* errm;
-  if (SendCall(STOPCRYPTO, "", &ret, &errm))
-    std::cout << "Stop Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
+  overlay_command_t cmd = STOPCRYPTO;
+  char* errm = nullptr;
+
+  if (send_call(cmd, "", &ret, &errm) < 0)
+    std::cout << "Failed to stop crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
   else
-    std::cout << "Crypto Stopped. "<< std::endl;
-  free(errm);
+    std::cout << "Crypto Stopped" << std::endl;
+
+  if (errm)
+    free(errm);
 }
 
-void finalize(){
-   int ret;
-  char* errm;
-  if (SendCall(FINALIZE, "", &ret, &errm))
-    std::cout << "Finalize failed. return is " << ret<< " and message is "<<errm << std::endl;
-  else
-    std::cout << "Exiting ..."<< std::endl;
+void finalize() {
+  int ret;
+  overlay_command_t cmd = FINALIZE;
+  char* errm = nullptr;
 
-  free(errm);
+  if (send_call(cmd, "", &ret, &errm) < 0)
+    std::cout << "Failed to finalize crypto. Return code is "
+              << ret << " and message is \""
+              << errm << "\"" << std::endl;
+  else
+    std::cout << "Exiting..." << std::endl;
+
+  if (errm)
+    free(errm);
 }
 
-void process_commands()
-{
+void process_commands() {
   std::cout<< "Supported commands are:" << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
   std::cout<< "> " ;
   for (std::string line; std::getline(std::cin, line);) {

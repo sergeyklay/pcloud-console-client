@@ -17,18 +17,18 @@
 #include <netinet/in.h>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/sockets.h"
 #include "overlay_client.h"
 #include "logger.h"
 
-#define POVERLAY_BUFSIZE 512
-
-typedef struct _message {
-uint32_t type;
-uint64_t length;
-char value[];
+/* TODO: Duplicate. See: poverlay.h. Move to sockets.h? */
+typedef struct message_ {
+  uint32_t type;
+  uint64_t length;
+  char value[];
 } message;
 
-static void read_x_bytes(int socket, unsigned int x, void * buffer) {
+static void read_x_bytes(int socket, unsigned int x, void *buffer) {
   int bytesRead = 0;
   int result;
   while (bytesRead < x) {
@@ -40,55 +40,58 @@ static void read_x_bytes(int socket, unsigned int x, void * buffer) {
   }
 }
 
-#if defined(P_OS_MACOSX)
-uint32_t clport = 8989;
-#else
-char *clsoc = "/tmp/pcloud_unix_soc.sock";
-#endif
-
-int QueryState( pCloud_FileState *state, char * path) {
+int query_state(overlay_file_state_t *state, char *path) {
   int rep = 0;
-  char * errm;
-  if (!SendCall(4, path, &rep, &errm)) {
-    log_info("QueryState response rep[%d] path[%s]", rep, path);
+  char *errm = NULL;
+
+  if (!send_call(4, path, &rep, &errm)) {
+    log_debug("query_state: response code: %d, path: %s", rep, path);
     if (errm)
-      log_error("The error is %s", errm);
-    if (rep == 10)
-      *state = FileStateInSync;
-    else if (rep == 12)
-      *state = FileStateInProgress;
-    else if (rep == 11)
-      *state = FileStateNoSync;
-    else
-      *state = FileStateInvalid;
+      log_error("query_state: %s", errm);
+
+    switch (rep) {
+      case 10:
+        *state = FILE_STATE_IN_SYNC;
+        break;
+      case 11:
+        *state = FILE_STATE_NO_SYNC;
+        break;
+      case 12:
+        *state = FILE_STATE_IN_PROGRESS;
+        break;
+      default:
+        *state = FILE_STATE_INVALID;
+    }
   } else
-    log_error("QueryState ERROR rep[%d] path[%s]", rep, path);
-  free (errm);
+    log_error("query_state: response code: %d, path: %s", rep, path);
+
+  if (errm)
+    free(errm);
 
   return 0;
 }
 
-int SendCall( int id, const char * path, int * ret, void * out) {
-  #if defined(P_OS_MACOSX)
+int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
+#ifdef P_OS_MACOSX
   struct sockaddr_in addr;
-  #else
+#else
   struct sockaddr_un addr;
-  #endif
+#endif
 
   int fd,rc;
-  int path_size = strlen (path);
-  int mess_size = sizeof ( message )+path_size + 1;
+  int path_size = strlen(path);
+  int mess_size = sizeof(message) + path_size + 1;
   int bytes_writen = 0;
   char *curbuf = NULL;
   char *buf = NULL;
-  uint32_t bufflen=0;
   char sendbuf[mess_size];
-  int bytes_read = 0;
   message *rep = NULL;
+  uint32_t bufflen = 0;
+  uint64_t msg_type;
 
-  log_info("SenCall id: %d path: %s", id, path);
+  log_debug("send_call[%d]: start processing for the path: %s", cmd, path);
 
-  #if defined(P_OS_MACOSX)
+#ifdef P_OS_MACOSX
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == - 1) {
     if (out)
       /* TODO: Is this works? */
@@ -100,7 +103,7 @@ int SendCall( int id, const char * path, int * ret, void * out) {
   memset (&addr, 0, sizeof (addr));
   addr. sin_family = AF_INET;
   addr. sin_addr . s_addr = htonl(INADDR_LOOPBACK);
-  addr. sin_port = htons(clport);
+  addr. sin_port = htons(POVERLAY_PORT);
   if (connect (fd, (struct sockaddr *)&addr, sizeof(struct sockaddr)) == - 1) {
     if (out)
       /* TODO: Is this works? */
@@ -108,59 +111,84 @@ int SendCall( int id, const char * path, int * ret, void * out) {
     *ret = - 2;
     return - 2;
   }
-  #else
-  if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == - 1) {
+#else
+  const char *socket_path = psync_unix_socket_path();
+  if (!socket_path) {
+    log_error("send_call[%d]: socket path is empty", cmd);
     if (out)
-      out = (void *)strndup("Unable to create UNIX socket", 27);
+      out = (void *)strdup("Unable to determine a path for UNIX socket");
+    *ret = - 1;
+    return -1;
+  }
+
+  /* 1. Open a socket */
+  if ((fd = socket(AF_UNIX, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
+    log_error("send_call[%d]: failed to create socket %s", cmd, socket_path);
+    if (out)
+      out = (void *)strdup("Unable to create UNIX socket");
     *ret = - 3;
     return - 3;
-   }
-  memset(&addr, 0, sizeof (addr));
-  addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, clsoc, sizeof (addr.sun_path)- 1 );
+  }
 
-  if (connect(fd, ( struct sockaddr*)&addr,SUN_LEN(&addr)) == - 1 ) {
+  /* 2. Create an address */
+  bzero((char *)&addr, sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+
+  /* 3. Initiate a connection on a socket */
+  if (connect(fd, (struct sockaddr*)&addr, SUN_LEN(&addr)) == - 1) {
+    log_error("send_call[%d]: failed to connect to socket %s",
+              cmd, strerror(errno));
     if (out)
-     out = (void *)strndup( "Unable to connect to UNIX socket", 32 );
+      out = (void *)strdup("Unable to connect to UNIX socket");
     *ret = - 4;
     return - 4;
   }
-  #endif
+#endif
 
-  message * mes = (message *)sendbuf;
+  message *mes = (message *)sendbuf;
   memset (mes, 0, mess_size);
-  mes-> type = id;
-  strncpy (mes-> value, path, path_size);
-  mes-> length = mess_size;
+  mes->type = cmd;
+  strncpy(mes->value, path, path_size);
+  mes->length = mess_size;
   curbuf = (char *)mes;
-  while ((rc = write (fd,curbuf,(mes-> length - bytes_writen))) > 0 ) {
+
+  while ((rc = write(fd,curbuf,(mes-> length - bytes_writen))) > 0) {
     bytes_writen += rc;
     curbuf = curbuf + rc;
   }
-  log_info("QueryState bytes send [%d]", bytes_writen);
-  if (bytes_writen != mes-> length) {
+
+  log_trace("send_call[%d]: send %d bytes", cmd, bytes_writen);
+  if (bytes_writen != mes->length) {
+    log_error("send_call[%d]: communication error", cmd);
     if (out)
-      out = strndup ("Communication error", 19);
-    close(fd);
+      out = (void *)strdup("Communication error");
+      close(fd);
     *ret = - 5;
     return - 5;
   }
 
-  read_x_bytes(fd, 4, &bufflen);
+  /* read 2x8 bytes because the message structure is not packed and
+   * the members are aligned on a 8-byte boundary */
+  read_x_bytes(fd, sizeof(uint64_t), &msg_type);
+  read_x_bytes(fd, sizeof(uint64_t), &bufflen);
   if (bufflen <= 0) {
-    log_info("Message size could not be read: [%d]", bufflen);
+    log_error("send_call[%d]: message size could not be read: %d", cmd, bufflen);
     return -6;
   }
+
   buf = (char *)malloc(bufflen);
   rep = ( message *)buf;
   rep->length = bufflen;
+  rep->type = msg_type;
 
-  read_x_bytes(fd, bufflen - 4, buf + 4);
+  read_x_bytes(fd, bufflen - 2 * sizeof(uint64_t), buf + 2 * sizeof(uint64_t));
 
-  *ret = rep-> type;
+  *ret = rep->type;
+  log_debug("send_call[%d]: response message: %s", cmd, rep->value);
+
   if (out)
-    out = strndup (rep-> value, rep-> length - sizeof(message));
-
+    out = (void *)strndup(rep->value, rep->length - sizeof(message));
   close(fd);
 
   return 0;

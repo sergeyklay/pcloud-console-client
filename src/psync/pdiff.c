@@ -2387,7 +2387,7 @@ static void psync_diff_adapter_timer(psync_timer_t timer, void *ptr) {
   psync_diff_adapter_hash(hash);
   if (memcmp(adapter_hash, hash, PSYNC_FAST_HASH256_LEN)) {
     memcpy(adapter_hash, hash, PSYNC_FAST_HASH256_LEN);
-    log_info("network adapter list changed, sending exception");
+    log_debug("network adapter list changed, sending exception");
     psync_pipe_write(exceptionsockwrite, "e", 1);
   }
 }

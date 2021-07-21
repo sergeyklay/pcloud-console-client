@@ -11,54 +11,19 @@
 #include "pcloudcc/psync/compat.h"
 
 #ifdef P_OS_LINUX
-
-#include <stdio.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <stdlib.h>
 
+#include "pcloudcc/psync/sockets.h"
 #include "poverlay.h"
 #include "plibs.h"
 #include "logger.h"
-
-#define POVERLAY_BUFSIZE 512
-#define POVERLAY_PROTOCOL 0
-#define POVERLAY_SOCKET   "pcloud.sock"
-
-static char * create_socket_path() {
-  char *path = psync_new_cnt(char, (FILENAME_MAX + 1));
-  if (!path) {
-    return NULL;
-  }
-
-  int n;
-  const char *runtime_dir = getenv("XDG_RUNTIME_DIR");
-  if (runtime_dir) {
-    n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
-  } else {
-    runtime_dir = getenv("TMPDIR");
-    if (runtime_dir) {
-      n = snprintf(path, FILENAME_MAX, "%s/%s", runtime_dir, POVERLAY_SOCKET);
-    } else {
-      n = snprintf(path, strlen(POVERLAY_SOCKET) + 8, "/tmp/%s",
-                   POVERLAY_SOCKET);
-    }
-  }
-
-  if (n <= 0) {
-    log_fatal("failed to create a socket path");
-    psync_free(path);
-    return NULL;
-  }
-
-  return path;
-}
 
 void overlay_main_loop() {
   struct sockaddr_un addr;
   int fd, cl;
 
-  const char *socket_path = create_socket_path();
+  const char *socket_path = psync_unix_socket_path();
   if (!socket_path) {
     log_debug("socket path is empty");
     return;
