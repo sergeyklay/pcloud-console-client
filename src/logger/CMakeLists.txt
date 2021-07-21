@@ -39,5 +39,9 @@ unset(log_levels)
 configure_file("${CMAKE_CURRENT_LIST_DIR}/logger.h.in"
     "${CMAKE_CURRENT_LIST_DIR}/logger.h")
 
+# Create position independent library (add -fPIC)
+set_property(TARGET logger
+  PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_link_libraries(logger
   PUBLIC CONAN_PKG::log.c)
