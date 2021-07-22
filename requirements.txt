@@ -6,3 +6,4 @@
 # the LICENSE file that was distributed with this source code.
 
 conan ~= 1.30
+pygments>=2.7.4 # not directly required, pinned by Snyk to avoid a vulnerability
