@@ -10,6 +10,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "pcloudcc/psync/stringcompat.h"
 
 #if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY

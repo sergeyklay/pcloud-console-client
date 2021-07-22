@@ -17,17 +17,13 @@
 
 #include <stddef.h>
 
-#ifdef HAVE_CONFIG_H
-#include "pcloudcc/config.h"
-#endif
-
 #include "pcloudcc/psync/compiler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
+#if !HAVE_STRLCPY
 /*! \brief Size-bounded string copying.
  *
  * Is designed to be safer, more consistent, and less error prone replacements
@@ -46,7 +42,7 @@ extern "C" {
  *       \a src must be NUL-terminated.
  */
 size_t strlcpy(char *dst, const char *src, size_t size);
-#endif  /* !defined(HAVE_STRLCPY) || !HAVE_STRLCPY */
+#endif  /* !HAVE_STRLCPY */
 
 #ifdef __cplusplus
 }  /* extern "C" */

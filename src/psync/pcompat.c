@@ -15,6 +15,8 @@
 #include <stddef.h>
 #include <time.h>
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/deviceid.h"
