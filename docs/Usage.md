@@ -56,11 +56,14 @@ Also, there are several commands that the running service can execute. Commands 
 $ pcloudcc -k
 ```
 
-or  starting the daemon with `-o`. Available commands are:
-- `startcrypto <crypto pass>` - starts crypto using given password.
-- `stopcrypto` – stops the crypto.
-- `finalize` – stops the running daemon.
-- `quit`, `q` - exits the current client. Daemon stays alive.
+or  starting the daemon with `-o`.
+
+Available commands are:
+- `startcrypto <crypto pass>`: Start a crypto session using given password.
+- `stopcrypto`: Stop a crypto session.
+- `menu`, `m`: Print help menu.
+- `finalize`: Stop the running daemon.
+- `quit`, `q`: Quit the current client (daemon stays alive).
 
 #### Example usage scenario
 

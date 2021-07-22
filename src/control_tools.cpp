@@ -15,6 +15,7 @@
 
 #include "overlay_client.h"
 
+#include "pcloudcc/version.hpp"
 #include "control_tools.hpp"
 #include "pclcli.hpp"
 
@@ -62,21 +63,53 @@ void finalize() {
     free(errm);
 }
 
-void process_commands() {
-  std::cout<< "Supported commands are: " << std::endl << "startcrypto <crypto pass>, stopcrypto, finalize, q, quit" << std::endl;
-  std::cout<< "> " ;
-  for (std::string line; std::getline(std::cin, line);) {
-    if (!line.compare("finalize")) {
-      finalize();
-      break;}
-    else if (!line.compare("stopcrypto"))
-       stop_crypto();
-    else if (!line.compare(0,11,"startcrypto",0,11) && (line.length() > 12))
-      start_crypto(line.c_str() + 12);
-    else if (!line.compare("q") || !line.compare("quit"))
-      break;
+void static print_menu() {
+  std::cout << std::endl << "Help:" << std::endl << std::endl;
 
-    std::cout<< "> " ;
+  std::cout << "  Crypto"<< std::endl;
+  std::cout << "   startcrypto <crypto pass>   "
+            << "Start a crypto session using given password"
+            << std::endl;
+  std::cout << "   stopcrypto                  "
+            << "Stop a crypto session"
+            << std::endl
+            << std::endl;
+
+  std::cout << "  Misc"<< std::endl;
+  std::cout << "   m, menu                     "
+            << "Print this menu"
+            << std::endl
+            << std::endl;
+
+  std::cout << "  Exit"<< std::endl;
+  std::cout << "   finalize                    "
+            << "Stop the running daemon"
+            << std::endl;
+  std::cout << "   q, quit                     "
+            << "Quit the current client (daemon stays alive)"
+            << std::endl
+            << std::endl;
+}
+
+void process_commands() {
+  std::cout << "Welcome to" << PCLOUD_VERSION_FULL << std::endl << std::endl;
+  std::cout<< "Command (m for help): ";
+
+  for (std::string line; std::getline(std::cin, line) ; ) {
+    if (!line.compare(0, 11, "startcrypto", 0, 11) && (line.length() > 12)) {
+      start_crypto(line.c_str() + 12);
+    } else if (line == "stopcrypto") {
+      stop_crypto();
+    } else if (line == "menu" || line == "m") {
+      print_menu();
+    } else if (line == "quit" || line == "q") {
+      break;
+    } else if (line ==  "finalize") {
+      finalize();
+      break;
+    }
+
+    std::cout<< "Command (m for help): " ;
   }
 }
 
