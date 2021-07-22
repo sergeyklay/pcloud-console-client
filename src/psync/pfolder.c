@@ -261,37 +261,44 @@ static int psync_add_path_to_list_decode(psync_list *lst, psync_folderid_t folde
   psync_folderid_t cfolderid;
   size_t len;
   uint32_t flags;
-  e=NULL;
+  e = NULL;
+
   while (1) {
-    if (folderid==0) {
+    if (folderid == 0) {
       if (e)
         psync_list_add_head(lst, &e->list);
-      e=(string_list *)psync_malloc(sizeof(string_list));
-      e->str=(char *)e;
-      e->len=0;
+      e = (string_list *)psync_malloc(sizeof(string_list));
+      e->str = (char *)e;
+      e->len = 0;
       psync_list_add_head(lst, &e->list);
       return 0;
     }
-    res=psync_sql_query_rdlock("SELECT parentfolderid, name, flags FROM folder WHERE id=?");
+
+    res = psync_sql_query_rdlock(
+        "SELECT parentfolderid, name, flags FROM folder WHERE id=?");
     psync_sql_bind_uint(res, 1, folderid);
-    row=psync_sql_fetch_row(res);
-    if (unlikely_log(!row))
+    row = psync_sql_fetch_row(res);
+    if (unlikely(!row))
       break;
-    cfolderid=folderid;
-    flags=psync_get_number(row[2]);
-    folderid=psync_get_number(row[0]);
-    str=psync_get_lstring(row[1], &len);
-    c=str_to_list_element(str, len);
+
+    cfolderid = folderid;
+    flags = psync_get_number(row[2]);
+    folderid = psync_get_number(row[0]);
+    str = psync_get_lstring(row[1], &len);
+    c = str_to_list_element(str, len);
     psync_sql_free_result(res);
     if (e) {
-      if (flags&PSYNC_FOLDER_FLAG_ENCRYPTED) {
-        e=str_list_decode(cfolderid, e);
-        if (unlikely_log(!e))
+      if (flags & PSYNC_FOLDER_FLAG_ENCRYPTED) {
+        e = str_list_decode(cfolderid, e);
+        if (unlikely(!e)) {
+          log_error("failed to decode folder with ID %lu",
+                    (unsigned long)cfolderid);
           goto err;
+        }
       }
       psync_list_add_head(lst, &e->list);
     }
-    e=c;
+    e = c;
   }
   psync_sql_free_result(res);
 err:

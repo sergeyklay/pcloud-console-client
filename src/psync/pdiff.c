@@ -2327,7 +2327,7 @@ static int psync_diff_check_quota(psync_socket *sock) {
   binresult *res;
   const binresult *uq;
   uint64_t oused_quota, result;
-  oused_quota=used_quota;
+  oused_quota = used_quota;
   res = send_command(sock, "userinfo", diffparams);
   if (!res)
     return -1;
@@ -2342,9 +2342,10 @@ static int psync_diff_check_quota(psync_socket *sock) {
   } else {
     uq = psync_check_result(res, "usedquota", PARAM_NUM);
     if (likely_log(uq))
-      used_quota=uq->num;
+      used_quota = uq->num;
   }
-  if (used_quota!=oused_quota) {
+
+  if (used_quota != oused_quota) {
     log_warn(
         "corrected locally calculated quota from %lu to %lu",
         (unsigned long)oused_quota, (unsigned long)used_quota
@@ -2352,9 +2353,16 @@ static int psync_diff_check_quota(psync_socket *sock) {
     psync_set_uint_value("usedquota", used_quota);
     psync_send_eventid(PEVENT_USEDQUOTA_CHANGED);
   }
-  uq=psync_find_result(psync_find_result(res, "apiserver", PARAM_HASH), "binapi", PARAM_ARRAY);
+
+  uq = psync_find_result(
+      psync_find_result(res, "apiserver", PARAM_HASH),
+      "binapi",
+      PARAM_ARRAY
+  );
+
   if (uq->length)
     psync_apipool_set_server(uq->array[0]->str);
+
   psync_free(res);
   return 0;
 }

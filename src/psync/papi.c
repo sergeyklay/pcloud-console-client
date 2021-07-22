@@ -636,12 +636,12 @@ const binresult *psync_check_result(const binresult *res, const char *name,
       if (likely(res->hash[i].value->type == type))
         return res->hash[i].value;
 
-      log_fatal("type error for key %s, expected %s got %s",
+      log_fatal("type error for key \"%s\", expected %s got %s",
                 name, type_names[type], type_names[res->hash[i].value->type]);
       return NULL;
     }
   }
 
-  log_warn("the expected key %s was not found in the response", name);
+  log_warn("the expected key \"%s\" was not found in the response", name);
   return NULL;
 }
