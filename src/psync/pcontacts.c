@@ -279,7 +279,7 @@ void cache_shares() {
     binparam params[] = {P_STR("auth", psync_my_auth), P_STR("timeformat", "timestamp")};
     api = psync_apipool_get();
     if (unlikely(!api)) {
-      log_warn("Can't get api from the pool. No pool ?\n");
+      log_warn("Can't get api from the pool. No pool?");
       return;
     }
     bres = send_command(api, "listshares", params);
@@ -287,7 +287,7 @@ void cache_shares() {
     binparam params[] = {P_STR("username", psync_my_user), P_STR("password", psync_my_pass), P_STR("timeformat", "timestamp")};
     api = psync_apipool_get();
     if (unlikely(!api)) {
-      log_warn("Can't get api from the pool. No pool ?\n");
+      log_warn("Can't get api from the pool. No pool?");
       return;
     }
     bres = send_command(api, "listshares", params);
