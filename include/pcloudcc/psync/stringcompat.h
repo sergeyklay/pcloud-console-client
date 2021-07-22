@@ -17,10 +17,6 @@
 
 #include <stddef.h>
 
-#ifdef HAVE_CONFIG_H
-#include "pcloudcc/config.h"
-#endif
-
 #include "pcloudcc/psync/compiler.h"
 
 #ifdef __cplusplus

@@ -11,6 +11,8 @@
 
 #include <ctype.h>
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/deviceid.h"
@@ -2335,14 +2337,18 @@ static int psync_diff_check_quota(psync_socket *sock) {
   result = psync_find_result(res, "result", PARAM_NUM)->num;
   if (unlikely(result)) {
     log_error(
-        "api returned error %lu during the \"userinfo\" command: %s",
+        "api returned error %lu during the \"userinfo\" request: %s",
         (unsigned)result,
         psync_find_result(res, "error", PARAM_STR)->str
     );
   } else {
     uq = psync_check_result(res, "usedquota", PARAM_NUM);
-    if (likely_log(uq))
+    if (likely(uq)) {
       used_quota = uq->num;
+    } else {
+      log_debug(
+          "request to \"userinfo\" returned a response without \"usedquota\"");
+    }
   }
 
   if (used_quota != oused_quota) {

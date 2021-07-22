@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <netinet/in.h>
 
+#include "config.h"
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/sockets.h"
@@ -98,10 +99,10 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   struct sockaddr_un addr;
 #endif
 
-  int fd, rc;
+  int fd;
   size_t path_size = strlen(path);
   size_t mess_size = sizeof(message) + path_size + 1;
-  int bw = 0;
+  size_t rc, bw = 0;
   char *curbuf = NULL;
   char *buf = NULL;
   char sendbuf[mess_size];
@@ -179,7 +180,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
     curbuf = curbuf + rc;
   }
 
-  log_trace("%s: send %d bytes", cmd2str(cmd), bw);
+  log_trace("%s: send %lu bytes", cmd2str(cmd), bw);
   if (bw != mes->length) {
     log_error("%s: communication error", cmd2str(cmd));
     *out = (void *)strdup("Communication error");

@@ -8,6 +8,8 @@
 #include <gtest/gtest.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "pcloudcc/psync/stringcompat.h"
 
 class CompatTest : public ::testing::Test {
