@@ -30,6 +30,7 @@ releases, in reverse chronological order.
 * Provided a brand-new libpsync API to get and set device information used
   during the pCloud API calls.
 * Reworked commands mode to provide better user experience.
+* Added `-V`, `--version` program options to display program version information.
 
 ### Bugfix
 

@@ -174,7 +174,9 @@ jobs:
         run: cmake --build build --config ${{ matrix.build-type }} --target install
 
       - name: Minimal Install Test
-        run: install/bin/pcloudcc --help
+        run: |
+          install/bin/pcloudcc --version
+          install/bin/pcloudcc --help
 
       - name: Run Tests
         run: cmake --build build --target test
