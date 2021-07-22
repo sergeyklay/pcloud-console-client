@@ -621,9 +621,8 @@ const binresult *psync_do_find_result(const binresult *res, const char *name,
   return empty_types[type];
 }
 
-const binresult *psync_do_check_result(const binresult *res, const char *name,
-                                       uint32_t type, const char *file,
-                                       const char *function, int unsigned line) {
+const binresult *psync_check_result(const binresult *res, const char *name,
+                                    uint32_t type) {
   uint32_t i;
 
   if (unlikely(!res || res->type!=PARAM_HASH)) {
@@ -632,14 +631,17 @@ const binresult *psync_do_check_result(const binresult *res, const char *name,
     return NULL;
   }
 
-  for (i=0; i<res->length; i++)
-    if (!strcmp(res->hash[i].key, name)) {
-      if (likely(res->hash[i].value->type==type))
+  for (i = 0; i < res->length; i++) {
+    if (strcmp(res->hash[i].key, name) == 0) {
+      if (likely(res->hash[i].value->type == type))
         return res->hash[i].value;
 
-      log_fatal("type error for key %s, expected %s got %s", name, type_names[type], type_names[res->hash[i].value->type]);
+      log_fatal("type error for key %s, expected %s got %s",
+                name, type_names[type], type_names[res->hash[i].value->type]);
       return NULL;
     }
+  }
 
+  log_warn("the expected key %s was not found in the response", name);
   return NULL;
 }
