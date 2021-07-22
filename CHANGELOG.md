@@ -34,10 +34,9 @@ releases, in reverse chronological order.
 ### Bugfix
 
 * Fixed typos and misspellings in the documentation.
-* Fixed redefinition of `_GNU_SOURCE` and `_DARWIN_USE_64_BIT_INODE`.
-* Fixed `control_tools` function signatures.
-* Add missed return for `clib::pclcli::start_crypto`,
-  `clib::pclcli::stop_crypto` and `clib::pclcli::finalize`.
+* Fixed redefinition of some macro.
+* Added return result to functions where it was skipped by mistake.
+* Fixed incorrect function signatures detected by the static analyzer.
 * Fixed device name by removing extra characters from output `lsb_release`
   on some systems. For example double quotes in `"Gentoo Base System release 2.7"`
 * Fixed reading response message while processing commands leading to a segfault.
@@ -48,7 +47,8 @@ releases, in reverse chronological order.
 * CMake < 3.12 is no longer supported.
 * Reorganized project structure to follow modern C/C++ projects structure.
 * Instructed the compiler to use `-std=gnu99` when this is needed.
-* Rename `pcloudcc_lib` shared library to `libpsync`.
+* Rename `pcloudcc_lib` static library to shared `libpsync`.
+* Bumped `libpsync` soversion from 1 to 2.
 * Bumped Mbed TLS from 1.3.10 to 2.25.0.
 * Bumped SQLite3 from 3.12.0 to 3.36.0.
 * Replaced deprecated `readdir_r()` function with `readdir()`.
@@ -61,3 +61,4 @@ releases, in reverse chronological order.
 * Provided ability to run tests (although there are still few of them, there
   is a technical possibility).
 * The default mount point on macOS where drive to be mounted is "pCloud Drive" now.
+* `psync_check_result()` now is function, not macro.
