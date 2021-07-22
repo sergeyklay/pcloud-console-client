@@ -40,7 +40,7 @@ int do_call_contactlist(result_visitor vis, void *param) {
     psync_apipool_release(sock);
   else {
     psync_apipool_release_bad(sock);
-    log_warn("Send command returned invalid result.\n");
+    log_error("command \"contacts\" returned invalid result");
     return -1;
   }
 
@@ -48,7 +48,7 @@ int do_call_contactlist(result_visitor vis, void *param) {
 
   if (!contacts->length) {
     psync_free(bres);
-    log_warn("Account_users returned empty result!\n");
+    log_error("command \"contacts\" returned empty result");
     return -2;
   } else {
     psync_sql_start_transaction();
@@ -296,7 +296,7 @@ void cache_shares() {
     psync_apipool_release(api);
   else {
     psync_apipool_release_bad(api);
-    log_warn("Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result");
     return;
   }
   result=psync_find_result(bres, "result", PARAM_NUM)->num;
