@@ -14,6 +14,8 @@
 
 #include <pthread.h>
 
+#include "pcloudcc/psync/compat.h"
+
 #include "psynclib.h"
 #include "ptree.h"
 #include "pintervaltree.h"
@@ -21,11 +23,11 @@
 #include "psettings.h"
 #include "pfsfolder.h"
 #include "pfstasks.h"
-#include "pcloudcc/psync/compat.h"
 #include "pcrypto.h"
 #include "pcrc32c.h"
 #include "ptimer.h"
 #include "plibs.h"
+#include "logger.h"
 
 #if defined(P_OS_POSIX)
 #define psync_fs_need_per_folder_refresh() psync_fs_need_per_folder_refresh_f()
@@ -130,7 +132,8 @@ static inline void psync_fs_do_lock_file(psync_openfile_t *of, const char *file,
     psync_nanotime(&tm);
     tm.tv_sec+=60;
     if (pthread_mutex_timedlock(&of->mutex, &tm)) {
-      debug(D_BUG, "could not lock mutex of file %s taken in %s:%lu by thread %s, aborting", of->currentname, of->lockfile, of->lockline, of->lockthread);
+      log_fatal("could not lock mutex of file %s taken in %s:%lu by thread %s, aborting",
+                of->currentname, of->lockfile, of->lockline, of->lockthread);
       abort();
     }
   }
