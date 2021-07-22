@@ -42,7 +42,10 @@ static void read_x_bytes(int socket, void *buf, size_t nbyte) {
   size_t result;
   while (br < nbyte) {
     result = read(socket, buf + br, nbyte - br);
-    if (result < 1) {
+    if (result <= 0) {
+      if (result == -1) {
+        log_error("failed to read socket: %s", strerror(errno));
+      }
       return;
     }
     br += result;
