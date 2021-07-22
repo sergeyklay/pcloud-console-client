@@ -126,10 +126,7 @@ endif()
 
 
 configure_file("${PROJECT_SOURCE_DIR}/cmake/config.h.in"
-    "${PROJECT_SOURCE_DIR}/include/pcloudcc/config.h")
-
-target_compile_definitions(psync
-    PUBLIC HAVE_CONFIG_H)
+    "${CMAKE_CURRENT_LIST_DIR}/config.h")
 
 target_link_libraries(psync
     PRIVATE pcloud::logger
