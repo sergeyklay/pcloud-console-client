@@ -440,7 +440,7 @@ int psync_ssl_read(void *sslconn, void *buf, int num) {
     return ret;
 
   psync_set_ssl_error(conn, ret);
-  if (ret < 0) {
+  if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
     mbedtls_log_error(ret);
   }
 

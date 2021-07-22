@@ -33,7 +33,7 @@ typedef enum overlay_command_ {
 
 int query_state(overlay_file_state_t *state, char *path);
 
-int send_call(overlay_command_t cmd, const char *path, int *ret, void * out);
+int send_call(overlay_command_t cmd, const char *path, int *ret, char **out);
 
 #ifdef __cplusplus
 }  /* extern "C" */

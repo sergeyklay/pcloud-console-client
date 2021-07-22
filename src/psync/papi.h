@@ -86,7 +86,6 @@ typedef struct {
   do_prepare_command(cmd, strlen(cmd), params, sizeof(params)/sizeof(binparam), datalen, alloclen, retlen)
 
 #define psync_find_result(res, name, type) psync_do_find_result(res, name, type, __FILE__, __FUNCTION__, __LINE__)
-#define psync_check_result(res, name, type) psync_do_check_result(res, name, type, __FILE__, __FUNCTION__, __LINE__)
 
 psync_socket *psync_api_connect(const char *hostname, int usessl);
 void psync_api_conn_fail_inc();
@@ -100,6 +99,6 @@ int get_result_async(psync_socket *sock, async_result_reader *reader) PSYNC_NONN
 unsigned char *do_prepare_command(const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, size_t additionalalloc, size_t *retlen);
 binresult *do_send_command(psync_socket *sock, const char *command, size_t cmdlen, const binparam *params, size_t paramcnt, int64_t datalen, int readres) PSYNC_NONNULL(1, 2);
 const binresult *psync_do_find_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line) PSYNC_NONNULL(2) PSYNC_PURE;
-const binresult *psync_do_check_result(const binresult *res, const char *name, uint32_t type, const char *file, const char *function, int unsigned line)  PSYNC_NONNULL(2) PSYNC_PURE;
+const binresult *psync_check_result(const binresult *res, const char *name, uint32_t type)  PSYNC_NONNULL(2) PSYNC_PURE;
 
 #endif  /* PCLOUD_PSYNC_PAPI_H_ */

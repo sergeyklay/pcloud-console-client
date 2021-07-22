@@ -11,6 +11,7 @@
 #include <boost/program_options.hpp>
 
 #include "pcloudcc/version.hpp"
+#include "pcloudcc/psync/version.h"
 #include "pclcli.hpp"
 #include "control_tools.hpp"
 
@@ -18,8 +19,6 @@ namespace po = boost::program_options;
 namespace ct = control_tools;
 
 int main(int argc, char **argv) {
-  std::cout << PCLOUD_VERSION_FULL << std::endl;
-
   std::string username;
   std::string password;
 
@@ -32,19 +31,20 @@ int main(int argc, char **argv) {
   bool crypto = false;
 
   try {
-    po::options_description desc("Allowed options");
+    po::options_description desc("Options");
     desc.add_options()
-        ("help,h", "produce help message")
-        ("username,u", po::value<std::string>(&username), "pCloud account name")
-        ("password,p", po::bool_switch(&passwordsw), "Ask pCloud account password")
-        ("crypto,c",  po::bool_switch(&crypto), "Ask crypto password")
-        ("passascrypto,y", po::value<std::string>(), "Use user password as crypto password also")
-        ("daemonize,d", po::bool_switch(&daemon), "Daemonize the process")
-        ("commands ,o", po::bool_switch(&commands), "Parent stays alive and processes commands")
-        ("mountpoint,m", po::value<std::string>(), "Mount point where drive to be mounted")
-        ("commands_only,k", po::bool_switch(&commands_only),"Daemon already started pass only commands")
-        ("newuser,n", po::bool_switch(&newuser), "Switch if this is a new user to be registered")
-        ("savepassword,s", po::bool_switch(&save_pass), "Save password in database")
+        ("help,h", "Display this information.")
+        ("version,V", "Display program version information.")
+        ("username,u", po::value<std::string>(&username), "pCloud account name.")
+        ("password,p", po::bool_switch(&passwordsw), "Ask pCloud account password.")
+        ("crypto,c",  po::bool_switch(&crypto), "Ask crypto password.")
+        ("passascrypto,y", po::value<std::string>(), "Use user password as crypto password also.")
+        ("daemonize,d", po::bool_switch(&daemon), "Daemonize the process.")
+        ("commands ,o", po::bool_switch(&commands), "Parent stays alive and processes commands.")
+        ("mountpoint,m", po::value<std::string>(), "Mount point where drive to be mounted.")
+        ("commands_only,k", po::bool_switch(&commands_only),"Daemon already started pass only commands.")
+        ("newuser,n", po::bool_switch(&newuser), "Switch if this is a new user to be registered.")
+        ("savepassword,s", po::bool_switch(&save_pass), "Save password in database.")
     ;
 
     po::variables_map vm;
@@ -65,7 +65,26 @@ int main(int argc, char **argv) {
     }
 
     if (vm.count("help")) {
-      std::cout << desc << "\n";
+      std::cout << "Usage: pcloudcc [options]" << std::endl;
+      std::cout << desc << std::endl;
+      return 0;
+    }
+
+    if (vm.count("version")) {
+      std::cout << PCLOUD_VERSION_FULL << " ("
+                << PSYNC_VERSION_FULL
+                << ") " << std::endl;
+
+      std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
+
+      std::cout << "This is free software; see the source for copying "
+                   "conditions.  There is NO"
+                << std::endl;
+
+      std::cout << "warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+                   "PARTICULAR PURPOSE."
+                << std::endl
+                << std::endl;
       return 0;
     }
 

@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/sockets.h"
 #include "overlay_client.h"
 #include "logger.h"
@@ -78,17 +79,29 @@ int query_state(overlay_file_state_t *state, char *path) {
   return 0;
 }
 
-int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
+static const char* cmd2str(const overlay_command_t cmd) {
+  switch (cmd) {
+    case STARTCRYPTO: return "startcrypto";
+    case STOPCRYPTO: return "stopcrypto";
+    case FINALIZE: return "finalize";
+    case LISTSYNC: return "listsync";
+    case ADDSYNC: return "addsync";
+    case STOPSYNC: return "stopsync";
+    default: return "unknown";
+  }
+}
+
+int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 #ifdef P_OS_MACOSX
   struct sockaddr_in addr;
 #else
   struct sockaddr_un addr;
 #endif
 
-  int fd,rc;
-  int path_size = strlen(path);
-  int mess_size = sizeof(message) + path_size + 1;
-  int bytes_writen = 0;
+  int fd, rc;
+  size_t path_size = strlen(path);
+  size_t mess_size = sizeof(message) + path_size + 1;
+  int bw = 0;
   char *curbuf = NULL;
   char *buf = NULL;
   char sendbuf[mess_size];
@@ -101,15 +114,14 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
     logger_initialized = 1;
   }
 
-  log_debug("send_call[%d]: start processing for the path: %s", cmd, path);
+  log_info("%s: start processing command", cmd2str(cmd));
 
 #ifdef P_OS_MACOSX
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == - 1) {
-    if (out)
-      /* TODO: Is this works? */
-      out = (void *)strndup("Unable to create INET socket", 28);
-    *ret = - 1;
-    return - 1;
+    log_error("%s: failed to create INET socket", cmd2str(cmd));
+    *out = (void *)strdup("Unable to create INET socket");
+    *ret = -1;
+    return -1;
   }
 
   memset (&addr, 0, sizeof (addr));
@@ -117,67 +129,63 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   addr. sin_addr . s_addr = htonl(INADDR_LOOPBACK);
   addr. sin_port = htons(POVERLAY_PORT);
   if (connect (fd, (struct sockaddr *)&addr, sizeof(struct sockaddr)) == - 1) {
-    if (out)
-      /* TODO: Is this works? */
-      out = (void *)strndup("Unable to connect to INET socket", 32);
-    *ret = - 2;
-    return - 2;
+    log_error("%s: failed to connect to socket %s",
+              cmd2str(cmd), strerror(errno));
+    *out = (void *)strdup("Unable to connect to INET socket");
+    *ret = -2;
+    return -1;
   }
 #else
   const char *socket_path = psync_unix_socket_path();
   if (!socket_path) {
-    log_error("send_call[%d]: socket path is empty", cmd);
-    if (out)
-      out = (void *)strdup("Unable to determine a path for UNIX socket");
+    log_error("%s: socket path is empty", cmd2str(cmd));
+    *out = (void *)strdup("Unable to determine a path for UNIX socket");
     *ret = - 1;
     return -1;
   }
 
   /* 1. Open a socket */
   if ((fd = socket(AF_UNIX, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
-    log_error("send_call[%d]: failed to create socket %s", cmd, socket_path);
-    if (out)
-      out = (void *)strdup("Unable to create UNIX socket");
-    *ret = - 3;
-    return - 3;
+    log_error("%s: failed to create socket %s", cmd2str(cmd), socket_path);
+    *out = (void *)strdup("Unable to create UNIX socket");
+    *ret = -3;
+    return -1;
   }
 
   /* 2. Create an address */
   bzero((char *)&addr, sizeof(addr));
   addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+  strlcpy(addr.sun_path, socket_path, sizeof(addr.sun_path));
 
   /* 3. Initiate a connection on a socket */
   if (connect(fd, (struct sockaddr*)&addr, SUN_LEN(&addr)) == - 1) {
-    log_error("send_call[%d]: failed to connect to socket %s",
-              cmd, strerror(errno));
-    if (out)
-      out = (void *)strdup("Unable to connect to UNIX socket");
-    *ret = - 4;
-    return - 4;
+    log_error("%s: failed to connect to socket %s",
+              cmd2str(cmd), strerror(errno));
+    *out = (void *)strdup("Unable to connect to UNIX socket");
+    *ret = -4;
+    return -1;
   }
 #endif
 
   message *mes = (message *)sendbuf;
   memset (mes, 0, mess_size);
   mes->type = cmd;
-  strncpy(mes->value, path, path_size);
+  strlcpy(mes->value, path, path_size + 1);
   mes->length = mess_size;
   curbuf = (char *)mes;
 
-  while ((rc = write(fd,curbuf,(mes-> length - bytes_writen))) > 0) {
-    bytes_writen += rc;
+  while ((rc = write(fd, curbuf, (mes->length - bw))) > 0) {
+    bw += rc;
     curbuf = curbuf + rc;
   }
 
-  log_trace("send_call[%d]: send %d bytes", cmd, bytes_writen);
-  if (bytes_writen != mes->length) {
-    log_error("send_call[%d]: communication error", cmd);
-    if (out)
-      out = (void *)strdup("Communication error");
-      close(fd);
-    *ret = - 5;
-    return - 5;
+  log_trace("%s: send %d bytes", cmd2str(cmd), bw);
+  if (bw != mes->length) {
+    log_error("%s: communication error", cmd2str(cmd));
+    *out = (void *)strdup("Communication error");
+    close(fd);
+    *ret = -5;
+    return -1;
   }
 
   /* read 2x8 bytes because the message structure is not packed and
@@ -185,8 +193,10 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   read_x_bytes(fd, sizeof(uint64_t), &msg_type);
   read_x_bytes(fd, sizeof(uint64_t), &bufflen);
   if (bufflen <= 0) {
-    log_error("send_call[%d]: message size could not be read: %d", cmd, bufflen);
-    return -6;
+    log_error("%s: message size could not be read: %d", cmd2str(cmd), bufflen);
+    *out = (void *)strdup("Communication error");
+    *ret = -5;
+    return -1;
   }
 
   buf = (char *)malloc(bufflen);
@@ -197,10 +207,9 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, void *out) {
   read_x_bytes(fd, bufflen - 2 * sizeof(uint64_t), buf + 2 * sizeof(uint64_t));
 
   *ret = rep->type;
-  log_debug("send_call[%d]: response message: %s", cmd, rep->value);
+  log_debug("%s: response message: %s", cmd2str(cmd), rep->value);
 
-  if (out)
-    out = (void *)strndup(rep->value, rep->length - sizeof(message));
+  *out = (void *)strdup(rep->value);
   close(fd);
 
   return 0;

@@ -30,14 +30,11 @@ WITH_DOCS=${WITH_DOCS:-ON}
 WITH_SYSTEMD=${WITH_SYSTEMD:-ON}
 WITH_TESTS=${WITH_TESTS:-ON}
 
-# Clear any cache
-rm -rf "$(pwd)/build"
-
 conan install . -if=build -pr="${CONAN_PROFILE}" --build=missing
 
 echo "Configure client"
 cmake -S . -B build \
-  -DPCLOUD_MAINTAINER_LOGS_LEVEL=0 \
+  -DPCLOUD_MAINTAINER_LOGS_LEVEL=1 \
   -DPCLOUD_MAINTAINER_LOGS="${WITH_LOGS}" \
   -DPCLOUD_MAINTAINER_LOG_FILE="" \
   -DPCLOUD_BUILD_DOC="${WITH_DOCS}" \
