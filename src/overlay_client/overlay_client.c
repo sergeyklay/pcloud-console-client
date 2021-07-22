@@ -32,15 +32,23 @@ typedef struct message_ {
 
 static int logger_initialized = 0;
 
-static void read_x_bytes(int socket, unsigned int x, void *buffer) {
-  int bytesRead = 0;
-  int result;
-  while (bytesRead < x) {
-    result = read(socket, buffer + bytesRead, x - bytesRead);
-    if (result < 1 ) {
+/*! \brief Reads \a nbyte bytes from \a socket.
+ *
+ *  Attempts to read \a nbyte bytes of data from the object referenced by the
+ *  descriptor \a socket into the buffer pointed to by \a buf.
+ */
+static void read_x_bytes(int socket, void *buf, size_t nbyte) {
+  size_t br = 0;
+  size_t result;
+  while (br < nbyte) {
+    result = read(socket, buf + br, nbyte - br);
+    if (result <= 0) {
+      if (result == -1) {
+        log_error("failed to read socket: %s", strerror(errno));
+      }
       return;
     }
-    bytesRead += result;
+    br += result;
   }
 }
 
@@ -191,8 +199,8 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 
   /* read 2x8 bytes because the message structure is not packed and
    * the members are aligned on a 8-byte boundary */
-  read_x_bytes(fd, sizeof(uint64_t), &msg_type);
-  read_x_bytes(fd, sizeof(uint64_t), &bufflen);
+  read_x_bytes(fd, &msg_type, sizeof(uint64_t));
+  read_x_bytes(fd, &bufflen, sizeof(uint64_t));
   if (bufflen <= 0) {
     log_error("%s: message size could not be read: %d", cmd2str(cmd), bufflen);
     *out = (void *)strdup("Communication error");
@@ -205,9 +213,9 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   rep->length = bufflen;
   rep->type = msg_type;
 
-  read_x_bytes(fd, bufflen - 2 * sizeof(uint64_t), buf + 2 * sizeof(uint64_t));
+  read_x_bytes(fd, buf + 2 * sizeof(uint64_t), bufflen - 2 * sizeof(uint64_t));
 
-  *ret = rep->type;
+  *ret = (int)rep->type;
   log_debug("%s: response message: %s", cmd2str(cmd), rep->value);
 
   *out = (void *)strdup(rep->value);

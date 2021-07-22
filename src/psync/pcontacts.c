@@ -1,36 +1,21 @@
-/* Copyright (c) 2013-2015 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2015 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <stdio.h>
 
 #include "pcontacts.h"
 #include "papi.h"
 #include "plibs.h"
 #include "pnetlibs.h"
 #include "pfileops.h"
-
-#include <stdio.h>
+#include "logger.h"
 
 int do_call_contactlist(result_visitor vis, void *param) {
   psync_socket *sock;
@@ -55,16 +40,15 @@ int do_call_contactlist(result_visitor vis, void *param) {
     psync_apipool_release(sock);
   else {
     psync_apipool_release_bad(sock);
-    debug(D_WARNING, "Send command returned invalid result.\n");
+    log_error("command \"contacts\" returned invalid result");
     return -1;
   }
 
-
   contacts = psync_find_result(bres, "contacts", PARAM_ARRAY);
 
-  if (!contacts->length){
+  if (!contacts->length) {
     psync_free(bres);
-    debug(D_WARNING, "Account_users returned empty result!\n");
+    log_error("command \"contacts\" returned empty result");
     return -2;
   } else {
     psync_sql_start_transaction();
@@ -98,7 +82,7 @@ void cache_contacts() {
 }
 
 
-static int create_contact(psync_list_builder_t *builder, void *element, psync_variant_row row){
+static int create_contact(psync_list_builder_t *builder, void *element, psync_variant_row row) {
   contact_info_t *contact;
   const char *str;
   size_t len;
@@ -162,7 +146,6 @@ static void process_shares_out(const binresult *shares_out, int shcnt) {
 
     q=psync_sql_prep_statement("REPLACE INTO sharedfolder (id, folderid, ctime, permissions, userid, mail, name, isincoming) "
                                                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    //debug(D_NOTICE, "INSERT NORMAL SHARE OUT id: %lld", (long long) psync_find_result(share, "shareid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 1, psync_find_result(share, "shareid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 2, psync_find_result(share, "folderid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 3, psync_find_result(share, "created", PARAM_NUM)->num);
@@ -189,7 +172,6 @@ static void process_shares_in(const binresult *shares_in, int shcnt) {
 
     q=psync_sql_prep_statement("REPLACE INTO sharedfolder (id, isincoming, folderid, ctime, permissions, userid, mail, name) "
                                                   "VALUES (?, 1, ?, ?, ?, ?, ?, ?)");
-    //debug(D_WARNING, "INSERT NORMAL SHARE IN id: %lld", (long long) psync_find_result(share, "shareid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 1, psync_find_result(share, "shareid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 2, psync_find_result(share, "folderid", PARAM_NUM)->num);
     psync_sql_bind_uint(q, 3, psync_find_result(share, "created", PARAM_NUM)->num);
@@ -297,7 +279,7 @@ void cache_shares() {
     binparam params[] = {P_STR("auth", psync_my_auth), P_STR("timeformat", "timestamp")};
     api = psync_apipool_get();
     if (unlikely(!api)) {
-      debug(D_WARNING, "Can't get api from the pool. No pool ?\n");
+      log_warn("Can't get api from the pool. No pool?");
       return;
     }
     bres = send_command(api, "listshares", params);
@@ -305,7 +287,7 @@ void cache_shares() {
     binparam params[] = {P_STR("username", psync_my_user), P_STR("password", psync_my_pass), P_STR("timeformat", "timestamp")};
     api = psync_apipool_get();
     if (unlikely(!api)) {
-      debug(D_WARNING, "Can't get api from the pool. No pool ?\n");
+      log_warn("Can't get api from the pool. No pool?");
       return;
     }
     bres = send_command(api, "listshares", params);
@@ -314,18 +296,17 @@ void cache_shares() {
     psync_apipool_release(api);
   else {
     psync_apipool_release_bad(api);
-    debug(D_WARNING, "Send command returned in valid result.\n");
+    log_warn("Send command returned in valid result");
     return;
   }
   result=psync_find_result(bres, "result", PARAM_NUM)->num;
   if (unlikely(result)) {
     errorret = psync_find_result(bres, "error", PARAM_STR)->str;
-    debug(D_WARNING, "command listshares returned error code %u message %s", (unsigned)result, errorret);
+    log_warn("command listshares returned error code %u message %s", (unsigned)result, errorret);
     psync_process_api_error(result);
     psync_free(bres);
     return;
   }
-
 
   shares = psync_find_result(bres, "shares", PARAM_HASH);
 
@@ -340,14 +321,14 @@ void cache_shares() {
   array=psync_find_result(shares, "outgoing", PARAM_ARRAY);
 
   shcnt = array->length;
-  if (shcnt){
+  if (shcnt) {
     process_shares_out(array, shcnt);
   }
 
   array=psync_find_result(shares, "incoming", PARAM_ARRAY);
 
   shcnt = array->length;
-  if (shcnt){
+  if (shcnt) {
     process_shares_in(array, shcnt);
   }
 
@@ -355,14 +336,14 @@ void cache_shares() {
   array=psync_find_result(shares, "outgoing", PARAM_ARRAY);
 
   shcnt = array->length;
-  if (shcnt){
+  if (shcnt) {
     process_shares_req_out(array, shcnt);
   }
 
   array=psync_find_result(shares, "incoming", PARAM_ARRAY);
 
   shcnt = array->length;
-  if (shcnt){
+  if (shcnt) {
     process_shares_req_in(array, shcnt);
   }
 
