@@ -2337,7 +2337,7 @@ static int psync_diff_check_quota(psync_socket *sock) {
   result = psync_find_result(res, "result", PARAM_NUM)->num;
   if (unlikely(result)) {
     log_error(
-        "api returned error %lu during the \"userinfo\" request: %s",
+        "command \"userinfo\" returned error %lu: %s",
         (unsigned)result,
         psync_find_result(res, "error", PARAM_STR)->str
     );
@@ -2347,7 +2347,7 @@ static int psync_diff_check_quota(psync_socket *sock) {
       used_quota = uq->num;
     } else {
       log_debug(
-          "request to \"userinfo\" returned a response without \"usedquota\"");
+          "command \"userinfo\" returned result without \"usedquota\"");
     }
   }
 
