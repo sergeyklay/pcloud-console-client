@@ -13,7 +13,7 @@
 #
 #     docker run -it --rm --privileged pcloudcc:ubuntu-18.04 bash
 
-FROM ubuntu:18.04
+FROM ubuntu:rolling
 
 LABEL description="Build image to use for CI/CD with Ubuntu 18.04" \
       maintainer="Serghei Iakovlev <egrep@protonmail.ch>"
