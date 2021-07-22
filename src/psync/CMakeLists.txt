@@ -125,7 +125,7 @@ else()
 endif()
 
 
-configure_file("${PROJECT_SOURCE_DIR}/cmake/config.h.in"
+configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
     "${CMAKE_CURRENT_LIST_DIR}/config.h")
 
 target_link_libraries(psync
