@@ -264,6 +264,7 @@ uint32_t psync_download_state() {
   return 0;
 }
 
+/* TODO: Catch SIGTERM and other signals to run this function */
 void psync_destroy() {
   psync_do_run=0;
   psync_fs_stop();
