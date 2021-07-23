@@ -38,17 +38,16 @@ static int logger_initialized = 0;
  *  descriptor \a socket into the buffer pointed to by \a buf.
  */
 static void read_x_bytes(int socket, void *buf, size_t nbyte) {
-  size_t br = 0;
-  size_t result;
+  size_t ret, br = 0;
   while (br < nbyte) {
-    result = read(socket, buf + br, nbyte - br);
-    if (result <= 0) {
-      if (result == -1) {
+    ret = read(socket, buf + br, nbyte - br);
+    if (ret <= 0) {
+      if (ret == -1) {
         log_error("failed to read socket: %s", strerror(errno));
       }
       return;
     }
-    br += result;
+    br += ret;
   }
 }
 
@@ -126,21 +125,26 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   log_info("%s: start processing command", cmd2str(cmd));
 
 #ifdef P_OS_MACOSX
-  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == - 1) {
-    log_error("%s: failed to create INET socket", cmd2str(cmd));
-    *out = (void *)strdup("Unable to create INET socket");
+  /* 1. Open a socket */
+  if ((fd = socket(PF_INET, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
+    log_error("%s: failed to create socket on port %u", cmd2str(cmd), POVERLAY_PORT);
+    if (out)
+      *out = (void *)strdup("Unable to create INET socket");
     *ret = -1;
     return -1;
   }
 
-  memset (&addr, 0, sizeof (addr));
-  addr. sin_family = AF_INET;
-  addr. sin_addr . s_addr = htonl(INADDR_LOOPBACK);
-  addr. sin_port = htons(POVERLAY_PORT);
+  /* 2. Create an address */
+  bzero((char *)&addr, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  addr.sin_port = htons(POVERLAY_PORT);
+
   if (connect (fd, (struct sockaddr *)&addr, sizeof(struct sockaddr)) == - 1) {
-    log_error("%s: failed to connect to socket %s",
+    log_error("%s: failed to connect to socket: %s",
               cmd2str(cmd), strerror(errno));
-    *out = (void *)strdup("Unable to connect to INET socket");
+    if (out)
+      *out = (void *)strdup("Unable to connect to INET socket");
     *ret = -2;
     return -1;
   }
@@ -191,7 +195,8 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   log_trace("%s: send %lu bytes", cmd2str(cmd), bw);
   if (bw != mes->length) {
     log_error("%s: communication error", cmd2str(cmd));
-    *out = (void *)strdup("Communication error");
+    if (out)
+      *out = (void *)strdup("Communication error");
     close(fd);
     *ret = -5;
     return -1;
@@ -203,7 +208,8 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   read_x_bytes(fd, &bufflen, sizeof(uint64_t));
   if (bufflen <= 0) {
     log_error("%s: message size could not be read: %d", cmd2str(cmd), bufflen);
-    *out = (void *)strdup("Communication error");
+    if (out)
+      *out = (void *)strdup("Communication error");
     *ret = -5;
     return -1;
   }
@@ -218,7 +224,8 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   *ret = (int)rep->type;
   log_debug("%s: response message: %s", cmd2str(cmd), rep->value);
 
-  *out = (void *)strdup(rep->value);
+  if (out)
+    *out = (void *)strdup(rep->value);
   close(fd);
 
   return 0;
