@@ -63,3 +63,5 @@ releases, in reverse chronological order.
   is a technical possibility).
 * The default mount point on macOS where drive to be mounted is "pCloud Drive" now.
 * `psync_check_result()` now is function, not macro.
+* Reduce code duplication by merging `poverlay-linux.c` and `poverlay-macos.c`
+  into `poverlay-posix.c`.
