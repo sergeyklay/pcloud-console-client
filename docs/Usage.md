@@ -62,7 +62,6 @@ Available commands are:
 - `startcrypto <crypto pass>`: Start a crypto session using given password.
 - `stopcrypto`: Stop a crypto session.
 - `menu`, `m`: Print help menu.
-- `finalize`: Stop the running daemon.
 - `quit`, `q`: Quit the current client (daemon stays alive).
 
 #### Example usage scenario
@@ -108,19 +107,9 @@ for setting up autostart. Alternatively, you can try following the instructions 
 
 #### Linux (systemd)
 
-Traditionally, you must add a command line to the shell script in
-`/etc/rc` (which is read by `init` when the system boots), using the `&`
-notation to run client in the background. This would suffice for most
-situations, but it isn't always possible.
-
-These days, many popular operating systems have a replacement `init`
-program with its own configuration language. Example configuration files
-for several of these are included in 
-[`extras`](https://github.com/sergeyklay/pcloud-console-client/tree/master/extras)
-directory, but the most common is probably **systemd**, which reads a service
-definition for lines describing command to run at various times. To use
-systemd integration the project should be built  with `-DPCLOUD_WITH_SYSTEMD=ON`
-flag.  You can autostart client on system boot as follows:
+To use systemd integration the project should be built  with
+`-DPCLOUD_WITH_SYSTEMD=ON` flag.  You can autostart client on system boot as
+follows:
 
 As your own user enable it:
 
@@ -128,7 +117,7 @@ As your own user enable it:
 $ systemctl --user enable pcloudcc@<example@myemail.com>.service
 ```
 
-Finally, start it:
+Then, start it:
 
 ```sh
 $ systemctl --user start pcloudcc@<example@myemail.com>.service
@@ -149,5 +138,5 @@ In order to connect to the EU region api server the environment variable
 $ PCLOUD_REGION_EU=true pcloudcc -u example@myemail.com -p -s -n
 ```
 
-Users with accounts in the EU region will get an login failed error
+Users with accounts in the EU region will get a login failed error
 when connection to the US server and vice versa.

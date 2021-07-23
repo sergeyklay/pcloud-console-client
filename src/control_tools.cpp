@@ -49,20 +49,6 @@ void stop_crypto() {
     free(errm);
 }
 
-void finalize() {
-  int ret;
-  overlay_command_t cmd = FINALIZE;
-  char *errm = nullptr;
-
-  if (send_call(cmd, "", &ret, &errm) == -1)
-    std::cout << "Failed to finalize crypto: " << errm << std::endl;
-  else
-    std::cout << "Exiting..." << std::endl;
-
-  if (errm)
-    free(errm);
-}
-
 void static print_menu() {
   std::cout << std::endl << "Help:" << std::endl << std::endl;
 
@@ -82,9 +68,6 @@ void static print_menu() {
             << std::endl;
 
   std::cout << "  Exit"<< std::endl;
-  std::cout << "   finalize                    "
-            << "Stop the running daemon"
-            << std::endl;
   std::cout << "   q, quit                     "
             << "Quit the current client (daemon stays alive)"
             << std::endl
@@ -103,9 +86,6 @@ void process_commands() {
     } else if (line == "menu" || line == "m") {
       print_menu();
     } else if (line == "quit" || line == "q") {
-      break;
-    } else if (line ==  "finalize") {
-      finalize();
       break;
     }
 

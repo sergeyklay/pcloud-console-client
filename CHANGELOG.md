@@ -16,6 +16,11 @@ releases, in reverse chronological order.
   included psync library version, file name, line number, function name, and
   the error message itself. This project isn't maintained by the pCloud's
   employees, so this functionality has been removed.
+* Removed `finalize` command from commands mode as it was almost useless and
+  errors prone. For example, we were forced to hard terminate the program,
+  w/o response on socket request and this has always been regarded as a
+  communication error. To stop already running daemon just stop it in the
+  same way as you started it - using standard system tools.
 
 ### Features
 

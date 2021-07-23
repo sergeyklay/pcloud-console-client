@@ -239,13 +239,6 @@ int clib::pclcli::stop_crypto (const char* path, void * rep) {
   return 0;
 }
 
-int clib::pclcli::finalize (const char* path, void * rep) {
-  psync_destroy();
-  exit(0); /* yes, exit the program */
-
-  return 0;
-}
-
 int clib::pclcli::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t *folders = psync_get_sync_list();
   rep = psync_malloc(sizeof(folders));
@@ -303,8 +296,7 @@ int clib::pclcli::init() {
 
   psync_add_overlay_callback(20, &clib::pclcli::start_crypto);
   psync_add_overlay_callback(21, &clib::pclcli::stop_crypto);
-  psync_add_overlay_callback(22, &clib::pclcli::finalize);
-  psync_add_overlay_callback(23, &clib::pclcli::list_sync_folders);
+  psync_add_overlay_callback(22, &clib::pclcli::list_sync_folders);
 
   return 0;
 }

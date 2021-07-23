@@ -25,7 +25,6 @@ typedef enum overlay_file_state_ {
 typedef enum overlay_command_ {
   STARTCRYPTO = 20,
   STOPCRYPTO,
-  FINALIZE,
   LISTSYNC,
   ADDSYNC,
   STOPSYNC
