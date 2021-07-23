@@ -15,11 +15,12 @@
 #include <array>
 #include <memory>
 
-#ifdef P_CONSOLE_CLIENT
+#include "pcloudcc/psync/compat.h"
+
+#if defined P_CONSOLE_CLIENT && defined P_OS_LINUX
 #include <regex>
 #endif
 
-#include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/deviceid.h"
 #include "psynclib.h"
 #include "poverlay.h"
@@ -116,24 +117,49 @@ void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata){
     std::cout <<"event" << event << std::endl;
 }
 
+static const char *start_crypto_status(int status) {
+  switch (status) {
+  case PSYNC_CRYPTO_START_SUCCESS: return "SUCCESS";
+  case PSYNC_CRYPTO_START_NOT_SUPPORTED: return "NOT_SUPPORTED";
+  case PSYNC_CRYPTO_START_ALREADY_STARTED: return "ALREADY_STARTED";
+  case PSYNC_CRYPTO_START_CANT_CONNECT: return "CANT_CONNECT";
+  case PSYNC_CRYPTO_START_NOT_LOGGED_IN: return "NOT_LOGGED_IN";
+  case PSYNC_CRYPTO_START_NOT_SETUP: return "NOT_SETUP";
+  case PSYNC_CRYPTO_START_UNKNOWN_KEY_FORMAT: return "UNKNOWN_KEY_FORMAT";
+  case PSYNC_CRYPTO_START_BAD_PASSWORD: return "BAD_PASSWORD";
+  case PSYNC_CRYPTO_START_KEYS_DONT_MATCH: return "KEYS_DONT_MATCH";
+  case PSYNC_CRYPTO_START_UNKNOWN_ERROR: return "UNKNOWN_ERROR";
+  default: return "Unrecognized status";
+  }
+}
+
 static int lib_setup_crypto() {
-  int ret = 0;
-  ret = psync_crypto_issetup();
+  int ret = psync_crypto_issetup();
+  const char *password = clib::pclcli::get_lib().get_crypto_pass().c_str();
+
   if (ret) {
-    ret = psync_crypto_start(clib::pclcli::get_lib().get_crypto_pass().c_str());
-    std::cout << "crypto is setup, login result=" << ret << std::endl;
+    ret = psync_crypto_start(password);
+    std::cout << "Crypto session successfully started, status: "
+              << start_crypto_status(ret) << std::endl;
   } else {
-    std::cout << "crypto is not setup" << std::endl;
-    ret = psync_crypto_setup(clib::pclcli::get_lib().get_crypto_pass().c_str(), "no hint");
+    std::cout << "Setting up crypto session..." << std::endl;
+    ret = psync_crypto_setup(password, "no hint");
     if (ret)
-      std::cout << "crypto setup failed" << std::endl;
+      std::cout << "Setup crypto session failed" << std::endl;
     else{
-      ret = psync_crypto_start(clib::pclcli::get_lib().get_crypto_pass().c_str());
-      std::cout << "crypto setup successful, start=" << ret << std::endl;
-      ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr) ;
-      std::cout << "creating folder=" << ret << std::endl;
+      ret = psync_crypto_start(password);
+      std::cout << "Crypto session setup completed successfully, status: "
+                << start_crypto_status(ret) << std::endl;
+
+      std::cout << "Creating crypto directory..." << std::endl;
+      ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr);
+      if (ret < 0) {
+        std::cout << "Failed to create crypto directory, status: "
+                  << ret << std::endl;
+      }
     }
   }
+
   return ret;
 }
 
@@ -154,8 +180,8 @@ static char const * status2string (uint32_t status){
     case PSTATUS_CONNECTING: return "CONNECTING";
     case PSTATUS_SCANNING: return "SCANNING";
     case PSTATUS_USER_MISMATCH: return "USER_MISMATCH";
-    case PSTATUS_ACCOUT_EXPIRED: return "ACCOUT_EXPIRED";
-    default :return "Unrecognized status";
+    case PSTATUS_ACCOUNT_EXPIRED: return "ACCOUNT_EXPIRED";
+    default: return "Unrecognized status";
   }
 }
 

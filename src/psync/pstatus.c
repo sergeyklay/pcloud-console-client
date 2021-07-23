@@ -45,9 +45,9 @@ static uint32_t psync_calc_status() {
     else if (statuses[PSTATUS_TYPE_AUTH]==PSTATUS_AUTH_BADTOKEN)
       return PSTATUS_BAD_LOGIN_TOKEN;
     else if (statuses[PSTATUS_TYPE_AUTH]==PSTATUS_AUTH_EXPIRED)
-      return PSTATUS_ACCOUT_EXPIRED;
+      return PSTATUS_ACCOUNT_EXPIRED;
     else if (statuses[PSTATUS_TYPE_AUTH]==PSTATUS_AUTH_TFAERR)
-      return PSTATUS_ACCOUT_TFAERR;
+      return PSTATUS_ACCOUNT_TFAERR;
     else {
       log_error("invalid PSTATUS_TYPE_AUTH %d", statuses[PSTATUS_TYPE_AUTH]);
       return -1;
