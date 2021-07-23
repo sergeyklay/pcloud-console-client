@@ -15,11 +15,12 @@
 #include <array>
 #include <memory>
 
+#include "pcloudcc/psync/compat.h"
+
 #if defined P_CONSOLE_CLIENT && defined P_OS_LINUX
 #include <regex>
 #endif
 
-#include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/deviceid.h"
 #include "psynclib.h"
 #include "poverlay.h"
