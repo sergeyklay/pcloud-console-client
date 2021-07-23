@@ -89,8 +89,8 @@ typedef struct {
 #define PSTATUS_CONNECTING             12
 #define PSTATUS_SCANNING               13
 #define PSTATUS_USER_MISMATCH          14
-#define PSTATUS_ACCOUT_EXPIRED         15
-#define PSTATUS_ACCOUT_TFAERR          16
+#define PSTATUS_ACCOUNT_EXPIRED         15
+#define PSTATUS_ACCOUNT_TFAERR          16
 
 typedef struct pstatus_struct_ {
   const char *downloadstr; /* formatted string with the status of uploads */
@@ -214,7 +214,7 @@ typedef struct pstatus_struct_ {
 #define PSYNC_CRYPTO_SETUP_UNKNOWN_ERROR 5
 
 #define PSYNC_CRYPTO_START_SUCCESS         0
-#define PSYNC_CRYPTO_START_NOT_SUPPORTED   -1
+#define PSYNC_CRYPTO_START_NOT_SUPPORTED (-1)
 #define PSYNC_CRYPTO_START_ALREADY_STARTED 1
 #define PSYNC_CRYPTO_START_CANT_CONNECT    2
 #define PSYNC_CRYPTO_START_NOT_LOGGED_IN   3
