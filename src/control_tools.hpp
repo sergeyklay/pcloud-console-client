@@ -13,7 +13,6 @@
 namespace control_tools {
   void start_crypto(const char *pass);
   void stop_crypto();
-  void finalize();
   void daemonize(bool do_commands);
   void process_commands();
 }

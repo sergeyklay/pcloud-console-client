@@ -91,7 +91,6 @@ static const char* cmd2str(const overlay_command_t cmd) {
   switch (cmd) {
     case STARTCRYPTO: return "startcrypto";
     case STOPCRYPTO: return "stopcrypto";
-    case FINALIZE: return "finalize";
     case LISTSYNC: return "listsync";
     case ADDSYNC: return "addsync";
     case STOPSYNC: return "stopsync";
