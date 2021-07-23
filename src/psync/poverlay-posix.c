@@ -15,7 +15,7 @@
 
 #ifdef P_OS_LINUX
 #include <sys/un.h>
-#include "configt.h"
+#include "config.h"
 #include "pcloudcc/psync/stringcompat.h"  /* strlcpy */
 #else
 #include <stdlib.h>
