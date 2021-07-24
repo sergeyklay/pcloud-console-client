@@ -48,7 +48,10 @@ releases, in reverse chronological order.
   on some systems. For example double quotes in `"Gentoo Base System release 2.7"`
 * Fixed reading response message while processing commands leading to a segfault.
 * The previous version of the client output the user's crypto password in cleartext
-  to the standard output. This behavior has been fixed.
+  to the standard output. This behavior has been changed.
+* Previously, when trying to start a crypto session with an incorrect password, the
+  client reported success, although the crypto session didn't start.
+  This has been fixed.
 
 ### Changes
 
