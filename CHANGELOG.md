@@ -21,6 +21,7 @@ releases, in reverse chronological order.
   w/o response on socket request and this has always been regarded as a
   communication error. To stop already running daemon just stop it in the
   same way as you started it - using standard system tools.
+* Removed never used and no longer required `PSYNC_CRYPTO_START_NOT_SUPPORTED`.
 
 ### Features
 
@@ -72,3 +73,4 @@ releases, in reverse chronological order.
 * `psync_check_result()` now is function, not macro.
 * Reduce code duplication by merging `poverlay-linux.c` and `poverlay-macos.c`
   into `poverlay-posix.c`.
+* Moved `PSYNC_CRYPTO_START_*` defines from `psynclib.h` to `pcloudcrypto.h`.

@@ -17,11 +17,25 @@
 #include "pcrypto.h"
 #include "papi.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PSYNC_CRYPTO_SYM_FLAG_ISDIR 1
 
 #define PSYNC_CRYPTO_SECTOR_SIZE 4096
 
 #define PSYNC_CRYPTO_MAX_ERROR 511
+
+#define PSYNC_CRYPTO_START_SUCCESS            0
+#define PSYNC_CRYPTO_START_ALREADY_STARTED    1
+#define PSYNC_CRYPTO_START_CANT_CONNECT       2
+#define PSYNC_CRYPTO_START_NOT_LOGGED_IN      3
+#define PSYNC_CRYPTO_START_NOT_SETUP          4
+#define PSYNC_CRYPTO_START_UNKNOWN_KEY_FORMAT 5
+#define PSYNC_CRYPTO_START_BAD_PASSWORD       6
+#define PSYNC_CRYPTO_START_KEYS_DONT_MATCH    7
+#define PSYNC_CRYPTO_START_UNKNOWN_ERROR      8
 
 #define PSYNC_CRYPTO_UNLOADED_SECTOR_ENCODER ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+1))
 #define PSYNC_CRYPTO_LOADING_SECTOR_ENCODER  ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+2))
@@ -60,5 +74,9 @@ static inline int psync_crypto_is_error(const void *ptr) {
 static inline int psync_crypto_to_error(const void *ptr) {
   return -((int)(uintptr_t)ptr);
 }
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
 
 #endif  /* PCLOUD_PSYNC_PCLOUDCRYPTO_H_ */
