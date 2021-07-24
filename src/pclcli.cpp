@@ -134,29 +134,34 @@ static const char *start_crypto_status(int status) {
 }
 
 static int lib_setup_crypto() {
-  int ret = psync_crypto_issetup();
   const char *password = clib::pclcli::get_lib().get_crypto_pass().c_str();
+  int ret = psync_crypto_issetup();
 
+  /* Is already setup? */
   if (ret) {
+    /* Try to unlock using given password */
     ret = psync_crypto_start(password);
-    std::cout << "Crypto session successfully started, status: "
-              << start_crypto_status(ret) << std::endl;
-  } else {
-    std::cout << "Setting up crypto session..." << std::endl;
-    ret = psync_crypto_setup(password, "no hint");
-    if (ret)
-      std::cout << "Setup crypto session failed" << std::endl;
-    else{
-      ret = psync_crypto_start(password);
-      std::cout << "Crypto session setup completed successfully, status: "
-                << start_crypto_status(ret) << std::endl;
+    std::cout << "Unlock Crypto Folder: " << start_crypto_status(ret)
+              << std::endl;
 
-      std::cout << "Creating crypto directory..." << std::endl;
-      ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr);
-      if (ret < 0) {
-        std::cout << "Failed to create crypto directory, status: "
-                  << ret << std::endl;
-      }
+    return ret;
+  }
+
+  std::cout << "Setting up crypto session..." << std::endl;
+  ret = psync_crypto_setup(password, "no hint");
+
+  if (ret)
+    std::cout << "Setup crypto session failed" << std::endl;
+  else {
+    ret = psync_crypto_start(password);
+    std::cout << "Crypto session setup completed successfully, status: "
+              << start_crypto_status(ret) << std::endl;
+
+    std::cout << "Creating Crypto Folder..." << std::endl;
+    ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr);
+    if (ret < 0) {
+      std::cout << "Failed to create Crypto Folder, status: "
+                << ret << std::endl;
     }
   }
 
