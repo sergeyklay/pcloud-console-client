@@ -34,20 +34,34 @@ output short options description:
 
 ```sh
 $ pcloudcc --help
+           ________                __
+    ____  / ____/ /___  __  ______/ /
+   / __ \/ /   / / __ \/ / / / __  /
+  / /_/ / /___/ / /_/ / /_/ / /_/ /
+ / .___/\____/_/\____/\__,_/\__,_/
+/_/
+
+pCloud Console Client 3.0.0
+
+
 Usage: pcloudcc [options]
+
 Options:
-  -h [ --help ]             Display this information.
-  -V [ --version ]          Display program version information.
-  -u [ --username ] arg     pCloud account name.
-  -p [ --password ]         Ask pCloud account password.
-  -c [ --crypto ]           Ask crypto password.
-  -y [ --passascrypto ] arg Use user password as crypto password also.
-  -d [ --daemonize ]        Daemonize the process.
-  -o [ --commands  ]        Parent stays alive and processes commands.
-  -m [ --mountpoint ] arg   Mount point where drive to be mounted.
-  -k [ --commands_only ]    Daemon already started pass only commands.
-  -n [ --newuser ]          Switch if this is a new user to be registered.
-  -s [ --savepassword ]     Save password in database.
+  -k,--commands-only      Daemon already started pass only commands
+  -d,--daemonize          Daemonize the process
+  -u,--username TEXT      pCloud account name
+  -p,--password           Ask pCloud account password
+  -c,--crypto             Ask crypto password
+  -y,--passascrypto       Use user password as crypto password also
+  -m,--mountpoint TEXT    Mount point where drive to be mounted
+  -n,--newuser            Use if this is a new user to be registered
+  -o,--commands           Parent stays alive and processes commands
+  -s,--savepassword       Save password in database
+  -V,--version            Print client version information and quit
+  --vernum                Print the version of the client as integer and quit
+  --dumpversion           Print the version of the client and don't do anything else
+  -h,--help               Print this help message and quit
+
 ```
 
 Also, there are several commands that the running service can execute. Commands are passed using

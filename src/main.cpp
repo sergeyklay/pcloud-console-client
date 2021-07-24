@@ -28,14 +28,36 @@ static inline std::vector<std::string> prepare_args(int argc, char** argv) {
   return args;
 }
 
+static inline std::string make_description() {
+  std::string out;
+
+  const auto BANNER = R"BANNER(
+           ________                __
+    ____  / ____/ /___  __  ______/ /
+   / __ \/ /   / / __ \/ / / / __  /
+  / /_/ / /___/ / /_/ / /_/ / /_/ /
+ / .___/\____/_/\____/\__,_/\__,_/
+/_/)BANNER";
+
+  std::string banner(BANNER);
+  out += banner.replace(0, 1, "") + "\n\n";
+
+  out += std::string(PCLOUD_PACKAGE_NAME) + " ";
+  out += std::string(PCLOUD_VERSION);
+  out += "\n\n";
+
+  return out;
+}
+
 int main(int argc, char** argv) {
   auto args = prepare_args(argc, argv);
   auto out =
       std::string(PCLOUD_PACKAGE_NAME) + " " + std::string(PCLOUD_VERSION);
 
-  CLI::App app{out};
-  app.description(out);
+  CLI::App app{};
+
   app.name("pcloudcc");
+  app.description(make_description());
 
   app.get_formatter()->column_width(26);
   app.get_formatter()->label("OPTIONS", "options");
@@ -51,7 +73,8 @@ int main(int argc, char** argv) {
                "Daemonize the process");
 
   std::string username;
-  app.add_option("--username,-u", username, "pCloud account name");
+  app.add_option("--username,-u", username,
+                 "pCloud account name");
 
   bool passwordsw = false;
   app.add_flag("--password,-p", passwordsw, "Ask pCloud account password");
@@ -79,9 +102,45 @@ int main(int argc, char** argv) {
   app.add_flag("--savepassword,-s", commands,
                "Save password in database");
 
-  CLI::Option *version = app.add_flag(
-      "-V, --version",
+  auto version = [](int /* count */){
+    std::cout << PCLOUD_VERSION_FULL << " ("
+              << PSYNC_VERSION_FULL
+              << ") " << std::endl;
+
+    std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
+
+    std::cout << "This is free software; see the source for copying "
+                 "conditions.  There is NO"
+              << std::endl;
+
+    std::cout << "warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+                 "PARTICULAR PURPOSE."
+              << std::endl
+              << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--version,-V",
+      version,
       "Print client version information and quit");
+
+  auto vernum = [](int /* count */){
+    std::cout << PCLOUD_VERSION_ID << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--vernum",
+      vernum,
+      "Print the version of the client as integer and quit");
+
+  auto dumpversion = [](int /* count */){
+    std::cout << PCLOUD_VERSION << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--dumpversion",
+      dumpversion,
+      "Print the version of the client and don't do anything else");
 
   // Remove help flag because it shortcuts all processing
   app.set_help_flag();
@@ -89,40 +148,22 @@ int main(int argc, char** argv) {
   // Add custom flag that activates help
   auto help = app.add_flag("-h, --help", "Print this help message and quit");
 
+  // Process commands
   try {
     app.parse(args);
+
+    if (*help) {
+      throw CLI::CallForHelp();
+    }
 
     if (commands_only) {
       control_tools::process_commands();
       return EXIT_SUCCESS;
     }
 
-    if (*help) {
-      throw CLI::CallForHelp();
-    }
-
-    if (*version) {
-      std::cout << PCLOUD_VERSION_FULL << " ("
-                << PSYNC_VERSION_FULL
-                << ") " << std::endl;
-
-      std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
-
-      std::cout << "This is free software; see the source for copying "
-                   "conditions.  There is NO"
-                << std::endl;
-
-      std::cout << "warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-                   "PARTICULAR PURPOSE."
-                << std::endl
-                << std::endl;
-      return 0;
-    }
-
     if (username.empty()) {
       std::cout << "Username option is required" << std::endl;
-      std::cout << "Daemonize" << daemonize << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     console_client::clibrary::pclcli::get_lib().set_username(username);
 
@@ -172,7 +213,6 @@ int main(int argc, char** argv) {
               << std::endl;
     return EXIT_FAILURE;
   }
-
 
   return EXIT_SUCCESS;
 }
