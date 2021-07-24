@@ -10,10 +10,12 @@
 #ifndef PCLOUD_CONTROL_TOOLS_HPP_
 #define PCLOUD_CONTROL_TOOLS_HPP_
 
+#include "pcloudcc/psync/compiler.h"
+
 namespace control_tools {
   void start_crypto(const char *pass);
   void stop_crypto();
-  void daemonize(bool do_commands);
+  PSYNC_NO_RETURN void daemonize(bool do_commands);
   void process_commands();
 }
 
