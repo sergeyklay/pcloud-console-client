@@ -72,6 +72,21 @@ void psync_cloud_crypto_clean_cache() {
   psync_cache_clean_starting_with_one_of(prefixes, ARRAY_SIZE(prefixes));
 }
 
+const char *psync_cloud_crypto_strstart(int status) {
+  switch (status) {
+    case PSYNC_CRYPTO_START_SUCCESS: return "SUCCESS";
+    case PSYNC_CRYPTO_START_ALREADY_STARTED: return "ALREADY_STARTED";
+    case PSYNC_CRYPTO_START_CANT_CONNECT: return "CANT_CONNECT";
+    case PSYNC_CRYPTO_START_NOT_LOGGED_IN: return "NOT_LOGGED_IN";
+    case PSYNC_CRYPTO_START_NOT_SETUP: return "NOT_SETUP";
+    case PSYNC_CRYPTO_START_UNKNOWN_KEY_FORMAT: return "UNKNOWN_KEY_FORMAT";
+    case PSYNC_CRYPTO_START_BAD_PASSWORD: return "BAD_PASSWORD";
+    case PSYNC_CRYPTO_START_KEYS_DONT_MATCH: return "KEYS_DONT_MATCH";
+    case PSYNC_CRYPTO_START_UNKNOWN_ERROR: return "UNKNOWN_ERROR";
+    default: return "Unrecognized status";
+  }
+}
+
 static void psync_cloud_crypto_setup_save_to_db(const unsigned char *rsapriv, size_t rsaprivlen, const unsigned char *rsapub, size_t rsapublen,
                                                 const unsigned char *salt, size_t saltlen, size_t iterations, time_t expires,
                                                 const char *publicsha1, const char *privatesha1) {

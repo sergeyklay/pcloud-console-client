@@ -41,6 +41,8 @@ extern "C" {
 #define PSYNC_CRYPTO_LOADING_SECTOR_ENCODER  ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+2))
 #define PSYNC_CRYPTO_FAILED_SECTOR_ENCODER   ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+3))
 
+const char *psync_cloud_crypto_strstart(int status);
+
 void psync_cloud_crypto_clean_cache();
 
 int psync_cloud_crypto_setup(const char *password, const char *hint);
