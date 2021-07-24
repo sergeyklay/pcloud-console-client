@@ -214,7 +214,6 @@ typedef struct pstatus_struct_ {
 #define PSYNC_CRYPTO_SETUP_UNKNOWN_ERROR   5
 
 #define PSYNC_CRYPTO_STOP_SUCCESS          0
-#define PSYNC_CRYPTO_STOP_NOT_SUPPORTED  (-1)
 #define PSYNC_CRYPTO_STOP_NOT_STARTED      1
 
 #define PSYNC_CRYPTO_HINT_SUCCESS          0

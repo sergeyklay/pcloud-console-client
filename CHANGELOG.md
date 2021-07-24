@@ -21,7 +21,8 @@ releases, in reverse chronological order.
   w/o response on socket request and this has always been regarded as a
   communication error. To stop already running daemon just stop it in the
   same way as you started it - using standard system tools.
-* Removed never used and no longer required `PSYNC_CRYPTO_START_NOT_SUPPORTED`.
+* Removed the following never used and no longer required defines:
+  `PSYNC_CRYPTO_START_NOT_SUPPORTED`, `PSYNC_CRYPTO_STOP_NOT_SUPPORTED`.
 
 ### Features
 
