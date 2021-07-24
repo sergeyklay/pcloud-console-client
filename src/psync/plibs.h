@@ -258,7 +258,7 @@ int psync_sql_rollback_transaction();
 void psync_sql_transation_add_callbacks(psync_transaction_callback_t commit_callback, psync_transaction_callback_t rollback_callback, void *ptr);
 
 char *psync_sql_cellstr(const char *sql) PSYNC_NONNULL(1);
-int64_t psync_sql_cellint(const char *sql, int64_t dflt) PSYNC_NONNULL(1);
+int64_t psync_sql_cellint(const char *sql, int64_t def_val) PSYNC_NONNULL(1);
 char **psync_sql_rowstr(const char *sql) PSYNC_NONNULL(1);
 psync_variant *psync_sql_row(const char *sql) PSYNC_NONNULL(1);
 int psync_sql_reset(psync_sql_res *res) PSYNC_NONNULL(1);

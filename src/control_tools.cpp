@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <string>
 
+#include "pcloudcrypto.h"
 #include "overlay_client.h"
 
 #include "pcloudcc/version.hpp"
@@ -23,13 +24,20 @@ namespace control_tools {
 
 void start_crypto(const char *pass) {
   int ret;
-  overlay_command_t cmd = STARTCRYPTO;
   char *errm = nullptr;
+  int status = send_call(STARTCRYPTO, pass, &ret, &errm);
 
-  if (send_call(cmd, pass, &ret, &errm) == -1)
+  /* -1 can only be returned from overlay_client */
+  if (status == -1) {
     std::cout << "Failed to start crypto: " << errm << std::endl;
-  else
-    std::cout << "Crypto started" << std::endl;
+  } else if (status == PSYNC_CRYPTO_START_SUCCESS) {
+    std::cout << "Crypto session started" << std::endl;
+  } else if (status == PSYNC_CRYPTO_START_ALREADY_STARTED) {
+    std::cout << "Crypto session has already started" << std::endl;
+  } else {
+    std::cout << "Failed to start crypto: "
+              << psync_cloud_crypto_strstart(status) << std::endl;
+  }
 
   if (errm)
     free(errm);
@@ -37,13 +45,19 @@ void start_crypto(const char *pass) {
 
 void stop_crypto() {
   int ret;
-  overlay_command_t cmd = STOPCRYPTO;
   char *errm = nullptr;
+  int status = send_call(STOPCRYPTO, "", &ret, &errm);
 
-  if (send_call(cmd, "", &ret, &errm) == -1)
+  /* -1 can only be returned from overlay_client */
+  if (status == -1) {
     std::cout << "Failed to stop crypto: " << errm << std::endl;
-  else
-    std::cout << "Crypto Stopped" << std::endl;
+  } else if (status == PSYNC_CRYPTO_STOP_NOT_STARTED) {
+    std::cout << "Crypto session is not started" << std::endl;
+  } else if (status == PSYNC_CRYPTO_STOP_SUCCESS) {
+    std::cout << "Crypto session was stop" << std::endl;
+  } else {
+    std::cout << "Failed to stop crypto: unknown status" << errm << std::endl;
+  }
 
   if (errm)
     free(errm);

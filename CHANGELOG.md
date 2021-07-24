@@ -21,6 +21,7 @@ releases, in reverse chronological order.
   w/o response on socket request and this has always been regarded as a
   communication error. To stop already running daemon just stop it in the
   same way as you started it - using standard system tools.
+* Removed never used and no longer required `PSYNC_CRYPTO_*_NOT_SUPPORTED` defines.
 
 ### Features
 
@@ -46,6 +47,13 @@ releases, in reverse chronological order.
 * Fixed device name by removing extra characters from output `lsb_release`
   on some systems. For example double quotes in `"Gentoo Base System release 2.7"`
 * Fixed reading response message while processing commands leading to a segfault.
+* The previous version of the client output the user's crypto password in cleartext
+  to the standard output. This behavior has been changed.
+* Previously, when trying to start a crypto session with an incorrect password, the
+  client reported success, although the crypto session didn't start.
+  This has been fixed.
+* Previously, when trying to stop not started crypto session, client reported
+  success. This has been fixed.
 
 ### Changes
 
@@ -70,3 +78,4 @@ releases, in reverse chronological order.
 * `psync_check_result()` now is function, not macro.
 * Reduce code duplication by merging `poverlay-linux.c` and `poverlay-macos.c`
   into `poverlay-posix.c`.
+* Moved `PSYNC_CRYPTO_*` defines from `psynclib.h` to `pcloudcrypto.h`.

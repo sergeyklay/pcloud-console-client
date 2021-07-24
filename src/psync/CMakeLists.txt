@@ -115,13 +115,13 @@ target_include_directories(psync
           ${FUSE_INCLUDE_DIR})
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
-  target_link_libraries(psync PRIVATE CONAN_PKG::openssl)
-  target_compile_definitions(psync PRIVATE P_SSL_OPENSSL)
+  target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
+  target_compile_definitions(psync PUBLIC P_SSL_OPENSSL)
 elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
-  target_compile_definitions(psync PRIVATE P_SSL_SECURETRANSPORT)
+  target_compile_definitions(psync PUBLIC P_SSL_SECURETRANSPORT)
 else()
-  target_link_libraries(psync PRIVATE CONAN_PKG::mbedtls)
-  target_compile_definitions(psync PRIVATE P_SSL_MBEDTLS)
+  target_link_libraries(psync PUBLIC CONAN_PKG::mbedtls)
+  target_compile_definitions(psync PUBLIC P_SSL_MBEDTLS)
 endif()
 
 

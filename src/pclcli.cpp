@@ -16,6 +16,7 @@
 #include <memory>
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcrypto.h"
 
 #if defined P_CONSOLE_CLIENT && defined P_OS_LINUX
 #include <regex>
@@ -117,46 +118,35 @@ void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata){
     std::cout <<"event" << event << std::endl;
 }
 
-static const char *start_crypto_status(int status) {
-  switch (status) {
-  case PSYNC_CRYPTO_START_SUCCESS: return "SUCCESS";
-  case PSYNC_CRYPTO_START_NOT_SUPPORTED: return "NOT_SUPPORTED";
-  case PSYNC_CRYPTO_START_ALREADY_STARTED: return "ALREADY_STARTED";
-  case PSYNC_CRYPTO_START_CANT_CONNECT: return "CANT_CONNECT";
-  case PSYNC_CRYPTO_START_NOT_LOGGED_IN: return "NOT_LOGGED_IN";
-  case PSYNC_CRYPTO_START_NOT_SETUP: return "NOT_SETUP";
-  case PSYNC_CRYPTO_START_UNKNOWN_KEY_FORMAT: return "UNKNOWN_KEY_FORMAT";
-  case PSYNC_CRYPTO_START_BAD_PASSWORD: return "BAD_PASSWORD";
-  case PSYNC_CRYPTO_START_KEYS_DONT_MATCH: return "KEYS_DONT_MATCH";
-  case PSYNC_CRYPTO_START_UNKNOWN_ERROR: return "UNKNOWN_ERROR";
-  default: return "Unrecognized status";
-  }
-}
-
 static int lib_setup_crypto() {
-  int ret = psync_crypto_issetup();
   const char *password = clib::pclcli::get_lib().get_crypto_pass().c_str();
+  int ret = psync_crypto_issetup();
 
+  /* Is already setup? */
   if (ret) {
+    /* Try to unlock using given password */
     ret = psync_crypto_start(password);
-    std::cout << "Crypto session successfully started, status: "
-              << start_crypto_status(ret) << std::endl;
-  } else {
-    std::cout << "Setting up crypto session..." << std::endl;
-    ret = psync_crypto_setup(password, "no hint");
-    if (ret)
-      std::cout << "Setup crypto session failed" << std::endl;
-    else{
-      ret = psync_crypto_start(password);
-      std::cout << "Crypto session setup completed successfully, status: "
-                << start_crypto_status(ret) << std::endl;
+    std::cout << "Unlock Crypto Folder: " << psync_cloud_crypto_strstart(ret)
+              << std::endl;
 
-      std::cout << "Creating crypto directory..." << std::endl;
-      ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr);
-      if (ret < 0) {
-        std::cout << "Failed to create crypto directory, status: "
-                  << ret << std::endl;
-      }
+    return ret;
+  }
+
+  std::cout << "Setting up crypto session..." << std::endl;
+  ret = psync_crypto_setup(password, "no hint");
+
+  if (ret)
+    std::cout << "Setup crypto session failed" << std::endl;
+  else {
+    ret = psync_crypto_start(password);
+    std::cout << "Crypto session setup completed successfully, status: "
+              << psync_cloud_crypto_strstart(ret) << std::endl;
+
+    std::cout << "Creating Crypto Folder..." << std::endl;
+    ret =  psync_crypto_mkdir(0, "Crypto", nullptr, nullptr);
+    if (ret < 0) {
+      std::cout << "Failed to create Crypto Folder, status: "
+                << ret << std::endl;
     }
   }
 
@@ -227,19 +217,17 @@ static void status_change(pstatus_t* status) {
     clib::pclcli::get_lib().status_callback_((int)status->status, status2string(status->status));
 }
 
-int clib::pclcli::start_crypto (const char* pass, void * rep) {
-  std::cout << "calling startcrypto pass: "<<pass << std::endl;
+int clib::pclcli::start_crypto (const char *pass, void *rep) {
   get_lib().crypto_pass_ = pass;
   return lib_setup_crypto();
 }
 
 int clib::pclcli::stop_crypto (const char* path, void * rep) {
-  psync_crypto_stop();
   get_lib().crypto_on_ = false;
-  return 0;
+  return psync_crypto_stop();
 }
 
-int clib::pclcli::list_sync_folders (const char* path, void * rep) {
+int clib::pclcli::list_sync_folders (const char *path, void *rep) {
   psync_folder_list_t *folders = psync_get_sync_list();
   rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
