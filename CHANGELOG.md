@@ -79,3 +79,4 @@ releases, in reverse chronological order.
 * Reduce code duplication by merging `poverlay-linux.c` and `poverlay-macos.c`
   into `poverlay-posix.c`.
 * Moved `PSYNC_CRYPTO_*` defines from `psynclib.h` to `pcloudcrypto.h`.
+* Replace `boost::program_options` by more lightweight and specialized library `CLI11`.

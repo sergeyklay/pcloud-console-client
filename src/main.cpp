@@ -8,69 +8,100 @@
 // the LICENSE file that was distributed with this source code.
 
 #include <iostream>
-#include <boost/program_options.hpp>
+#include <vector>
+#include <CLI/CLI.hpp>
+
+#include "unistd.h"
+#include "pcloudcc/psync/version.h"
 
 #include "pcloudcc/version.hpp"
-#include "pcloudcc/psync/version.h"
 #include "pclcli.hpp"
 #include "control_tools.hpp"
 
-namespace po = boost::program_options;
-namespace ct = control_tools;
+static inline std::vector<std::string> prepare_args(int argc, char** argv) {
+  std::vector<std::string> args;
+  args.reserve(static_cast<size_t>(argc - 1));
+  for (int i = argc - 1; i > 0; i--) {
+    args.emplace_back(argv[i]);
+  }
 
-int main(int argc, char **argv) {
-  std::string username;
-  std::string password;
+  return args;
+}
 
-  bool daemon = false;
-  bool commands = false;
+int main(int argc, char** argv) {
+  auto args = prepare_args(argc, argv);
+  auto out =
+      std::string(PCLOUD_PACKAGE_NAME) + " " + std::string(PCLOUD_VERSION);
+
+  CLI::App app{out};
+  app.description(out);
+  app.name("pcloudcc");
+
+  app.get_formatter()->column_width(26);
+  app.get_formatter()->label("OPTIONS", "options");
+
+  // Global flag & options
+
   bool commands_only = false;
-  bool newuser = false;
+  app.add_flag("--commands-only,-k", commands_only,
+               "Daemon already started pass only commands");
+
+  bool daemonize = false;
+  app.add_flag("--daemonize,-d", daemonize,
+               "Daemonize the process");
+
+  std::string username;
+  app.add_option("--username,-u", username, "pCloud account name");
+
   bool passwordsw = false;
-  bool save_pass = false;
+  app.add_flag("--password,-p", passwordsw, "Ask pCloud account password");
+
   bool crypto = false;
+  app.add_flag("--crypto,-c", crypto, "Ask crypto password");
+
+  bool passascrypto = false;
+  app.add_flag("--passascrypto,-y", passascrypto,
+               "Use user password as crypto password also");
+
+  std::string mountpoint;
+  app.add_option("--mountpoint,-m", username,
+                 "Mount point where drive to be mounted");
+
+  bool newuser = false;
+  app.add_flag("--newuser,-n", newuser,
+               "Use if this is a new user to be registered");
+
+  bool commands = false;
+  app.add_flag("--commands,-o", commands,
+               "Parent stays alive and processes commands");
+
+  bool savepassword = false;
+  app.add_flag("--savepassword,-s", commands,
+               "Save password in database");
+
+  CLI::Option *version = app.add_flag(
+      "-V, --version",
+      "Print client version information and quit");
+
+  // Remove help flag because it shortcuts all processing
+  app.set_help_flag();
+
+  // Add custom flag that activates help
+  auto help = app.add_flag("-h, --help", "Print this help message and quit");
 
   try {
-    po::options_description desc("Options");
-    desc.add_options()
-        ("help,h", "Display this information.")
-        ("version,V", "Display program version information.")
-        ("username,u", po::value<std::string>(&username), "pCloud account name.")
-        ("password,p", po::bool_switch(&passwordsw), "Ask pCloud account password.")
-        ("crypto,c",  po::bool_switch(&crypto), "Ask crypto password.")
-        ("passascrypto,y", po::value<std::string>(), "Use user password as crypto password also.")
-        ("daemonize,d", po::bool_switch(&daemon), "Daemonize the process.")
-        ("commands ,o", po::bool_switch(&commands), "Parent stays alive and processes commands.")
-        ("mountpoint,m", po::value<std::string>(), "Mount point where drive to be mounted.")
-        ("commands_only,k", po::bool_switch(&commands_only),"Daemon already started pass only commands.")
-        ("newuser,n", po::bool_switch(&newuser), "Switch if this is a new user to be registered.")
-        ("savepassword,s", po::bool_switch(&save_pass), "Save password in database.")
-    ;
-
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    app.parse(args);
 
     if (commands_only) {
-      ct::process_commands();
-      exit(0);
+      control_tools::process_commands();
+      return EXIT_SUCCESS;
     }
 
-    for (int i = 1; i < argc;++i)
-      memset(argv[i],0,strlen(argv[i]));
-    if (daemon) {
-      strncpy(argv[0], "pCloudDriveDaemon", strlen(argv[0]));
-    } else {
-      strncpy(argv[0], "pCloudDrive", strlen(argv[0]));
+    if (*help) {
+      throw CLI::CallForHelp();
     }
 
-    if (vm.count("help")) {
-      std::cout << "Usage: pcloudcc [options]" << std::endl;
-      std::cout << desc << std::endl;
-      return 0;
-    }
-
-    if (vm.count("version")) {
+    if (*version) {
       std::cout << PCLOUD_VERSION_FULL << " ("
                 << PSYNC_VERSION_FULL
                 << ") " << std::endl;
@@ -88,8 +119,9 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    if ((!vm.count("username"))) {
-      std::cout << "Username option is required" << "\n";
+    if (username.empty()) {
+      std::cout << "Username option is required" << std::endl;
+      std::cout << "Daemonize" << daemonize << std::endl;
       return 1;
     }
     console_client::clibrary::pclcli::get_lib().set_username(username);
@@ -98,41 +130,49 @@ int main(int argc, char **argv) {
       console_client::clibrary::pclcli::get_lib().get_pass_from_console();
     }
 
+    std::string password;
     if (crypto) {
       console_client::clibrary::pclcli::get_lib().setup_crypto_ = true;
-      if (vm.count("passascrypto"))
-        console_client::clibrary::pclcli::get_lib().set_crypto_pass(password) ;
+      if (passascrypto)
+        console_client::clibrary::pclcli::get_lib().set_crypto_pass(password);
       else {
-        std::cout << "Enter crypto password."  << "\n";
+        std::cout << "Crypto password: ";
         console_client::clibrary::pclcli::get_lib().get_cryptopass_from_console();
       }
     } else
        console_client::clibrary::pclcli::get_lib().setup_crypto_ = false;
 
-    if (vm.count("mountpoint"))
-        console_client::clibrary::pclcli::get_lib().set_mount(
-                vm["mountpoint"].as<std::string>());
+    if (!mountpoint.empty())
+        console_client::clibrary::pclcli::get_lib().set_mount(mountpoint);
 
     console_client::clibrary::pclcli::get_lib().newuser_ = newuser;
-    console_client::clibrary::pclcli::get_lib().set_savepass(save_pass);
-    console_client::clibrary::pclcli::get_lib().set_daemon(daemon);
-  }
-  catch(std::exception& e) {
-    std::cerr << "error: " << e.what() << "\n";
-    return 1;
-  }
-  catch(...) {
-    std::cerr << "Exception of unknown type!\n";
+    console_client::clibrary::pclcli::get_lib().set_savepass(savepassword);
+    console_client::clibrary::pclcli::get_lib().set_daemon(daemonize);
+
+    if (daemonize)
+      control_tools::daemonize(commands);
+    else {
+      if (commands)
+        std::cout << "The \"commands\" option was ignored because the "
+                  << "client is not running in daemon mode"
+                  << std::endl;
+      if (!console_client::clibrary::pclcli::get_lib().init())
+        sleep(360000);
+    }
+  } catch (const CLI::Error& e) {
+    auto ret = app.exit(e);
+    return ret;
+  } catch(std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  } catch(...) {
+    std::cerr << "Unknown error. "
+              << "Please open a bug report: "
+              << PCLOUD_PACKAGE_URL
+              << std::endl;
+    return EXIT_FAILURE;
   }
 
-  if (daemon)
-    ct::daemonize(commands);
-  else {
-    if (commands)
-      std::cout << "The \"commands\" option was ignored because the client is not running in daemon mode"  << "\n";
-    if (!console_client::clibrary::pclcli::get_lib().init())
-      sleep(360000);
-  }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

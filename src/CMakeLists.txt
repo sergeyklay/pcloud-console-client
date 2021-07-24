@@ -30,7 +30,7 @@ add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
     PRIVATE pcloud::pclcli
-            CONAN_PKG::boost)
+            CONAN_PKG::cli11)
 
 file(RELATIVE_PATH relative
     ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
