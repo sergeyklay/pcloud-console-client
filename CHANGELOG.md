@@ -46,6 +46,8 @@ releases, in reverse chronological order.
 * Fixed device name by removing extra characters from output `lsb_release`
   on some systems. For example double quotes in `"Gentoo Base System release 2.7"`
 * Fixed reading response message while processing commands leading to a segfault.
+* The previous version of the client output the user's crypto password in cleartext
+  to the standard output. This behavior has been fixed.
 
 ### Changes
 
