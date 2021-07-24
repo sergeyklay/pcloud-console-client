@@ -1008,26 +1008,27 @@ char *psync_sql_cellstr(const char *sql) {
   }
 }
 
-int64_t psync_sql_cellint(const char *sql, int64_t dflt) {
+int64_t psync_sql_cellint(const char *sql, int64_t def_val) {
   sqlite3_stmt *stmt;
   int code;
   psync_sql_check_query_plan(sql);
   psync_sql_rdlock();
-  code=sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
-  if (unlikely(code!=SQLITE_OK)) {
+
+  code = sqlite3_prepare_v2(psync_db, sql, -1, &stmt, NULL);
+  if (unlikely(code != SQLITE_OK)) {
     log_error("error running sql statement: %s: %s", sql, sqlite3_errmsg(psync_db));
   }
-  else{
-    code=sqlite3_step(stmt);
-    if (code==SQLITE_ROW)
-      dflt=sqlite3_column_int64(stmt, 0);
-    else if (unlikely(code!=SQLITE_DONE)) {
+  else {
+    code = sqlite3_step(stmt);
+    if (code == SQLITE_ROW)
+      def_val = sqlite3_column_int64(stmt, 0);
+    else if (unlikely(code != SQLITE_DONE)) {
       log_error("sqlite3_step returned error: %s: %s", sql, sqlite3_errmsg(psync_db));
     }
     sqlite3_finalize(stmt);
   }
   psync_sql_rdunlock();
-  return dflt;
+  return def_val;
 }
 
 char **psync_sql_rowstr(const char *sql) {
