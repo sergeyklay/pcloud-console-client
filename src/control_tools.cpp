@@ -23,10 +23,9 @@ namespace control_tools {
 
 void start_crypto(const char *pass) {
   int ret;
-  overlay_command_t cmd = STARTCRYPTO;
   char *errm = nullptr;
 
-  if (send_call(cmd, pass, &ret, &errm) == -1)
+  if (send_call(STARTCRYPTO, pass, &ret, &errm) == -1)
     std::cout << "Failed to start crypto: " << errm << std::endl;
   else
     std::cout << "Crypto started" << std::endl;
@@ -37,10 +36,9 @@ void start_crypto(const char *pass) {
 
 void stop_crypto() {
   int ret;
-  overlay_command_t cmd = STOPCRYPTO;
   char *errm = nullptr;
 
-  if (send_call(cmd, "", &ret, &errm) == -1)
+  if (send_call(STOPCRYPTO, "", &ret, &errm) == -1)
     std::cout << "Failed to stop crypto: " << errm << std::endl;
   else
     std::cout << "Crypto Stopped" << std::endl;
