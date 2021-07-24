@@ -27,7 +27,7 @@
 #include "logger.h"
 
 void overlay_main_loop() {
-  int fd, cl;
+  int fd, acc;
 
 #ifdef P_OS_LINUX
   struct sockaddr_un addr;
@@ -91,8 +91,9 @@ void overlay_main_loop() {
   }
 
   while (1) {
+    log_trace("waiting for incoming connections...");
     /* 6. Accept connections */
-    if ((cl = accept(fd, NULL, NULL)) == -1) {
+    if ((acc = accept(fd, NULL, NULL)) == -1) {
       log_error("failed to accept connections: %s", strerror(errno));
       continue;
     }
@@ -100,13 +101,13 @@ void overlay_main_loop() {
     psync_run_thread1(
       "Pipe request handle routine",
       instance_thread, /* thread proc */
-      (void*)&cl       /* thread parameter */
+      (void *)&acc     /* thread parameter */
     );
   }
 }
 
 void instance_thread(void *payload) {
-  int *cl;
+  int *fd;
   char chbuf[POVERLAY_BUFSIZE];
   message *request = NULL;
   char *curbuf = &chbuf[0];
@@ -116,12 +117,12 @@ void instance_thread(void *payload) {
   memset(response, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
 
-  cl = (int *)payload;
+  fd = (int *)payload;
 
-  while ((ret = read(*cl, curbuf, (POVERLAY_BUFSIZE - br))) > 0) {
+  while ((ret = read(*fd, curbuf, (POVERLAY_BUFSIZE - br))) > 0) {
     br += ret;
-    log_debug("read %u bytes: %u %s", br, ret, curbuf);
     curbuf = curbuf + ret;
+    log_trace("read %u bytes from socket", br);
     if (br > 12) {
       request = (message *)chbuf;
       if (request->length == br)
@@ -131,28 +132,32 @@ void instance_thread(void *payload) {
 
   if (ret == -1) {
     log_error("failed to read request payload: %s", strerror(errno));
-    close(*cl);
+    close(*fd);
     return;
   } else if (ret == 0) {
     log_info("received message from socket");
-    close(*cl);
+    close(*fd);
   }
 
   request = (message *)chbuf;
   if (request) {
+    log_trace("getting an answer to request...");
     get_answer_to_request(request, response);
     if (response) {
-      ret = write(*cl, response, response->length);
+      ret = write(*fd, response, response->length);
       if (ret == -1) {
         log_error("failed to write to socket: %s", strerror(errno));
       } else if (ret != response->length) {
-        log_error("socket response not sent");
+        log_error("failed writing response to socket");
       }
     }
   }
 
-  if (cl) {
-    close(*cl);
+  if (*fd) {
+    ret = close(*fd);
+    if (ret == -1) {
+      log_error("failed to close file descriptor: %s", strerror(errno));
+    }
   }
 };
 
