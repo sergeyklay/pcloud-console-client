@@ -227,5 +227,5 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
     *out = (void *)strdup(rep->value);
   close(fd);
 
-  return 0;
+  return *ret;
 }
