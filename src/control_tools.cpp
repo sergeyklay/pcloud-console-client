@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <string>
 
+#include "pcloudcc/psync/compiler.h"
 #include "pcloudcrypto.h"
 #include "overlay_client.h"
 
@@ -20,9 +21,7 @@
 #include "control_tools.hpp"
 #include "pclcli.hpp"
 
-namespace control_tools {
-
-void start_crypto(const char *pass) {
+void control_tools::start_crypto(const char *pass) {
   int ret;
   char *errm = nullptr;
   int status = send_call(STARTCRYPTO, pass, &ret, &errm);
@@ -43,7 +42,7 @@ void start_crypto(const char *pass) {
     free(errm);
 }
 
-void stop_crypto() {
+void control_tools::stop_crypto() {
   int ret;
   char *errm = nullptr;
   int status = send_call(STOPCRYPTO, "", &ret, &errm);
@@ -88,16 +87,16 @@ void static print_menu() {
             << std::endl;
 }
 
-void process_commands() {
+void control_tools::process_commands() {
   std::cout << "Welcome to" << PCLOUD_VERSION_FULL << std::endl << std::endl;
   std::cout<< "Command (m for help): ";
 
   for (std::string line; std::getline(std::cin, line) ; ) {
     if (!line.compare(0, 11, "startcrypto", 0, 11) && (line.length() > 12)) {
-      start_crypto(line.c_str() + 12);
+      control_tools::start_crypto(line.c_str() + 12);
     } else if (line == "stopcrypto") {
-      stop_crypto();
-    } else if (line == "menu" || line == "m") {
+      control_tools::stop_crypto();
+    }else if (line == "menu" || line == "m") {
       print_menu();
     } else if (line == "quit" || line == "q") {
       break;
@@ -107,22 +106,25 @@ void process_commands() {
   }
 }
 
-void daemonize(bool do_commands) {
+PSYNC_NO_RETURN void control_tools::daemonize(bool do_commands) {
   pid_t pid, sid;
 
   pid = fork();
   if (pid < 0)
     exit(EXIT_FAILURE);
+
   if (pid > 0) {
     std::cout << "Daemon process created. Process id is: " << pid << std::endl;
     if (do_commands) {
-      process_commands();
-    }
-    else
-      std::cout  << "sudo kill -9 "<<pid<< std::endl<<" To stop it."<< std::endl;
+      control_tools::process_commands();
+    } else
+      std::cout  << "Use \"kill " << pid << "\""
+                 <<" to stop it." << std::endl;
     exit(EXIT_SUCCESS);
   }
+
   umask(0);
+
   /* Open any logs here */
   sid = setsid();
   if (sid < 0)
@@ -130,14 +132,15 @@ void daemonize(bool do_commands) {
 
   if ((chdir("/")) < 0)
     exit(EXIT_FAILURE);
+
   close(STDIN_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
 
   if (console_client::clibrary::pclcli::get_lib().init())
      exit(EXIT_FAILURE);
+
   while (true) {
     sleep(10);
   }
-}
 }
