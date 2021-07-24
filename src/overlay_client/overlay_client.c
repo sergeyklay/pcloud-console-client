@@ -32,15 +32,15 @@ typedef struct message_ {
 
 static int logger_initialized = 0;
 
-/*! \brief Reads \a nbyte bytes from \a socket.
+/*! \brief Reads \a nbyte bytes from \a socketfd.
  *
  *  Attempts to read \a nbyte bytes of data from the object referenced by the
- *  descriptor \a socket into the buffer pointed to by \a buf.
+ *  descriptor \a socketfd into the buffer pointed to by \a buf.
  */
-static void read_x_bytes(int socket, void *buf, size_t nbyte) {
+static void read_x_bytes(int socketfd, void *buf, size_t nbyte) {
   size_t ret, br = 0;
   while (br < nbyte) {
-    ret = read(socket, buf + br, nbyte - br);
+    ret = read(socketfd, buf + br, nbyte - br);
     if (ret <= 0) {
       if (ret == -1) {
         log_error("failed to read socket: %s", strerror(errno));
