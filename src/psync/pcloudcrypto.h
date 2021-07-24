@@ -37,6 +37,9 @@ extern "C" {
 #define PSYNC_CRYPTO_START_KEYS_DONT_MATCH    7
 #define PSYNC_CRYPTO_START_UNKNOWN_ERROR      8
 
+#define PSYNC_CRYPTO_STOP_SUCCESS          0
+#define PSYNC_CRYPTO_STOP_NOT_STARTED      1
+
 #define PSYNC_CRYPTO_UNLOADED_SECTOR_ENCODER ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+1))
 #define PSYNC_CRYPTO_LOADING_SECTOR_ENCODER  ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+2))
 #define PSYNC_CRYPTO_FAILED_SECTOR_ENCODER   ((psync_crypto_aes256_sector_encoder_decoder_t)(PSYNC_CRYPTO_MAX_ERROR+3))

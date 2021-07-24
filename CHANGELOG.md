@@ -78,3 +78,4 @@ releases, in reverse chronological order.
 * Reduce code duplication by merging `poverlay-linux.c` and `poverlay-macos.c`
   into `poverlay-posix.c`.
 * Moved `PSYNC_CRYPTO_START_*` defines from `psynclib.h` to `pcloudcrypto.h`.
+* Moved `PSYNC_CRYPTO_STOP_*` defines from `psynclib.h` to `pcloudcrypto.h`.
