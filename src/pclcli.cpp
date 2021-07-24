@@ -232,8 +232,10 @@ static void status_change(pstatus_t* status) {
     clib::pclcli::get_lib().status_callback_((int)status->status, status2string(status->status));
 }
 
-int clib::pclcli::start_crypto (const char* pass, void * rep) {
-  std::cout << "calling startcrypto pass: "<<pass << std::endl;
+int clib::pclcli::start_crypto (const char *pass, void *rep) {
+  std::string password = std::string(pass ? strlen(pass) : 0, '*');
+  std::cout << "Calling startcrypto with pass: " << password << std::endl;
+
   get_lib().crypto_pass_ = pass;
   return lib_setup_crypto();
 }
