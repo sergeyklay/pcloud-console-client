@@ -46,11 +46,18 @@ void start_crypto(const char *pass) {
 void stop_crypto() {
   int ret;
   char *errm = nullptr;
+  int status = send_call(STOPCRYPTO, "", &ret, &errm);
 
-  if (send_call(STOPCRYPTO, "", &ret, &errm) == -1)
+  /* -1 can only be returned from overlay_client */
+  if (status == -1) {
     std::cout << "Failed to stop crypto: " << errm << std::endl;
-  else
-    std::cout << "Crypto Stopped" << std::endl;
+  } else if (status == PSYNC_CRYPTO_STOP_NOT_STARTED) {
+    std::cout << "Crypto session is not started" << std::endl;
+  } else if (status == PSYNC_CRYPTO_STOP_SUCCESS) {
+    std::cout << "Crypto session was stop" << std::endl;
+  } else {
+    std::cout << "Failed to stop crypto: unknown status" << errm << std::endl;
+  }
 
   if (errm)
     free(errm);

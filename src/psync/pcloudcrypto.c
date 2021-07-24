@@ -578,21 +578,25 @@ static void psync_fs_refresh_crypto_folders() {
 }
 
 int psync_cloud_crypto_stop() {
-  crypto_started_un=0;
+  crypto_started_un = 0;
   pthread_rwlock_wrlock(&crypto_lock);
   if (!crypto_started_l) {
     pthread_rwlock_unlock(&crypto_lock);
     return PSYNC_CRYPTO_STOP_NOT_STARTED;
   }
-  crypto_started_l=0;
+
+  crypto_started_l = 0;
   psync_ssl_rsa_free_public(crypto_pubkey);
-  crypto_pubkey=PSYNC_INVALID_RSA;
+  crypto_pubkey = PSYNC_INVALID_RSA;
+
   psync_ssl_rsa_free_private(crypto_privkey);
-  crypto_privkey=PSYNC_INVALID_RSA;
+  crypto_privkey = PSYNC_INVALID_RSA;
+
   pthread_rwlock_unlock(&crypto_lock);
-  log_info("stopped crypto");
+  log_info("crypto session was stop");
   psync_cloud_crypto_clean_cache();
   psync_fs_refresh_crypto_folders();
+
   return PSYNC_CRYPTO_STOP_SUCCESS;
 }
 

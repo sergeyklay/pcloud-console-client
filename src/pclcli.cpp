@@ -218,20 +218,16 @@ static void status_change(pstatus_t* status) {
 }
 
 int clib::pclcli::start_crypto (const char *pass, void *rep) {
-  std::string password = std::string(pass ? strlen(pass) : 0, '*');
-  std::cout << "Calling startcrypto with pass: " << password << std::endl;
-
   get_lib().crypto_pass_ = pass;
   return lib_setup_crypto();
 }
 
 int clib::pclcli::stop_crypto (const char* path, void * rep) {
-  psync_crypto_stop();
   get_lib().crypto_on_ = false;
-  return 0;
+  return psync_crypto_stop();
 }
 
-int clib::pclcli::list_sync_folders (const char* path, void * rep) {
+int clib::pclcli::list_sync_folders (const char *path, void *rep) {
   psync_folder_list_t *folders = psync_get_sync_list();
   rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));

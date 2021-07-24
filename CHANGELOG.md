@@ -53,6 +53,8 @@ releases, in reverse chronological order.
 * Previously, when trying to start a crypto session with an incorrect password, the
   client reported success, although the crypto session didn't start.
   This has been fixed.
+* Previously, when trying to stop not started crypto session, client reported
+  success. This has been fixed.
 
 ### Changes
 
