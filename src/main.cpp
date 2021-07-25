@@ -28,17 +28,92 @@ static inline std::vector<std::string> prepare_args(int argc, char** argv) {
   return args;
 }
 
+class PcloudFormatter : public CLI::Formatter {
+ public:
+  std::string make_usage(const CLI::App *app,
+                         const std::string /* name */) const override {
+
+    auto out = get_label("Usage") + ":\n";
+    out += "  " + app->get_name();
+
+
+    auto groups = app->get_groups();
+
+    // Print an OPTIONS badge if any options exist
+    auto non_positionals = app->get_options(
+        [](const CLI::Option *opt) { return opt->nonpositional(); });
+    if (!non_positionals.empty()) {
+      out += " [" + get_label("OPTIONS") + "]";
+    }
+
+    // Print an ARGUMENTS badge if any arguments exist
+    // or we're show help for the main program
+    auto positionals = app->get_options(
+        [](const CLI::Option *opt) { return opt->get_positional(); });
+    if (!app->get_parent() || !positionals.empty()) {
+      out += " [--] [" + get_label("ARGUMENTS") + "]";
+    }
+
+    return out += "\n";
+  }
+
+  std::string make_description(const CLI::App *app) const override {
+    std::string out;
+
+    const auto BANNER = R"BANNER(
+           ________                __
+    ____  / ____/ /___  __  ______/ /
+   / __ \/ /   / / __ \/ / / / __  /
+  / /_/ / /___/ / /_/ / /_/ / /_/ /
+ / .___/\____/_/\____/\__,_/\__,_/
+/_/)BANNER";
+
+    std::string banner(BANNER);
+    out += banner.replace(0, 1, "") + "\n\n";
+
+    auto desc = app->get_description();
+    out += desc + "\n\n";
+
+    return out;
+  }
+
+  std::string make_option_name(const CLI::Option *opt, bool is_positional) const override {
+    std::string name;
+    if(is_positional)
+      name = opt->get_name(true, false);
+    else
+      name = opt->get_name(false, true);
+
+    std::string new_name;
+    if (name[0] == '-' && name[1] == '-') {
+      new_name = "    " + name;
+    } else {
+      for(char i : name) {
+        if(i != ',')
+          new_name += i;
+        else {
+          new_name += i;
+          new_name += " ";
+        }
+      }
+    }
+
+    return new_name;
+  }
+};
+
 int main(int argc, char** argv) {
   auto args = prepare_args(argc, argv);
-  auto out =
+  auto const description =
       std::string(PCLOUD_PACKAGE_NAME) + " " + std::string(PCLOUD_VERSION);
 
-  CLI::App app{out};
-  app.description(out);
-  app.name("pcloudcc");
+  CLI::App app{description, "pcloudcc"};
 
+  app.formatter(std::make_shared<PcloudFormatter>());
   app.get_formatter()->column_width(26);
   app.get_formatter()->label("OPTIONS", "options");
+  app.get_formatter()->label("ARGUMENTS", "arguments");
+  app.get_formatter()->label("TEXT", "arg");
 
   // Global flag & options
 
@@ -51,7 +126,8 @@ int main(int argc, char** argv) {
                "Daemonize the process");
 
   std::string username;
-  app.add_option("--username,-u", username, "pCloud account name");
+  app.add_option("--username,-u", username,
+                 "pCloud account name");
 
   bool passwordsw = false;
   app.add_flag("--password,-p", passwordsw, "Ask pCloud account password");
@@ -79,9 +155,45 @@ int main(int argc, char** argv) {
   app.add_flag("--savepassword,-s", commands,
                "Save password in database");
 
-  CLI::Option *version = app.add_flag(
-      "-V, --version",
+  auto version = [](int /* count */){
+    std::cout << PCLOUD_VERSION_FULL << " ("
+              << PSYNC_VERSION_FULL
+              << ") " << std::endl;
+
+    std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
+
+    std::cout << "This is free software; see the source for copying "
+                 "conditions.  There is NO"
+              << std::endl;
+
+    std::cout << "warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+                 "PARTICULAR PURPOSE."
+              << std::endl
+              << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--version,-V",
+      version,
       "Print client version information and quit");
+
+  auto vernum = [](int /* count */){
+    std::cout << PCLOUD_VERSION_ID << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--vernum",
+      vernum,
+      "Print the version of the client as integer and quit");
+
+  auto dumpversion = [](int /* count */){
+    std::cout << PCLOUD_VERSION << std::endl;
+    exit(EXIT_SUCCESS);
+  };
+  app.add_flag_function(
+      "--dumpversion",
+      dumpversion,
+      "Print the version of the client and don't do anything else");
 
   // Remove help flag because it shortcuts all processing
   app.set_help_flag();
@@ -89,40 +201,22 @@ int main(int argc, char** argv) {
   // Add custom flag that activates help
   auto help = app.add_flag("-h, --help", "Print this help message and quit");
 
+  // Process commands
   try {
     app.parse(args);
+
+    if (*help) {
+      throw CLI::CallForHelp();
+    }
 
     if (commands_only) {
       control_tools::process_commands();
       return EXIT_SUCCESS;
     }
 
-    if (*help) {
-      throw CLI::CallForHelp();
-    }
-
-    if (*version) {
-      std::cout << PCLOUD_VERSION_FULL << " ("
-                << PSYNC_VERSION_FULL
-                << ") " << std::endl;
-
-      std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
-
-      std::cout << "This is free software; see the source for copying "
-                   "conditions.  There is NO"
-                << std::endl;
-
-      std::cout << "warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-                   "PARTICULAR PURPOSE."
-                << std::endl
-                << std::endl;
-      return 0;
-    }
-
     if (username.empty()) {
       std::cout << "Username option is required" << std::endl;
-      std::cout << "Daemonize" << daemonize << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     console_client::clibrary::pclcli::get_lib().set_username(username);
 
@@ -172,7 +266,6 @@ int main(int argc, char** argv) {
               << std::endl;
     return EXIT_FAILURE;
   }
-
 
   return EXIT_SUCCESS;
 }

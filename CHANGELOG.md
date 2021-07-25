@@ -37,6 +37,10 @@ releases, in reverse chronological order.
   during the pCloud API calls.
 * Reworked commands mode to provide better user experience.
 * Added `-V`, `--version` program options to display program version information.
+* Added `--dumpversion` program option to print the version of the client and
+  don't do anything else.
+* Added `--vernum` program option to print the version of the client as integer
+  and quit.
 
 ### Bugfix
 
@@ -80,3 +84,4 @@ releases, in reverse chronological order.
   into `poverlay-posix.c`.
 * Moved `PSYNC_CRYPTO_*` defines from `psynclib.h` to `pcloudcrypto.h`.
 * Replace `boost::program_options` by more lightweight and specialized library `CLI11`.
+* Rename `--commands_only` CLI option to `--commands-only`.
