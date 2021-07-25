@@ -154,6 +154,7 @@ void pcloud::cli::App::setup_options() {
 
 void pcloud::cli::App::print_version(std::size_t /* count */) {
   std::cout << PCLOUD_VERSION << std::endl;
+  exit(EXIT_SUCCESS);
 }
 
 void pcloud::cli::App::print_full_version(std::size_t /* count */) {
@@ -170,8 +171,10 @@ void pcloud::cli::App::print_full_version(std::size_t /* count */) {
                "PARTICULAR PURPOSE."
             << std::endl
             << std::endl;
+  exit(EXIT_SUCCESS);
 }
 
 void pcloud::cli::App::print_version_id(std::size_t /* count */) {
   std::cout << PCLOUD_VERSION_ID << std::endl;
+  exit(EXIT_SUCCESS);
 }
