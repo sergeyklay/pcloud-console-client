@@ -41,7 +41,6 @@ clib::pclcli& clib::pclcli::get_lib() {
 static std::string exec(const char* cmd) {
   std::array<char, 128> buffer{};
   std::string result;
-  size_t size;
 
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
   if (!pipe) {
@@ -55,22 +54,19 @@ static std::string exec(const char* cmd) {
   return result;
 }
 
-char * clib::pclcli::get_token(){
+char * clib::pclcli::get_token() {
   return psync_get_token();
 }
 
-void clib::pclcli::get_pass_from_console()
-{
+void clib::pclcli::get_pass_from_console() {
   do_get_pass_from_console(password_);
 }
 
-void clib::pclcli::get_cryptopass_from_console()
-{
+void clib::pclcli::get_cryptopass_from_console() {
   do_get_pass_from_console(crypto_pass_);
 }
 
-void clib::pclcli::do_get_pass_from_console(std::string& password)
-{
+void clib::pclcli::do_get_pass_from_console(std::string& password) {
   if (daemon_) {
      std::cout << "Not able to read password when started as daemon." << std::endl;
      exit(1);
@@ -99,8 +95,8 @@ void clib::pclcli::do_get_pass_from_console(std::string& password)
 #endif
 }
 
-void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata){
- if (event<PEVENT_FIRST_USER_EVENT){
+void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata) {
+ if (event<PEVENT_FIRST_USER_EVENT) {
     if (event&PEVENT_TYPE_FOLDER)
       std::cout <<"folder event=" << event<<", syncid="<< eventdata.folder->syncid<<", folderid="<<eventdata.folder->folderid<<", name="
          <<eventdata.folder->name<<", local="<<eventdata.folder->localpath<<", remote="<< eventdata.folder->remotepath<<std::endl;
@@ -153,7 +149,7 @@ static int lib_setup_crypto() {
   return ret;
 }
 
-static char const * status2string (uint32_t status){
+static char const * status2string(uint32_t status) {
   switch (status) {
     case PSTATUS_READY: return "READY";
     case PSTATUS_DOWNLOADING: return "DOWNLOADING";
@@ -180,20 +176,20 @@ static void status_change(pstatus_t* status) {
   static int mount_set=0;
   std::cout << "Down: " <<  status->downloadstr << "| Up: " << status->uploadstr <<", status is " << status2string(status->status) << std::endl;
   *clib::pclcli::get_lib().status_ = *status;
-  if (status->status==PSTATUS_LOGIN_REQUIRED){
+  if (status->status==PSTATUS_LOGIN_REQUIRED) {
     if (clib::pclcli::get_lib().get_password().empty())
       clib::pclcli::get_lib().get_pass_from_console();
     psync_set_user_pass(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(), (int) clib::pclcli::get_lib().save_pass_);
     std::cout << "logging in" << std::endl;
   }
-  else if (status->status==PSTATUS_BAD_LOGIN_DATA){
+  else if (status->status==PSTATUS_BAD_LOGIN_DATA) {
     if (!clib::pclcli::get_lib().newuser_) {
       clib::pclcli::get_lib().get_pass_from_console();
       psync_set_user_pass(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(), (int) clib::pclcli::get_lib().save_pass_);
     }
     else {
     std::cout << "registering" << std::endl;
-    if (psync_register(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(),1, nullptr)){
+    if (psync_register(clib::pclcli::get_lib().get_username().c_str(), clib::pclcli::get_lib().get_password().c_str(),1, nullptr)) {
       std::cout << "both login and registration failed" << std::endl;
       exit(1);
     }
@@ -204,8 +200,8 @@ static void status_change(pstatus_t* status) {
 
     }
   }
-  if (status->status==PSTATUS_READY || status->status==PSTATUS_UPLOADING || status->status==PSTATUS_DOWNLOADING || status->status==PSTATUS_DOWNLOADINGANDUPLOADING){
-    if (!cryptocheck){
+  if (status->status==PSTATUS_READY || status->status==PSTATUS_UPLOADING || status->status==PSTATUS_DOWNLOADING || status->status==PSTATUS_DOWNLOADINGANDUPLOADING) {
+    if (!cryptocheck) {
       cryptocheck=1;
       if (clib::pclcli::get_lib().setup_crypto_) {
         lib_setup_crypto();
@@ -272,8 +268,8 @@ int clib::pclcli::init() {
   psync_start_sync(status_change, event_handler);
   char * username_old = psync_get_username();
 
-  if (username_old){
-    if (username_ != username_old){
+  if (username_old) {
+    if (username_ != username_old) {
       std::cout << "logged in with user " << username_old <<", not "<< username_ <<", unlinking"<<std::endl;
       psync_unlink();
       psync_free(username_old);

@@ -152,7 +152,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   if (!socket_path) {
     log_error("%s: socket path is empty", cmd2str(cmd));
     *out = (void *)strdup("Unable to determine a path for UNIX socket");
-    *ret = - 1;
+    *ret = -1;
     return -1;
   }
 

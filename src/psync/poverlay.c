@@ -27,12 +27,12 @@ void overlay_main_loop(void) {}
 void instance_thread(void* payload) {}
 #endif /* P_OS_WINDOWS */
 
-poverlay_callback * callbacks;
+poverlay_callback *callbacks;
 static int callbacks_size = 15;
 static const int callbacks_lower_band = 20;
 
 int psync_add_overlay_callback(int id, poverlay_callback callback) {
-  poverlay_callback * callbacks_old = callbacks;
+  poverlay_callback *callbacks_old = callbacks;
   int callbacks_size_old = callbacks_size;
   if (id < callbacks_lower_band)
     return -1;
