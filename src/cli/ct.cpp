@@ -7,20 +7,21 @@
 // For the full copyright and license information, please view
 // the LICENSE file that was distributed with this source code.
 
-#include <iostream>
-#include <sys/stat.h>
-#include <cstdlib>
-#include <unistd.h>
-#include <string>
+#include "ct.hpp"
 
 #include <pcloudcc/psync/compiler.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <string>
+
 #include <pcloudcc/version.hpp>
 
-#include "pcloudcrypto.h"
-#include "overlay_client.h"
-
-#include "ct.hpp"
 #include "bridge.hpp"
+#include "overlay_client.h"
+#include "pcloudcrypto.h"
 
 void pcloud::cli::start_crypto(const char *pass) {
   int ret;
@@ -39,8 +40,7 @@ void pcloud::cli::start_crypto(const char *pass) {
               << psync_cloud_crypto_strstart(status) << std::endl;
   }
 
-  if (errm)
-    free(errm);
+  if (errm) free(errm);
 }
 
 void pcloud::cli::stop_crypto() {
@@ -59,51 +59,46 @@ void pcloud::cli::stop_crypto() {
     std::cout << "Failed to stop crypto: unknown status" << errm << std::endl;
   }
 
-  if (errm)
-    free(errm);
+  if (errm) free(errm);
 }
 
 void static print_menu() {
   std::cout << std::endl << "Help:" << std::endl << std::endl;
 
-  std::cout << "  Crypto"<< std::endl;
+  std::cout << "  Crypto" << std::endl;
   std::cout << "   startcrypto <crypto pass>   "
-            << "Start a crypto session using given password"
-            << std::endl;
+            << "Start a crypto session using given password" << std::endl;
   std::cout << "   stopcrypto                  "
-            << "Stop a crypto session"
-            << std::endl
+            << "Stop a crypto session" << std::endl
             << std::endl;
 
-  std::cout << "  Misc"<< std::endl;
+  std::cout << "  Misc" << std::endl;
   std::cout << "   m, menu                     "
-            << "Print this menu"
-            << std::endl
+            << "Print this menu" << std::endl
             << std::endl;
 
-  std::cout << "  Exit"<< std::endl;
+  std::cout << "  Exit" << std::endl;
   std::cout << "   q, quit                     "
-            << "Quit the current client (daemon stays alive)"
-            << std::endl
+            << "Quit the current client (daemon stays alive)" << std::endl
             << std::endl;
 }
 
 void pcloud::cli::process_commands() {
   std::cout << "Welcome to" << PCLOUD_VERSION_FULL << std::endl << std::endl;
-  std::cout<< "Command (m for help): ";
+  std::cout << "Command (m for help): ";
 
-  for (std::string line; std::getline(std::cin, line) ; ) {
+  for (std::string line; std::getline(std::cin, line);) {
     if (!line.compare(0, 11, "startcrypto", 0, 11) && (line.length() > 12)) {
       start_crypto(line.c_str() + 12);
     } else if (line == "stopcrypto") {
       stop_crypto();
-    }else if (line == "menu" || line == "m") {
+    } else if (line == "menu" || line == "m") {
       print_menu();
     } else if (line == "quit" || line == "q") {
       break;
     }
 
-    std::cout<< "Command (m for help): " ;
+    std::cout << "Command (m for help): ";
   }
 }
 
@@ -111,16 +106,15 @@ PSYNC_NO_RETURN void pcloud::cli::daemonize(bool do_commands) {
   pid_t pid, sid;
 
   pid = fork();
-  if (pid < 0)
-    exit(EXIT_FAILURE);
+  if (pid < 0) exit(EXIT_FAILURE);
 
   if (pid > 0) {
     std::cout << "Daemon process created. Process id is: " << pid << std::endl;
     if (do_commands) {
       process_commands();
     } else
-      std::cout  << "Use \"kill " << pid << "\""
-                 <<" to stop it." << std::endl;
+      std::cout << "Use \"kill " << pid << "\""
+                << " to stop it." << std::endl;
     exit(EXIT_SUCCESS);
   }
 
@@ -128,18 +122,15 @@ PSYNC_NO_RETURN void pcloud::cli::daemonize(bool do_commands) {
 
   /* Open any logs here */
   sid = setsid();
-  if (sid < 0)
-    exit(EXIT_FAILURE);
+  if (sid < 0) exit(EXIT_FAILURE);
 
-  if ((chdir("/")) < 0)
-    exit(EXIT_FAILURE);
+  if ((chdir("/")) < 0) exit(EXIT_FAILURE);
 
   close(STDIN_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
 
-  if (Bridge::get_lib().init())
-    exit(EXIT_FAILURE);
+  if (Bridge::get_lib().init()) exit(EXIT_FAILURE);
 
   while (true) {
     sleep(10);

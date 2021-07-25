@@ -38,6 +38,7 @@ class App {
   int run();
 
   App& operator=(const App&) = delete;
+
  private:
   /// Prints program version information.
   static void print_version(std::size_t count);

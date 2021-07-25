@@ -7,7 +7,6 @@
 // For the full copyright and license information, please view
 // the LICENSE file that was distributed with this source code.
 
-
 #ifndef PCLOUD_CLI_CT_HPP_
 #define PCLOUD_CLI_CT_HPP_
 
@@ -15,10 +14,10 @@
 
 namespace pcloud {
 namespace cli {
-  void start_crypto(const char *pass);
-  void stop_crypto();
-  PSYNC_NO_RETURN void daemonize(bool do_commands);
-  void process_commands();
+void start_crypto(const char *pass);
+void stop_crypto();
+PSYNC_NO_RETURN void daemonize(bool do_commands);
+void process_commands();
 }  // namespace cli
 }  // namespace pcloud
 

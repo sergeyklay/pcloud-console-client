@@ -7,15 +7,16 @@
 
 #include "app.hpp"
 
+#include <pcloudcc/psync/version.h>
 #include <unistd.h>
 
 #include <string>
+
 #include <CLI/CLI.hpp>
 #include <pcloudcc/version.hpp>
-#include <pcloudcc/psync/version.h>
 
-#include "ct.hpp"
 #include "bridge.hpp"
+#include "ct.hpp"
 #include "formatter.hpp"
 
 pcloud::cli::App::App(std::vector<std::string> args)
@@ -77,8 +78,7 @@ int pcloud::cli::App::run() {
     } else
       Bridge::get_lib().setup_crypto_ = false;
 
-    if (!mountpoint_.empty())
-      Bridge::get_lib().set_mount(mountpoint_);
+    if (!mountpoint_.empty()) Bridge::get_lib().set_mount(mountpoint_);
 
     Bridge::get_lib().newuser_ = newuser_;
     Bridge::get_lib().set_savepass(savepassword_);
@@ -126,7 +126,7 @@ void pcloud::cli::App::setup_global_options() {
 
 void pcloud::cli::App::setup_options() {
   app_->add_flag("--commands-only,-k", commands_only_,
-               "Daemon already started pass only commands");
+                 "Daemon already started pass only commands");
 
   app_->add_flag("--daemonize,-d", daemonize_, "Daemonize the process");
 
@@ -137,16 +137,16 @@ void pcloud::cli::App::setup_options() {
   app_->add_flag("--crypto,-c", crypto_, "Ask crypto password");
 
   app_->add_flag("--passascrypto,-y", passascrypto_,
-               "Use user password as crypto password also");
+                 "Use user password as crypto password also");
 
   app_->add_option("--mountpoint,-m", mountpoint_,
-                 "Mount point where drive to be mounted");
+                   "Mount point where drive to be mounted");
 
   app_->add_flag("--newuser,-n", newuser_,
-               "Use if this is a new user to be registered");
+                 "Use if this is a new user to be registered");
 
   app_->add_flag("--commands,-o", commands_,
-               "Parent stays alive and processes commands");
+                 "Parent stays alive and processes commands");
 
   app_->add_flag("--savepassword,-s", savepassword_,
                  "Save password in database");

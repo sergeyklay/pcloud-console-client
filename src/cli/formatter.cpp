@@ -9,8 +9,8 @@
 
 #include <string>
 
-std::string
-pcloud::cli::Formatter::make_description(const CLI::App *app) const {
+std::string pcloud::cli::Formatter::make_description(
+    const CLI::App *app) const {
   std::string out;
 
   const auto BANNER = R"BANNER(
@@ -30,8 +30,8 @@ pcloud::cli::Formatter::make_description(const CLI::App *app) const {
   return out;
 }
 
-std::string
-pcloud::cli::Formatter::make_usage(const CLI::App *app, std::string name) const {
+std::string pcloud::cli::Formatter::make_usage(const CLI::App *app,
+                                               std::string name) const {
   auto out = get_label("Usage") + ":\n";
   out += "  " + app->get_name();
 
@@ -55,8 +55,8 @@ pcloud::cli::Formatter::make_usage(const CLI::App *app, std::string name) const 
   return out += "\n";
 }
 
-std::string
-pcloud::cli::Formatter::make_option_name(const CLI::Option *opt, bool is_positional) const {
+std::string pcloud::cli::Formatter::make_option_name(const CLI::Option *opt,
+                                                     bool is_positional) const {
   std::string name;
   if (is_positional)
     name = opt->get_name(true, false);
