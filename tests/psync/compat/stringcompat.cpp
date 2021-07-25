@@ -5,12 +5,12 @@
 // For the full copyright and license information, please view
 // the LICENSE file that was distributed with this source code.
 
+#include "pcloudcc/psync/stringcompat.h"
+
 #include <gtest/gtest.h>
 #include <string.h>
 
 #include "config.h"
-
-#include "pcloudcc/psync/stringcompat.h"
 
 class CompatTest : public ::testing::Test {
  protected:
@@ -37,13 +37,16 @@ TEST(CompatTest, strlcpy) {
 
   memset(&s, '#', sizeof(s));
   EXPECT_EQ(15, strlcpy(s.buf1, "Hello, world!12", sizeof(s.buf1)));
-  EXPECT_EQ(0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
+  EXPECT_EQ(
+      0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
 
   memset(&s, '#', sizeof(s));
   EXPECT_EQ(16, strlcpy(s.buf1, "Hello, world!123", sizeof(s.buf1)));
-  EXPECT_EQ(0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
+  EXPECT_EQ(
+      0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
 
   memset(&s, '#', sizeof(s));
   EXPECT_EQ(20, strlcpy(s.buf1, "Hello, world!1234567", sizeof(s.buf1)));
-  EXPECT_EQ(0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
+  EXPECT_EQ(
+      0, memcmp(&s, "Hello, world!12\0#########################", sizeof(s)));
 }

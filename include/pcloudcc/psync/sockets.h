@@ -35,7 +35,7 @@ extern "C" {
 char *psync_unix_socket_path();
 
 #ifdef __cplusplus
-}  /* extern "C" */
+} /* extern "C" */
 #endif
 
-#endif  /* PCLOUD_PSYNC_SOCKETS_H_ */
+#endif /* PCLOUD_PSYNC_SOCKETS_H_ */

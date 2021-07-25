@@ -9,7 +9,6 @@
 
 #include "ct.hpp"
 
-#include <pcloudcc/psync/compiler.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -21,6 +20,7 @@
 
 #include "bridge.hpp"
 #include "overlay_client.h"
+#include "pcloudcc/psync/compiler.h"
 #include "pcloudcrypto.h"
 
 void pcloud::cli::start_crypto(const char *pass) {

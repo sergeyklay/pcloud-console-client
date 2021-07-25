@@ -7,23 +7,23 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "logger.h"
+
 #include <limits.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "logger.h"
-
 void log_lock(bool lock, void *udata) {
-  pthread_mutex_t *LOCK = (pthread_mutex_t*)(udata);
+  pthread_mutex_t *LOCK = (pthread_mutex_t *)(udata);
   if (lock)
     pthread_mutex_lock(LOCK);
   else
     pthread_mutex_unlock(LOCK);
 }
 
-static const char *resolve_filepath(const char* rawpath) {
+static const char *resolve_filepath(const char *rawpath) {
   char *newpath = NULL;
   const char *homedir;
   int n;
@@ -83,7 +83,7 @@ void setup_logging() {
   const char *filename = resolve_filepath(PCLOUD_LOG_FILE);
 
   if (filename) {
-    FILE* log_file = fopen(filename, "w");
+    FILE *log_file = fopen(filename, "w");
     if (log_file) {
       log_add_fp(log_file, PCLOUD_LOG_LEVEL);
     }

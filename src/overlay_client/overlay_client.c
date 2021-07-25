@@ -8,21 +8,22 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include <sys/socket.h>
-#include <sys/un.h>
+#include "overlay_client.h"
+
+#include <netinet/in.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <unistd.h>
-#include <stdint.h>
-#include <netinet/in.h>
 
 #include "config.h"
-#include "pcloudcc/psync/compat.h"
-#include "pcloudcc/psync/stringcompat.h"
-#include "pcloudcc/psync/sockets.h"
-#include "pcloudcc/psync/overlay.h"
-#include "overlay_client.h"
 #include "logger.h"
+#include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/overlay.h"
+#include "pcloudcc/psync/sockets.h"
+#include "pcloudcc/psync/stringcompat.h"
 
 static int logger_initialized = 0;
 
@@ -56,8 +57,7 @@ int query_state(overlay_file_state_t *state, char *path) {
 
   if (!send_call(4, path, &rep, &errm)) {
     log_debug("query_state: response code: %d, path: %s", rep, path);
-    if (errm)
-      log_error("query_state: %s", errm);
+    if (errm) log_error("query_state: %s", errm);
 
     switch (rep) {
       case 10:
@@ -75,20 +75,25 @@ int query_state(overlay_file_state_t *state, char *path) {
   } else
     log_error("query_state: response code: %d, path: %s", rep, path);
 
-  if (errm)
-    free(errm);
+  if (errm) free(errm);
 
   return 0;
 }
 
-static const char* cmd2str(const overlay_command_t cmd) {
+static const char *cmd2str(const overlay_command_t cmd) {
   switch (cmd) {
-    case STARTCRYPTO: return "startcrypto";
-    case STOPCRYPTO: return "stopcrypto";
-    case LISTSYNC: return "listsync";
-    case ADDSYNC: return "addsync";
-    case STOPSYNC: return "stopsync";
-    default: return "unknown";
+    case STARTCRYPTO:
+      return "startcrypto";
+    case STOPCRYPTO:
+      return "stopcrypto";
+    case LISTSYNC:
+      return "listsync";
+    case ADDSYNC:
+      return "addsync";
+    case STOPSYNC:
+      return "stopsync";
+    default:
+      return "unknown";
   }
 }
 
@@ -120,9 +125,9 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 #ifdef P_OS_MACOSX
   /* 1. Open a socket */
   if ((fd = socket(PF_INET, SOCK_STREAM, POVERLAY_PROTOCOL)) == -1) {
-    log_error("%s: failed to create socket on port %u", cmd2str(cmd), POVERLAY_PORT);
-    if (out)
-      *out = (void *)strdup("Unable to create INET socket");
+    log_error("%s: failed to create socket on port %u", cmd2str(cmd),
+              POVERLAY_PORT);
+    if (out) *out = (void *)strdup("Unable to create INET socket");
     *ret = -1;
     return -1;
   }
@@ -133,11 +138,10 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   addr.sin_port = htons(POVERLAY_PORT);
 
-  if (connect (fd, (struct sockaddr *)&addr, sizeof(struct sockaddr)) == - 1) {
-    log_error("%s: failed to connect to socket: %s",
-              cmd2str(cmd), strerror(errno));
-    if (out)
-      *out = (void *)strdup("Unable to connect to INET socket");
+  if (connect(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr)) == -1) {
+    log_error("%s: failed to connect to socket: %s", cmd2str(cmd),
+              strerror(errno));
+    if (out) *out = (void *)strdup("Unable to connect to INET socket");
     *ret = -2;
     return -1;
   }
@@ -164,9 +168,9 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   strlcpy(addr.sun_path, socket_path, sizeof(addr.sun_path));
 
   /* 3. Initiate a connection on a socket */
-  if (connect(fd, (struct sockaddr*)&addr, SUN_LEN(&addr)) == - 1) {
-    log_error("%s: failed to connect to socket %s",
-              cmd2str(cmd), strerror(errno));
+  if (connect(fd, (struct sockaddr *)&addr, SUN_LEN(&addr)) == -1) {
+    log_error("%s: failed to connect to socket %s", cmd2str(cmd),
+              strerror(errno));
     *out = (void *)strdup("Unable to connect to UNIX socket");
     *ret = -4;
     return -1;
@@ -174,7 +178,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 #endif
 
   poverlay_message_t *mes = (poverlay_message_t *)sendbuf;
-  memset (mes, 0, mess_size);
+  memset(mes, 0, mess_size);
   mes->type = cmd;
   strlcpy(mes->value, path, path_size + 1);
   mes->length = mess_size;
@@ -188,8 +192,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   log_trace("%s: send %lu bytes", cmd2str(cmd), bw);
   if (bw != mes->length) {
     log_error("%s: communication error", cmd2str(cmd));
-    if (out)
-      *out = (void *)strdup("Communication error");
+    if (out) *out = (void *)strdup("Communication error");
     close(fd);
     *ret = -5;
     return -1;
@@ -204,8 +207,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 
   if (bufflen <= 0) {
     log_error("%s: message size could not be read: %d", cmd2str(cmd), bufflen);
-    if (out)
-      *out = (void *)strdup("Communication error");
+    if (out) *out = (void *)strdup("Communication error");
     *ret = -5;
     return -1;
   }
@@ -220,8 +222,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   *ret = (int)rep->type;
   log_debug("%s: response message: %s", cmd2str(cmd), rep->value);
 
-  if (out)
-    *out = (void *)strdup(rep->value);
+  if (out) *out = (void *)strdup(rep->value);
   close(fd);
 
   return *ret;

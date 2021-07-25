@@ -7,17 +7,17 @@
 
 #include "app.hpp"
 
-#include <pcloudcc/psync/version.h>
 #include <unistd.h>
 
 #include <string>
 
 #include <CLI/CLI.hpp>
-#include <pcloudcc/version.hpp>
 
 #include "bridge.hpp"
 #include "ct.hpp"
 #include "formatter.hpp"
+#include "pcloudcc/psync/version.h"
+#include "pcloudcc/version.hpp"
 
 pcloud::cli::App::App(std::vector<std::string> args)
     : args_(std::move(args)),
