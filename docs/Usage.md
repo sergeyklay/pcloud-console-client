@@ -47,20 +47,20 @@ Usage:
   pcloudcc [options] [--] [arguments]
 
 Options:
-  -k,--commands-only      Daemon already started pass only commands
-  -d,--daemonize          Daemonize the process
-  -u,--username TEXT      pCloud account name
-  -p,--password           Ask pCloud account password
-  -c,--crypto             Ask crypto password
-  -y,--passascrypto       Use user password as crypto password also
-  -m,--mountpoint TEXT    Mount point where drive to be mounted
-  -n,--newuser            Use if this is a new user to be registered
-  -o,--commands           Parent stays alive and processes commands
-  -s,--savepassword       Save password in database
-  -V,--version            Print client version information and quit
-  --vernum                Print the version of the client as integer and quit
-  --dumpversion           Print the version of the client and don't do anything else
-  -h,--help               Print this help message and quit
+  -k, --commands-only     Daemon already started pass only commands
+  -d, --daemonize         Daemonize the process
+  -u, --username arg      pCloud account name
+  -p, --password          Ask pCloud account password
+  -c, --crypto            Ask crypto password
+  -y, --passascrypto      Use user password as crypto password also
+  -m, --mountpoint arg    Mount point where drive to be mounted
+  -n, --newuser           Use if this is a new user to be registered
+  -o, --commands          Parent stays alive and processes commands
+  -s, --savepassword      Save password in database
+  -V, --version           Print client version information and quit
+      --vernum            Print the version of the client as integer and quit
+      --dumpversion       Print the version of the client and don't do anything else
+  -h, --help              Print this help message and quit
   
 ```
 

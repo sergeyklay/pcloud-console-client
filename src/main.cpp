@@ -76,6 +76,30 @@ class PcloudFormatter : public CLI::Formatter {
 
     return out;
   }
+
+  std::string make_option_name(const CLI::Option *opt, bool is_positional) const override {
+    std::string name;
+    if(is_positional)
+      name = opt->get_name(true, false);
+    else
+      name = opt->get_name(false, true);
+
+    std::string new_name;
+    if (name[0] == '-' && name[1] == '-') {
+      new_name = "    " + name;
+    } else {
+      for(char i : name) {
+        if(i != ',')
+          new_name += i;
+        else {
+          new_name += i;
+          new_name += " ";
+        }
+      }
+    }
+
+    return new_name;
+  }
 };
 
 int main(int argc, char** argv) {
@@ -89,6 +113,7 @@ int main(int argc, char** argv) {
   app.get_formatter()->column_width(26);
   app.get_formatter()->label("OPTIONS", "options");
   app.get_formatter()->label("ARGUMENTS", "arguments");
+  app.get_formatter()->label("TEXT", "arg");
 
   // Global flag & options
 
