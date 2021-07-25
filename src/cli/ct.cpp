@@ -13,15 +13,16 @@
 #include <unistd.h>
 #include <string>
 
-#include "pcloudcc/psync/compiler.h"
+#include <pcloudcc/psync/compiler.h>
+#include <pcloudcc/version.hpp>
+
 #include "pcloudcrypto.h"
 #include "overlay_client.h"
 
-#include "pcloudcc/version.hpp"
-#include "control_tools.hpp"
-#include "pclcli.hpp"
+#include "ct.hpp"
+#include "bridge.hpp"
 
-void control_tools::start_crypto(const char *pass) {
+void pcloud::cli::start_crypto(const char *pass) {
   int ret;
   char *errm = nullptr;
   int status = send_call(STARTCRYPTO, pass, &ret, &errm);
@@ -42,7 +43,7 @@ void control_tools::start_crypto(const char *pass) {
     free(errm);
 }
 
-void control_tools::stop_crypto() {
+void pcloud::cli::stop_crypto() {
   int ret;
   char *errm = nullptr;
   int status = send_call(STOPCRYPTO, "", &ret, &errm);
@@ -87,15 +88,15 @@ void static print_menu() {
             << std::endl;
 }
 
-void control_tools::process_commands() {
+void pcloud::cli::process_commands() {
   std::cout << "Welcome to" << PCLOUD_VERSION_FULL << std::endl << std::endl;
   std::cout<< "Command (m for help): ";
 
   for (std::string line; std::getline(std::cin, line) ; ) {
     if (!line.compare(0, 11, "startcrypto", 0, 11) && (line.length() > 12)) {
-      control_tools::start_crypto(line.c_str() + 12);
+      start_crypto(line.c_str() + 12);
     } else if (line == "stopcrypto") {
-      control_tools::stop_crypto();
+      stop_crypto();
     }else if (line == "menu" || line == "m") {
       print_menu();
     } else if (line == "quit" || line == "q") {
@@ -106,7 +107,7 @@ void control_tools::process_commands() {
   }
 }
 
-PSYNC_NO_RETURN void control_tools::daemonize(bool do_commands) {
+PSYNC_NO_RETURN void pcloud::cli::daemonize(bool do_commands) {
   pid_t pid, sid;
 
   pid = fork();
@@ -116,7 +117,7 @@ PSYNC_NO_RETURN void control_tools::daemonize(bool do_commands) {
   if (pid > 0) {
     std::cout << "Daemon process created. Process id is: " << pid << std::endl;
     if (do_commands) {
-      control_tools::process_commands();
+      process_commands();
     } else
       std::cout  << "Use \"kill " << pid << "\""
                  <<" to stop it." << std::endl;
@@ -137,8 +138,8 @@ PSYNC_NO_RETURN void control_tools::daemonize(bool do_commands) {
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
 
-  if (console_client::clibrary::pclcli::get_lib().init())
-     exit(EXIT_FAILURE);
+  if (Bridge::get_lib().init())
+    exit(EXIT_FAILURE);
 
   while (true) {
     sleep(10);

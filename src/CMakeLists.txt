@@ -10,27 +10,13 @@ add_compile_definitions(P_CONSOLE_CLIENT)
 add_subdirectory(logger)
 add_subdirectory(psync)
 add_subdirectory(overlay_client)
-
-add_library(pclcli STATIC pclcli.cpp control_tools.cpp)
-add_library(pcloud::pclcli ALIAS pclcli)
-
-target_include_directories(pclcli
-  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/psync
-          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/overlay_client)
-
-target_link_libraries(pclcli
-    PRIVATE pcloud::psync
-            pcloud::overlay_client
-            CONAN_PKG::sqlite3
-            ${CMAKE_THREAD_LIBS_INIT})
+add_subdirectory(cli)
 
 add_executable(pcloudcc main.cpp)
 
 target_link_libraries(pcloudcc
-    PRIVATE pcloud::pclcli
-            CONAN_PKG::cli11)
+    PRIVATE pcloud::cli
+            pcloud::compilerflags)
 
 file(RELATIVE_PATH relative
     ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}

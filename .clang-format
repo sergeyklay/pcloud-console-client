@@ -14,7 +14,7 @@
 
 ---
 Language: Cpp
-Standard: c++11
+Standard: c++14
 BasedOnStyle: Google
 DisableFormat: false
 
