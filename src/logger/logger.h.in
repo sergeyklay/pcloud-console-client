@@ -30,15 +30,19 @@ extern "C" {
 #define PCLOUD_LOG_FILE NULL
 #endif
 
-#ifndef PCLOUD_PROJECT_DIR
-#define PCLOUD_PROJECT_DIR "@PROJECT_SOURCE_DIR@"
+#ifndef PCLOUD_SOURCE_PATH
+#define PCLOUD_SOURCE_PATH "@PROJECT_SOURCE_DIR@"
 #endif
 
-#define REL_PATH ( \
-    strstr(__FILE__, PCLOUD_PROJECT_DIR) && strlen(__FILE__)  + 1 > strlen(PCLOUD_PROJECT_DIR) \
-                      ? strstr(__FILE__, PCLOUD_PROJECT_DIR) + strlen(PCLOUD_PROJECT_DIR) + 1  \
-                      : __FILE__                                                               \
- )
+#ifndef PCLOUD_SOURCE_PATH_SIZE
+#define PCLOUD_SOURCE_PATH_SIZE 0
+#endif
+
+#ifdef __FILENAME__
+#undef __FILENAME__
+#endif
+#define __FILENAME__ \
+  strstr(__FILE__, PCLOUD_SOURCE_PATH) + PCLOUD_SOURCE_PATH_SIZE
 
 #undef log_trace
 #undef log_debug
@@ -48,12 +52,12 @@ extern "C" {
 #undef log_fatal
 
 /* Redefine macro to use relative paths */
-#define log_trace(...) log_log(LOG_TRACE, REL_PATH, __LINE__, __VA_ARGS__)
-#define log_debug(...) log_log(LOG_DEBUG, REL_PATH, __LINE__, __VA_ARGS__)
-#define log_info(...)  log_log(LOG_INFO, REL_PATH, __LINE__, __VA_ARGS__)
-#define log_warn(...)  log_log(LOG_WARN, REL_PATH, __LINE__, __VA_ARGS__)
-#define log_error(...) log_log(LOG_ERROR, REL_PATH, __LINE__, __VA_ARGS__)
-#define log_fatal(...) log_log(LOG_FATAL, REL_PATH, __LINE__, __VA_ARGS__)
+#define log_trace(...) log_log(LOG_TRACE, __FILENAME__, __LINE__, __VA_ARGS__)
+#define log_debug(...) log_log(LOG_DEBUG, __FILENAME__, __LINE__, __VA_ARGS__)
+#define log_info(...)  log_log(LOG_INFO, __FILENAME__, __LINE__, __VA_ARGS__)
+#define log_warn(...)  log_log(LOG_WARN, __FILENAME__, __LINE__, __VA_ARGS__)
+#define log_error(...) log_log(LOG_ERROR, __FILENAME__, __LINE__, __VA_ARGS__)
+#define log_fatal(...) log_log(LOG_FATAL, __FILENAME__, __LINE__, __VA_ARGS__)
 
 void log_lock(bool lock, void *udata);
 void setup_logging();

@@ -811,7 +811,7 @@ int psync_sql_sync() {
 int psync_sql_do_statement(const char *sql, const char *file, unsigned line) {
   char *errmsg;
   int code;
-  log_debug("SQL: %s", sql);
+  log_trace("SQL: %s", sql);
   psync_sql_do_lock(file, line);
   code = sqlite3_exec(psync_db, sql, NULL, NULL, &errmsg);
   psync_sql_unlock();

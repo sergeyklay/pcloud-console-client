@@ -536,18 +536,17 @@ unsigned char *do_prepare_command(
   return sdata;
 }
 
-binresult *do_send_command(
-    psync_socket *sock, const char *command, size_t cmdlen,
-    const binparam *params, size_t paramcnt, int64_t datalen, int readres) {
-
+binresult *do_send_command(psync_socket *sock, const char *command,
+                           size_t cmdlen, const binparam *params,
+                           size_t paramcnt, int64_t datalen, int readres) {
   unsigned char *sdata;
   size_t plen;
 
   log_debug("sending command to api server: %s", command);
-  sdata = do_prepare_command(command, cmdlen, params, paramcnt, datalen, 0, &plen);
+  sdata =
+      do_prepare_command(command, cmdlen, params, paramcnt, datalen, 0, &plen);
 
-  if (!sdata)
-    return NULL;
+  if (!sdata) return NULL;
 
   if (readres & 2) {
     if (unlikely(psync_socket_writeall_thread(sock, sdata, plen) != plen)) {
@@ -556,7 +555,7 @@ binresult *do_send_command(
       return NULL;
     }
   } else {
-    if (unlikely(psync_socket_writeall(sock, sdata, plen)!=plen)) {
+    if (unlikely(psync_socket_writeall(sock, sdata, plen) != plen)) {
       log_error("failed to write all the data to the socket");
       psync_free(sdata);
       return NULL;
@@ -564,8 +563,7 @@ binresult *do_send_command(
   }
 
   psync_free(sdata);
-  if (readres & 1)
-    return get_result(sock);
+  if (readres & 1) return get_result(sock);
 
   return PTR_OK;
 }
@@ -577,24 +575,27 @@ const binresult *psync_do_find_result(const binresult *res, const char *name,
 
   if (unlikely(!res || res->type != PARAM_HASH)) {
     const char *nm = res ? type_names[res->type] : "NULL";
-    log_fatal("expecting hash as first parameter, got %s", nm);
+    log_log(LOG_FATAL, file, (int)line,
+            "%s expecting hash as first parameter, got %s", function, nm);
     return empty_types[type];
   }
 
-  for (i=0; i<res->length; i++)
+  for (i = 0; i < res->length; i++)
     if (!strcmp(res->hash[i].key, name)) {
-      if (likely(res->hash[i].value->type==type))
+      if (likely(res->hash[i].value->type == type))
         return res->hash[i].value;
       else {
-        log_fatal("type error for key %s, expected %s got %s", name, type_names[type], type_names[res->hash[i].value->type]);
+        log_log(LOG_FATAL, file, (int)line,
+                "type error in %s for key %s, expected %s got %s", function,
+                name, type_names[type], type_names[res->hash[i].value->type]);
         return empty_types[type];
       }
     }
   log_fatal("could not find key %s", name);
 #if IS_DEBUG
-  log_debug("dumping existing fields of the hash");
-  for (i=0; i<res->length; i++)
-    switch (res->hash[i].value->type) {
+  log_log(LOG_DEBUG, file, (int)line, "%s: dumping existing fields of the hash",
+          function);
+  for (i = 0; i < res->length; i++) switch (res->hash[i].value->type) {
       case PARAM_HASH:
         log_debug("  %s=[hash]", res->hash[i].key);
         break;
@@ -605,43 +606,51 @@ const binresult *psync_do_find_result(const binresult *res, const char *name,
         log_debug("  %s=[data]", res->hash[i].key);
         break;
       case PARAM_NUM:
-        log_debug("  %s=%llu", res->hash[i].key, (long long unsigned)res->hash[i].value->num);
+        log_debug("  %s=%llu", res->hash[i].key,
+                  (long long unsigned)res->hash[i].value->num);
         break;
       case PARAM_STR:
         log_debug("  %s=\"%s\"", res->hash[i].key, res->hash[i].value->str);
         break;
       case PARAM_BOOL:
-        log_debug("  %s=%s", res->hash[i].key, res->hash[i].value->num?"true":"false");
+        log_debug("  %s=%s", res->hash[i].key,
+                  res->hash[i].value->num ? "true" : "false");
         break;
       default:
-        log_debug("  %s=!unknown type %u", res->hash[i].key, (unsigned)res->hash[i].value->type);
+        log_debug("  %s=!unknown type %u", res->hash[i].key,
+                  (unsigned)res->hash[i].value->type);
         break;
     }
 #endif
   return empty_types[type];
 }
 
-const binresult *psync_check_result(const binresult *res, const char *name,
-                                    uint32_t type) {
+const binresult *psync_do_check_result(const binresult *res, const char *name,
+                                       uint32_t type, const char *file,
+                                       const char *function,
+                                       int unsigned line) {
   uint32_t i;
 
-  if (unlikely(!res || res->type!=PARAM_HASH)) {
+  if (unlikely(!res || res->type != PARAM_HASH)) {
     const char *nm = res ? type_names[res->type] : "NULL";
-    log_fatal("expecting hash as first parameter, got %s", nm);
+    log_log(LOG_FATAL, file, (int)line,
+            "%s expecting hash as first parameter, got %s", function, nm);
     return NULL;
   }
 
   for (i = 0; i < res->length; i++) {
     if (strcmp(res->hash[i].key, name) == 0) {
-      if (likely(res->hash[i].value->type == type))
-        return res->hash[i].value;
+      if (likely(res->hash[i].value->type == type)) return res->hash[i].value;
 
-      log_fatal("type error for key \"%s\", expected %s got %s",
-                name, type_names[type], type_names[res->hash[i].value->type]);
+      log_log(LOG_FATAL, file, (int)line,
+              "type error in %s for key \"%s\", expected %s got %s", function,
+              name, type_names[type], type_names[res->hash[i].value->type]);
       return NULL;
     }
   }
 
-  log_warn("the expected key \"%s\" was not found in the response", name);
+  log_log(LOG_WARN, file, (int)line,
+          "%s: the expected key \"%s\" was not found in the response", function,
+          name);
   return NULL;
 }
