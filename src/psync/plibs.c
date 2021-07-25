@@ -2488,33 +2488,39 @@ static const char * PSYNC_CONST get_type_name(uint32_t t) {
   return psync_typenames[t];
 }
 
-uint64_t psync_err_number_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
-  if (D_CRITICAL<=DEBUG_LEVEL)
-    psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TNUMBER), get_type_name(v->type));
+uint64_t psync_err_number_expected(const char *file, const char *function,
+                                   int unsigned line, const psync_variant *v) {
+  log_log(LOG_FATAL, file, (int)line, "type error in %s, wanted %s got %s",
+          function, get_type_name(PSYNC_TNUMBER), get_type_name(v->type));
+
   return 0;
 }
 
-const char *psync_err_string_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
-  if (D_CRITICAL<=DEBUG_LEVEL)
-    psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TSTRING), get_type_name(v->type));
+const char *psync_err_string_expected(const char *file, const char *function,
+                                      int unsigned line,
+                                      const psync_variant *v) {
+  log_log(LOG_FATAL, file, (int)line, "type error in %s, wanted %s got %s",
+          function, get_type_name(PSYNC_TSTRING), get_type_name(v->type));
+
   return "";
 }
 
-const char *psync_lstring_expected(const char *file, const char *function, int unsigned line, const psync_variant *v, size_t *len) {
-  if (likely(v->type==PSYNC_TSTRING)) {
-    *len=v->length;
+const char *psync_lstring_expected(const char *file, const char *function,
+                                   int unsigned line, const psync_variant *v,
+                                   size_t *len) {
+  if (likely(v->type == PSYNC_TSTRING)) {
+    *len = v->length;
     return v->str;
   }
-  else{
-    if (D_CRITICAL<=DEBUG_LEVEL)
-      psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TSTRING), get_type_name(v->type));
-    *len=0;
-    return "";
-  }
+
+  *len = 0;
+  return psync_err_string_expected(file, function, line, v);
 }
 
-double psync_err_real_expected(const char *file, const char *function, int unsigned line, const psync_variant *v) {
-  if (D_CRITICAL<=DEBUG_LEVEL)
-    psync_debug(file, function, line, D_CRITICAL, "type error, wanted %s got %s", get_type_name(PSYNC_TREAL), get_type_name(v->type));
+double psync_err_real_expected(const char *file, const char *function,
+                               int unsigned line, const psync_variant *v) {
+  log_log(LOG_FATAL, file, (int)line, "type error in %s, wanted %s got %s",
+          function, get_type_name(PSYNC_TREAL), get_type_name(v->type));
+
   return 0.0;
 }

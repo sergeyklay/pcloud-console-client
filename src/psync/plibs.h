@@ -59,16 +59,26 @@
 #define PSYNC_TBOOL   5
 
 #define psync_is_null(v) ((v).type==PSYNC_TNULL)
-#define psync_get_number(v) (likely((v).type==PSYNC_TNUMBER)?(v).num:psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
 #define psync_get_snumber(v) (likely((v).type==PSYNC_TNUMBER)?(int64_t)((v).num):(int64_t)psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
 #define psync_get_number_or_null(v) (((v).type==PSYNC_TNUMBER)?(v).num:(likely((v).type==PSYNC_TNULL)?0:psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v))))
 #define psync_get_snumber_or_null(v) (((v).type==PSYNC_TNUMBER)?(int64_t)(v).num:(likely((v).type==PSYNC_TNULL)?0:(int64_t)psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v))))
 #define psync_get_string(v) (likely((v).type==PSYNC_TSTRING)?(v).str:psync_err_string_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
 #define psync_get_string_or_null(v) (((v).type==PSYNC_TSTRING)?(v).str:(likely((v).type==PSYNC_TNULL)?NULL:psync_err_string_expected(__FILE__, __FUNCTION__, __LINE__, &(v))))
 #define psync_dup_string(v) (likely((v).type==PSYNC_TSTRING)?psync_strndup((v).str, (v).length):psync_strdup(psync_err_string_expected(__FILE__, __FUNCTION__, __LINE__, &(v))))
-#define psync_get_lstring(v, l) psync_lstring_expected(__FILE__, __FUNCTION__, __LINE__, &(v), l)
 #define psync_get_lstring_or_null(v, l) ((v).type==PSYNC_TNULL?NULL:psync_lstring_expected(__FILE__, __FUNCTION__, __LINE__, &(v), l))
-#define psync_get_real(v) (likely((v).type==PSYNC_TREAL)?(v).real:psync_err_real_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
+
+#define psync_get_number(v)          \
+  (likely((v).type == PSYNC_TNUMBER) \
+       ? (v).num                     \
+       : psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
+
+#define psync_get_real(v)          \
+  (likely((v).type == PSYNC_TREAL) \
+       ? (v).real                  \
+       : psync_err_real_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
+
+#define psync_get_lstring(v, l) \
+   psync_lstring_expected(__FILE__, __FUNCTION__, __LINE__, &(v), l)
 
 #if D_WARNING<=DEBUG_LEVEL
 #define likely_log(x) (likely(x)?1:psync_debug(__FILE__, __FUNCTION__, __LINE__, D_WARNING, "assertion likely_log(%s) failed", TO_STR(x))*0)
