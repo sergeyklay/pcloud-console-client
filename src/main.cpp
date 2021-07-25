@@ -28,10 +28,39 @@ static inline std::vector<std::string> prepare_args(int argc, char** argv) {
   return args;
 }
 
-static inline std::string make_description() {
-  std::string out;
+class PcloudFormatter : public CLI::Formatter {
+ public:
+  std::string make_usage(const CLI::App *app,
+                         const std::string /* name */) const override {
 
-  const auto BANNER = R"BANNER(
+    auto out = get_label("Usage") + ":\n";
+    out += "  " + app->get_name();
+
+
+    auto groups = app->get_groups();
+
+    // Print an OPTIONS badge if any options exist
+    auto non_positionals = app->get_options(
+        [](const CLI::Option *opt) { return opt->nonpositional(); });
+    if (!non_positionals.empty()) {
+      out += " [" + get_label("OPTIONS") + "]";
+    }
+
+    // Print an ARGUMENTS badge if any arguments exist
+    // or we're show help for the main program
+    auto positionals = app->get_options(
+        [](const CLI::Option *opt) { return opt->get_positional(); });
+    if (!app->get_parent() || !positionals.empty()) {
+      out += " [--] [" + get_label("ARGUMENTS") + "]";
+    }
+
+    return out += "\n";
+  }
+
+  std::string make_description(const CLI::App *app) const override {
+    std::string out;
+
+    const auto BANNER = R"BANNER(
            ________                __
     ____  / ____/ /___  __  ______/ /
    / __ \/ /   / / __ \/ / / / __  /
@@ -39,28 +68,27 @@ static inline std::string make_description() {
  / .___/\____/_/\____/\__,_/\__,_/
 /_/)BANNER";
 
-  std::string banner(BANNER);
-  out += banner.replace(0, 1, "") + "\n\n";
+    std::string banner(BANNER);
+    out += banner.replace(0, 1, "") + "\n\n";
 
-  out += std::string(PCLOUD_PACKAGE_NAME) + " ";
-  out += std::string(PCLOUD_VERSION);
-  out += "\n\n";
+    auto desc = app->get_description();
+    out += desc + "\n\n";
 
-  return out;
-}
+    return out;
+  }
+};
 
 int main(int argc, char** argv) {
   auto args = prepare_args(argc, argv);
-  auto out =
+  auto const description =
       std::string(PCLOUD_PACKAGE_NAME) + " " + std::string(PCLOUD_VERSION);
 
-  CLI::App app{};
+  CLI::App app{description, "pcloudcc"};
 
-  app.name("pcloudcc");
-  app.description(make_description());
-
+  app.formatter(std::make_shared<PcloudFormatter>());
   app.get_formatter()->column_width(26);
   app.get_formatter()->label("OPTIONS", "options");
+  app.get_formatter()->label("ARGUMENTS", "arguments");
 
   // Global flag & options
 

@@ -43,8 +43,8 @@ $ pcloudcc --help
 
 pCloud Console Client 3.0.0
 
-
-Usage: pcloudcc [options]
+Usage:
+  pcloudcc [options] [--] [arguments]
 
 Options:
   -k,--commands-only      Daemon already started pass only commands
@@ -61,7 +61,7 @@ Options:
   --vernum                Print the version of the client as integer and quit
   --dumpversion           Print the version of the client and don't do anything else
   -h,--help               Print this help message and quit
-
+  
 ```
 
 Also, there are several commands that the running service can execute. Commands are passed using
