@@ -11,24 +11,14 @@
 #ifndef PCLOUD_PSYNC_POVERLAY_H_
 #define PCLOUD_PSYNC_POVERLAY_H_
 
+#include "pcloudcc/psync/overlay.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern int overlays_running;
 extern int callbacks_running;
-
-typedef struct message_ {
-  uint32_t type;
-  uint64_t length;
-  char value[];
-} message;
-
-/*! \brief The file manager extension callback.
- *
- * Callback to be registered to be called from file manager extension.
- */
-typedef int (*poverlay_callback)(const char *path, void *rep);
 
 /*! \brief The main overlay loop.
  *
@@ -41,20 +31,6 @@ typedef int (*poverlay_callback)(const char *path, void *rep);
 void overlay_main_loop();
 
 void instance_thread(void* payload);
-void get_answer_to_request(message *request, message *replay);
-
-/*! \brief Register a file manager callback.
- *
- * Registers file manager extension callback that will be called when packet
- * with id equals to the give one had arrived from extension.  The id must be
- * over or equal to 20 or -1 will be returned.  There is a hard coded maximum
- * of menu items on some OS-s so maximum of 15 ids are available.  Value of -2
- * is returned when id grater then 35 and 0 returned on success.
- *
- * \warning These function are not thread-safe. Use them in single thread or
- *          synchronize.
- */
-int psync_add_overlay_callback(int id, poverlay_callback callback);
 
 void psync_stop_overlays();
 void psync_start_overlays();
@@ -66,7 +42,7 @@ int psync_ovr_callbacks_running();
 void init_overlay_callbacks();
 
 #ifdef __cplusplus
-}
+}  /* extern "C" */
 #endif
 
 #endif  /* PCLOUD_PSYNC_POVERLAY_H_ */

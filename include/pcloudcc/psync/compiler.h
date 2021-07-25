@@ -57,7 +57,7 @@
 # define PSYNC_NO_RETURN __declspec(noreturn)
 #else
 #if __has_attribute(noreturn)
-#define PSYNC_NO_RETURN __attribute__((noreturn))
+# define PSYNC_NO_RETURN __attribute__((noreturn))
 #else
 # define PSYNC_NO_RETURN
 #endif

@@ -9,6 +9,7 @@
  */
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/overlay.h"
 
 #include "plibs.h"
 #include "poverlay.h"
@@ -27,21 +28,23 @@ void overlay_main_loop(void) {}
 void instance_thread(void* payload) {}
 #endif /* P_OS_WINDOWS */
 
-poverlay_callback * callbacks;
+overlay_callback *callbacks;
 static int callbacks_size = 15;
 static const int callbacks_lower_band = 20;
 
-int psync_add_overlay_callback(int id, poverlay_callback callback) {
-  poverlay_callback * callbacks_old = callbacks;
-  int callbacks_size_old = callbacks_size;
-  if (id < callbacks_lower_band)
+int psync_overlay_add_callback(int id, overlay_callback callback) {
+  if (id < callbacks_lower_band) {
     return -1;
+  }
+
+  overlay_callback *callbacks_old = callbacks;
+  int callbacks_size_old = callbacks_size;
 
   if (id > (callbacks_lower_band + callbacks_size)) {
      callbacks_size = id - callbacks_lower_band + 1;
      init_overlay_callbacks();
      memcpy(callbacks, callbacks_old,
-            callbacks_size_old * sizeof(poverlay_callback));
+            callbacks_size_old * sizeof(overlay_callback));
      psync_free(callbacks_old);
   }
 
@@ -50,8 +53,8 @@ int psync_add_overlay_callback(int id, poverlay_callback callback) {
 }
 
 void init_overlay_callbacks() {
-  callbacks = (poverlay_callback *) psync_malloc(sizeof(poverlay_callback) * callbacks_size);
-  memset(callbacks, 0, sizeof(poverlay_callback) * callbacks_size);
+  callbacks = (overlay_callback *) psync_malloc(sizeof(overlay_callback) * callbacks_size);
+  memset(callbacks, 0, sizeof(overlay_callback) * callbacks_size);
 }
 
 void psync_stop_overlays() {
@@ -70,13 +73,14 @@ void psync_start_overlay_callbacks() {
   callbacks_running = 1;
 }
 
-void get_answer_to_request(message *request, message *response) {
+void psync_overlay_process_request(overlay_message_t *request,
+                                   overlay_message_t *response) {
   psync_path_status_t stat = PSYNC_PATH_STATUS_NOT_OURS;
   memcpy(response->value, "Ok.", 4);
-  response->length = sizeof(message) + 4;
+  response->length = sizeof(overlay_message_t) + 4;
   int max_band;
 
-  if (request->type < 20 ) {
+  if (request->type < callbacks_lower_band) {
     if (overlays_running)
       stat = psync_path_status_get(request->value);
     switch (psync_path_status_get_status(stat)) {
@@ -103,15 +107,16 @@ void get_answer_to_request(message *request, message *response) {
   if (psync_overlays_running() && (request->type < max_band)) {
     uint32_t ind = request->type - 20;
     int ret;
-    message *rep = NULL;
+    overlay_message_t *rep = NULL;
 
     if (callbacks[ind]) {
-      if ((ret = callbacks[ind](request->value, rep)) == 0) {
+      if ((ret = callbacks[ind](request->value, &rep)) == 0) {
         if (rep) {
           psync_free(response);
           response = rep;
-        } else
+        } else {
           response->type = 0;
+        }
       } else {
         response->type = ret;
         memcpy(response->value, "No.", 4);
@@ -119,7 +124,7 @@ void get_answer_to_request(message *request, message *response) {
     } else {
       response->type = 13;
       memcpy(response->value, "No callback with this id registered.", 37);
-      response->length = sizeof(message)+37;
+      response->length = sizeof(overlay_message_t) + 37;
     }
 
     return;  /* exit */
@@ -127,7 +132,7 @@ void get_answer_to_request(message *request, message *response) {
 
   response->type = 13;
   memcpy(response->value, "Invalid type.", 14);
-  response->length = sizeof(message) + 14;
+  response->length = sizeof(overlay_message_t) + 14;
 }
 
 int psync_overlays_running() {

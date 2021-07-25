@@ -98,15 +98,14 @@ PSYNC_NOINLINE void *psync_emergency_malloc(size_t size) {
 
 void *psync_malloc(size_t size) {
   void *ret;
-  ret=psync_real_malloc(size);
+  ret = psync_real_malloc(size);
   if (likely(ret))
 #if IS_DEBUG
     return memset(ret, 0xfa, size);
 #else
     return ret;
 #endif
-  else
-    return psync_emergency_malloc(size);
+  return psync_emergency_malloc(size);
 }
 
 PSYNC_NOINLINE void *psync_emergency_realloc(void *ptr, size_t size) {
@@ -132,8 +131,7 @@ void *psync_realloc(void *ptr, size_t size) {
   ret=psync_real_realloc(ptr, size);
   if (likely(ret))
     return ret;
-  else
-    return psync_emergency_realloc(ptr, size);
+  return psync_emergency_realloc(ptr, size);
 }
 
 void psync_free(void *ptr) {
@@ -336,7 +334,6 @@ void psync_set_auth(const char *auth, int save) {
   psync_set_status(PSTATUS_TYPE_AUTH, PSTATUS_AUTH_PROVIDED);
 }
 
-
 int psync_mark_notificaitons_read(uint32_t notificationid) {
   binparam params[] = {P_STR("auth", psync_my_auth), P_NUM("notificationid", notificationid)};
   return psync_run_command("readnotifications", params, NULL)?-1:0;
@@ -434,8 +431,7 @@ psync_syncid_t psync_add_sync_by_path(const char *localpath, const char *remotep
   psync_folderid_t folderid=psync_get_folderid_by_path(remotepath);
   if (likely_log(folderid!=PSYNC_INVALID_FOLDERID))
     return psync_add_sync_by_folderid(localpath, folderid, synctype);
-  else
-    return PSYNC_INVALID_SYNCID;
+  return PSYNC_INVALID_SYNCID;
 }
 
 psync_syncid_t psync_add_sync_by_folderid(const char *localpath, psync_folderid_t folderid, psync_synctype_t synctype) {
@@ -698,10 +694,9 @@ psuggested_folders_t *psync_get_sync_suggestions() {
     psync_free(home);
     return ret;
   }
-  else{
-    psync_error=PERROR_NO_HOMEDIR;
-    return NULL;
-  }
+
+  psync_error = PERROR_NO_HOMEDIR;
+  return NULL;
 }
 
 pfolder_list_t *psync_list_local_folder_by_path(const char *localpath, psync_listtype_t listtype) {
@@ -712,8 +707,7 @@ pfolder_list_t *psync_list_remote_folder_by_path(const char *remotepath, psync_l
   psync_folderid_t folderid=psync_get_folderid_by_path(remotepath);
   if (folderid!=PSYNC_INVALID_FOLDERID)
     return psync_list_remote_folder(folderid, listtype);
-  else
-    return NULL;
+  return NULL;
 }
 
 pfolder_list_t *psync_list_remote_folder_by_folderid(psync_folderid_t folderid, psync_listtype_t listtype) {
@@ -1647,16 +1641,22 @@ int psync_crypto_isstarted() {
 int psync_crypto_mkdir(psync_folderid_t folderid, const char *name, const char **err, psync_folderid_t *newfolderid) {
   if (psync_status_is_offline())
     return PSYNC_CRYPTO_CANT_CONNECT;
-  else
-    return psync_cloud_crypto_mkdir(folderid, name, err, newfolderid);
+
+  return psync_cloud_crypto_mkdir(folderid, name, err, newfolderid);
 }
 
 int psync_crypto_issetup() {
-  return psync_sql_cellint("SELECT value FROM setting WHERE id='cryptosetup'", 0);
+  return (int) psync_sql_cellint(
+      "SELECT value FROM setting WHERE id='cryptosetup'",
+      0
+  );
 }
 
 int psync_crypto_hassubscription() {
-  return psync_sql_cellint("SELECT value FROM setting WHERE id='cryptosubscription'", 0);
+  return (int) psync_sql_cellint(
+      "SELECT value FROM setting WHERE id='cryptosubscription'",
+      0
+  );
 }
 
 int psync_crypto_isexpired() {
@@ -1672,8 +1672,8 @@ time_t psync_crypto_expires() {
 int psync_crypto_reset() {
   if (psync_status_is_offline())
     return PSYNC_CRYPTO_RESET_CANT_CONNECT;
-  else
-    return psync_cloud_crypto_reset();
+
+  return psync_cloud_crypto_reset();
 }
 
 psync_folderid_t psync_crypto_folderid() {
@@ -1686,8 +1686,8 @@ psync_folderid_t psync_crypto_folderid() {
                        "f2.flags&"NTO_STR(PSYNC_FOLDER_FLAG_ENCRYPTED)"=0 LIMIT 1", 0);
   if (id)
     return id;
-  else
-    return PSYNC_CRYPTO_INVALID_FOLDERID;
+
+  return PSYNC_CRYPTO_INVALID_FOLDERID;
 }
 
 psync_folderid_t *psync_crypto_folderids() {
@@ -1781,7 +1781,6 @@ int psync_delete_all_links_file(psync_fileid_t fileid, char**err) {
   return do_delete_all_file_links(fileid, err);
 }
 
-
 pcontacts_list_t *psync_list_contacts() {
   return do_psync_list_contacts();
 }
@@ -1790,8 +1789,7 @@ pcontacts_list_t *psync_list_myteams() {
   return do_psync_list_myteams();
 }
 
-void psync_register_account_events_callback(paccount_cache_callback_t callback)
-{
+void psync_register_account_events_callback(paccount_cache_callback_t callback) {
   do_register_account_events_callback(callback);
 }
 
@@ -1829,9 +1827,8 @@ int psync_fs_move_cache(const char *path) {
   return  psync_pagecache_move_cache(path);
 }
 
-char * psync_get_token()
-{
+char *psync_get_token() {
   if (psync_my_auth[0])
     return psync_strdup(psync_my_auth);
-  else return NULL;
+  return NULL;
 }

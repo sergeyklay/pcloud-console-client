@@ -84,4 +84,8 @@ releases, in reverse chronological order.
   into `poverlay-posix.c`.
 * Moved `PSYNC_CRYPTO_*` defines from `psynclib.h` to `pcloudcrypto.h`.
 * Replace `boost::program_options` by more lightweight and specialized library `CLI11`.
-* Rename `--commands_only` CLI option to `--commands-only`.
+* Renamed `--commands_only` CLI option to `--commands-only`.
+* Renamed `message` overlay data type to `overlay_message_t`.
+* Renamed `get_answer_to_request()` to `psync_overlay_process_request()`.
+* Renamed `psync_add_overlay_callback()` to `psync_overlay_add_callback()`.
+* Split `poverlay.h` into public (`pcloudcc/psync/overlay.h`) and private part.

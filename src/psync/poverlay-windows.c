@@ -17,6 +17,8 @@
 #include <tchar.h>
 #include <strsafe.h>
 
+#include "pcloudcc/psync/overlay.h"
+
 #define POVERLAY_BUFSIZE 600
 #define MAX_SEM_COUNT 10
 #define THREADCOUNT 12
@@ -133,7 +135,7 @@ void instance_thread(void* payload) {
     message *request = (message *)chBuf;
 
     log_debug("bytes received  %d buffer[%s]", cbBytesRead, chBuf);
-    get_answer_to_request(request, reply);
+    psync_overlay_process_request(request, reply);
     fSuccess = WriteFile(
       hPipe,         /* handle to pipe */
       reply,         /* buffer to write from */
