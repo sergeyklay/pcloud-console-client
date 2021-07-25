@@ -17,7 +17,7 @@ class CompatTest : public ::testing::Test {
   CompatTest() = default;
 };
 
-TEST(CompatTest, stringcompat) {
+TEST(CompatTest, strlcpy) {
   struct {
     char buf1[16];
     char buf2[16];

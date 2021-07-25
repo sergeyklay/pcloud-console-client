@@ -7,24 +7,24 @@
 
 include(GoogleTest)
 
-file(GLOB PCLOUD_COMPAT_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB PCLOUD_CLI_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_executable(compat_tests)
-target_sources(compat_tests
-  PRIVATE ${PCLOUD_TESTS_SOURCE_DIR}/main.cpp ${PCLOUD_COMPAT_TESTS})
+add_executable(cli_tests)
+target_sources(cli_tests
+  PRIVATE ${PCLOUD_TESTS_SOURCE_DIR}/main.cpp ${PCLOUD_CLI_TESTS})
 
-target_include_directories(compat_tests
+target_include_directories(cli_tests
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   PRIVATE $<BUILD_INTERFACE:${PCLOUD_TESTS_SOURCE_DIR}>
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-target_link_libraries(compat_tests
-  PRIVATE pcloud::psync
+target_link_libraries(cli_tests
+  PRIVATE pcloud::cli
           CONAN_PKG::gtest)
 
-gtest_discover_tests(compat_tests
-  TEST_PREFIX compat:
-  PROPERTIES LABELS compat_tests)
+gtest_discover_tests(cli_tests
+  TEST_PREFIX cli:
+  PROPERTIES LABELS cli_tests)
 
-set_property(GLOBAL APPEND PROPERTY PCLOUD_TESTS compat_tests)
+set_property(GLOBAL APPEND PROPERTY PCLOUD_TESTS cli_tests)

@@ -13,6 +13,7 @@ define_property(
 
 set(PCLOUD_TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(cli)
 add_subdirectory(psync)
 
 get_property(PCLOUD_TESTS GLOBAL PROPERTY PCLOUD_TESTS)
