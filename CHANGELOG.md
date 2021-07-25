@@ -5,6 +5,11 @@ releases, in reverse chronological order.
 
 ## 3.0.0-a2 (2021-XX-XX)
 
+### Features
+
+* Added `-dumpversion` program option alias for `--dumpversion`.
+* Amended tests.
+
 ### Changes
 
 * Renamed `overlay_callback` pointer to function to `poverlay_callback`.
