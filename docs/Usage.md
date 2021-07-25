@@ -32,7 +32,7 @@ Any other signals like `SIGQUIT` (<kbd>Ctrl</kbd> + <kbd>\\</kbd>),
 To get a help run the client followed by `-h` option. This will ask client to
 output short options description:
 
-```sh
+```
 $ pcloudcc --help
            ________                __
     ____  / ____/ /___  __  ______/ /
@@ -47,6 +47,10 @@ Usage:
   pcloudcc [options] [--] [arguments]
 
 Options:
+      --dumpversion       Print the version of the client and don't do anything else
+      --vernum            Print the version of the client as integer and quit
+  -V, --version           Print client version information and quit
+  -h, --help              Print this help message and quit
   -k, --commands-only     Daemon already started pass only commands
   -d, --daemonize         Daemonize the process
   -u, --username arg      pCloud account name
@@ -57,11 +61,7 @@ Options:
   -n, --newuser           Use if this is a new user to be registered
   -o, --commands          Parent stays alive and processes commands
   -s, --savepassword      Save password in database
-  -V, --version           Print client version information and quit
-      --vernum            Print the version of the client as integer and quit
-      --dumpversion       Print the version of the client and don't do anything else
-  -h, --help              Print this help message and quit
-  
+
 ```
 
 Also, there are several commands that the running service can execute. Commands are passed using
