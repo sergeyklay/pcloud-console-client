@@ -15,7 +15,11 @@ static inline std::vector<std::string> prepare_args(int argc, char **argv) {
   std::vector<std::string> args;
   args.reserve(static_cast<size_t>(argc - 1));
   for (int i = argc - 1; i > 0; i--) {
-    args.emplace_back(argv[i]);
+    if (std::string(argv[i]) == "-dumpversion") {
+      args.emplace_back("--dumpversion");
+    } else {
+      args.emplace_back(argv[i]);
+    }
   }
 
   return args;

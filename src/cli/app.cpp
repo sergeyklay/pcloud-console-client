@@ -109,7 +109,8 @@ int pcloud::cli::App::run() {
 
 void pcloud::cli::App::setup_global_options() {
   app_->add_flag("--dumpversion", print_version,
-                 "Print the version of the client and don't do anything else");
+                 "Print the version of the client and don't do anything else\n"
+                 "(also works with a single hyphen)");
 
   app_->add_flag("--vernum", print_version_id,
                  "Print the version of the client as integer and quit");
