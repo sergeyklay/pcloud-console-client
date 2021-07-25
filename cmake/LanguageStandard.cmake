@@ -12,11 +12,11 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Require C++11. We don't use GNU extensions to ISO C++11 standard, thus make
 # sure we're able build project using ISO C++.
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
   # MSVC does not support /std:c99
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
 endif(MSVC)

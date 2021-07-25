@@ -176,6 +176,8 @@ jobs:
       - name: Minimal Install Test
         run: |
           install/bin/pcloudcc --version
+          install/bin/pcloudcc --vernum
+          install/bin/pcloudcc --dumpversion
           install/bin/pcloudcc --help
 
       - name: Run Tests

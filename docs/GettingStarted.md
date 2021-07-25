@@ -12,7 +12,7 @@ To build pCloud Console Client you'll need the following requirements:
 Additionally, on Linux you'll need `pkg-config` to perform some system checks.
 
 Also, you'll need the following build tools:
-- A C99/C++11 compatible compiler such as
+- A C99/C++14 compatible compiler such as
   [GCC](https://gcc.gnu.org),
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
