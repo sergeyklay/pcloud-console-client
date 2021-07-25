@@ -102,6 +102,9 @@ class PcloudFormatter : public CLI::Formatter {
   }
 };
 
+/// \brief pcloudcc entrypoint.
+///
+/// \return #EXIT_SUCCESS on success, #EXIT_FAILURE otherwise.
 int main(int argc, char** argv) {
   auto args = prepare_args(argc, argv);
   auto const description =

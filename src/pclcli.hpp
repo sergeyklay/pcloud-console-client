@@ -57,9 +57,9 @@ namespace console_client {
 
       // API calls
       int init();
-      static int start_crypto(const char* pass, void **rep);
-      static int stop_crypto(const char* path, void **rep);
-      static int list_sync_folders(const char* path, void **rep);
+      static int start_crypto(const char* pass, void *rep);
+      static int stop_crypto(const char* path, void *rep);
+      static int list_sync_folders(const char* path, void *rep);
 
       // Singleton
       static pclcli& get_lib();

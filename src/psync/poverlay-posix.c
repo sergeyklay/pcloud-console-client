@@ -9,6 +9,7 @@
  */
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/overlay.h"
 
 #if defined P_OS_POSIX
 #include <sys/socket.h>
@@ -109,10 +110,10 @@ void overlay_main_loop() {
 void instance_thread(void *payload) {
   int *fd;
   char chbuf[POVERLAY_BUFSIZE];
-  message *request = NULL;
+  overlay_message_t *request = NULL;
   char *curbuf = &chbuf[0];
   size_t ret, br = 0;
-  message *response = (message *)psync_malloc(POVERLAY_BUFSIZE);
+  overlay_message_t *response = (overlay_message_t *)psync_malloc(POVERLAY_BUFSIZE);
 
   memset(response, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
@@ -124,7 +125,7 @@ void instance_thread(void *payload) {
     curbuf = curbuf + ret;
     log_trace("read %u bytes from socket", br);
     if (br > 12) {
-      request = (message *)chbuf;
+      request = (overlay_message_t *)chbuf;
       if (request->length == br)
         break;
     }
@@ -139,11 +140,11 @@ void instance_thread(void *payload) {
     close(*fd);
   }
 
-  request = (message *)chbuf;
+  request = (overlay_message_t *)chbuf;
   if (request) {
-    log_trace("getting an answer to request...");
-    get_answer_to_request(request, response);
+    psync_overlay_process_request(request, response);
     if (response) {
+      log_trace("got answer to request [%d]: %s", (int)response->type, response->value);
       ret = write(*fd, response, response->length);
       if (ret == -1) {
         log_error("failed to write to socket: %s", strerror(errno));

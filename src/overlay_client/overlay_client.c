@@ -20,15 +20,9 @@
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/sockets.h"
+#include "pcloudcc/psync/overlay.h"
 #include "overlay_client.h"
 #include "logger.h"
-
-/* TODO: Duplicate. See: poverlay.h. Move to sockets.h? */
-typedef struct message_ {
-  uint32_t type;
-  uint64_t length;
-  char value[];
-} message;
 
 static int logger_initialized = 0;
 
@@ -107,12 +101,12 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 
   int fd;
   size_t path_size = strlen(path);
-  size_t mess_size = sizeof(message) + path_size + 1;
+  size_t mess_size = sizeof(overlay_message_t) + path_size + 1;
   size_t rc, bw = 0;
   char *curbuf = NULL;
   char *buf = NULL;
   char sendbuf[mess_size];
-  message *rep = NULL;
+  overlay_message_t *rep = NULL;
   uint32_t bufflen = 0;
   uint64_t msg_type;
 
@@ -179,7 +173,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   }
 #endif
 
-  message *mes = (message *)sendbuf;
+  overlay_message_t *mes = (overlay_message_t *)sendbuf;
   memset (mes, 0, mess_size);
   mes->type = cmd;
   strlcpy(mes->value, path, path_size + 1);
@@ -214,7 +208,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   }
 
   buf = (char *)malloc(bufflen);
-  rep = ( message *)buf;
+  rep = (overlay_message_t *)buf;
   rep->length = bufflen;
   rep->type = msg_type;
 
