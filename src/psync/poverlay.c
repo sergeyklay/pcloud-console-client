@@ -106,12 +106,13 @@ void get_answer_to_request(message *request, message *response) {
     message *rep = NULL;
 
     if (callbacks[ind]) {
-      if ((ret = callbacks[ind](request->value, rep)) == 0) {
+      if ((ret = callbacks[ind](request->value, &rep)) == 0) {
         if (rep) {
           psync_free(response);
           response = rep;
-        } else
+        } else {
           response->type = 0;
+        }
       } else {
         response->type = ret;
         memcpy(response->value, "No.", 4);

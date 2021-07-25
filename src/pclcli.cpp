@@ -213,19 +213,19 @@ static void status_change(pstatus_t* status) {
     clib::pclcli::get_lib().status_callback_((int)status->status, status2string(status->status));
 }
 
-int clib::pclcli::start_crypto (const char *pass, void *rep) {
+int clib::pclcli::start_crypto(const char *pass, void **rep) {
   get_lib().crypto_pass_ = pass;
   return lib_setup_crypto();
 }
 
-int clib::pclcli::stop_crypto (const char* path, void * rep) {
+int clib::pclcli::stop_crypto(const char* path, void **rep) {
   get_lib().crypto_on_ = false;
   return psync_crypto_stop();
 }
 
-int clib::pclcli::list_sync_folders (const char *path, void *rep) {
+int clib::pclcli::list_sync_folders(const char *path, void **rep) {
   psync_folder_list_t *folders = psync_get_sync_list();
-  rep = psync_malloc(sizeof(folders));
+  *rep = psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
   return 0;
 }

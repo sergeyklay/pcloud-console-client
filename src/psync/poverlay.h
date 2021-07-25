@@ -28,7 +28,7 @@ typedef struct message_ {
  *
  * Callback to be registered to be called from file manager extension.
  */
-typedef int (*poverlay_callback)(const char *path, void *rep);
+typedef int (*poverlay_callback)(const char *path, void **rep);
 
 /*! \brief The main overlay loop.
  *
