@@ -10,7 +10,7 @@ releases, in reverse chronological order.
 * Renamed `overlay_callback` pointer to function to `poverlay_callback`.
 * Renamed `overlay_message_t` overlay data type to `poverlay_message_t`.
 * Restructured the layout of CLI application.
-* Bumped minimal C++ language version.
+* Bumped minimal C++ language version from C++11 to C++14.
 
 ## 3.0.0-a1 (2021-07-25)
 
