@@ -8,6 +8,7 @@
 #include "pcloudcc/psync/stringcompat.h"
 
 #include <gtest/gtest.h>
+
 #include <cstring>
 
 #include "config.h"
