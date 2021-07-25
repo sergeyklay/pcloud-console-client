@@ -1,0 +1,126 @@
+# This file is part of the pCloud Console Client.
+#
+# (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+#
+# For the full copyright and license information, please view
+# the LICENSE file that was distributed with this source code.
+
+# pcloudcc clang-format configuration file
+# Please seek consensus from the pcloudcc team before modifying this file.
+#
+#
+# See also:
+#   https://google.github.io/styleguide/cppguide.html#
+
+---
+Language: Cpp
+Standard: c++11
+BasedOnStyle: Google
+DisableFormat: false
+
+# Indentation & whitespace
+AccessModifierOffset: -1
+ColumnLimit: 80
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+IndentCaseLabels: true
+IndentWidth: 2
+IndentWrappedFunctionNames: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+SpacesBeforeTrailingComments: 2
+TabWidth: 8
+UseTab: Never
+
+# Spacing style
+Cpp11BracedListStyle: true
+DerivePointerAlignment: true
+PointerAlignment: Left
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+
+# Comments
+AlignTrailingComments: true
+CommentPragmas:  '^ IWYU pragma:'
+FixNamespaceComments: true
+ReflowComments:  true
+
+# Pattern-based special behavior
+ForEachMacros:
+  - foreach
+IncludeCategories:
+  - Regex:    '^<.*\.h>'
+    Priority: 1
+  - Regex:    '^<.*\.hpp>'
+    Priority: 3
+  - Regex:    '^<.*'
+    Priority: 2
+  - Regex:    '.*'
+    Priority: 4
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+SortUsingDeclarations: true
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+CompactNamespaces: false
+
+# Alignment & breaking
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Left
+AlignOperands: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: true
+BinPackParameters: true
+ExperimentalAutoDetectBinPacking: false
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Attach
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
+BreakStringLiterals: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+BreakInheritanceList: BeforeColon
+BreakConstructorInitializers: BeforeColon
+BreakAfterJavaFieldAnnotations: false
+BraceWrapping:
+  AfterCaseLabel:        false
+  AfterClass:            false
+  AfterControlStatement: false
+  AfterEnum:             false
+  AfterFunction:         false
+  AfterNamespace:        false
+  AfterObjCDeclaration:  false
+  AfterStruct:           false
+  AfterUnion:            false
+  AfterExternBlock:      false
+  BeforeCatch:           false
+  BeforeElse:            false
+  IndentBraces:          false
+  SplitEmptyFunction:    true
+  SplitEmptyRecord:      true
+  SplitEmptyNamespace:   true
+...

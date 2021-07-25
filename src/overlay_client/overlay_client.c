@@ -101,12 +101,12 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
 
   int fd;
   size_t path_size = strlen(path);
-  size_t mess_size = sizeof(overlay_message_t) + path_size + 1;
+  size_t mess_size = sizeof(poverlay_message_t) + path_size + 1;
   size_t rc, bw = 0;
   char *curbuf = NULL;
   char *buf = NULL;
   char sendbuf[mess_size];
-  overlay_message_t *rep = NULL;
+  poverlay_message_t *rep = NULL;
   uint32_t bufflen = 0;
   uint64_t msg_type;
 
@@ -173,7 +173,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   }
 #endif
 
-  overlay_message_t *mes = (overlay_message_t *)sendbuf;
+  poverlay_message_t *mes = (poverlay_message_t *)sendbuf;
   memset (mes, 0, mess_size);
   mes->type = cmd;
   strlcpy(mes->value, path, path_size + 1);
@@ -195,10 +195,13 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
     return -1;
   }
 
-  /* read 2x8 bytes because the message structure is not packed and
-   * the members are aligned on a 8-byte boundary */
+  /* read 2x8 bytes because the poverlay_message_t structure is not
+   * packed and the members are aligned on a 8-byte boundary */
+  int fd2 = fd;
   read_x_bytes(fd, &msg_type, sizeof(uint64_t));
   read_x_bytes(fd, &bufflen, sizeof(uint64_t));
+  fd = fd2;
+
   if (bufflen <= 0) {
     log_error("%s: message size could not be read: %d", cmd2str(cmd), bufflen);
     if (out)
@@ -208,7 +211,7 @@ int send_call(overlay_command_t cmd, const char *path, int *ret, char **out) {
   }
 
   buf = (char *)malloc(bufflen);
-  rep = (overlay_message_t *)buf;
+  rep = (poverlay_message_t *)buf;
   rep->length = bufflen;
   rep->type = msg_type;
 

@@ -110,10 +110,10 @@ void overlay_main_loop() {
 void instance_thread(void *payload) {
   int *fd;
   char chbuf[POVERLAY_BUFSIZE];
-  overlay_message_t *request = NULL;
+  poverlay_message_t *request = NULL;
   char *curbuf = &chbuf[0];
   size_t ret, br = 0;
-  overlay_message_t *response = (overlay_message_t *)psync_malloc(POVERLAY_BUFSIZE);
+  poverlay_message_t *response = (poverlay_message_t *)psync_malloc(POVERLAY_BUFSIZE);
 
   memset(response, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
@@ -125,7 +125,7 @@ void instance_thread(void *payload) {
     curbuf = curbuf + ret;
     log_trace("read %u bytes from socket", br);
     if (br > 12) {
-      request = (overlay_message_t *)chbuf;
+      request = (poverlay_message_t *)chbuf;
       if (request->length == br)
         break;
     }
@@ -140,7 +140,7 @@ void instance_thread(void *payload) {
     close(*fd);
   }
 
-  request = (overlay_message_t *)chbuf;
+  request = (poverlay_message_t *)chbuf;
   if (request) {
     psync_overlay_process_request(request, response);
     if (response) {
