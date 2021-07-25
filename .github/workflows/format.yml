@@ -1,0 +1,44 @@
+# This file is part of the pCloud Console Client.
+#
+# (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+#
+# For the full copyright and license information, please view
+# the LICENSE file that was distributed with this source code.
+
+name: CS
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  code_style:
+    # To prevent build a particular commit use
+    #     git commit -m "......... [ci skip]"
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Common Prerequisites
+        run: |
+          # Install compiler
+          source .github/install-compiler-linux.sh clang 12
+
+      - name: Run C++ Coding Style Check
+        if: always()
+        run: |
+          clang-format --version
+          clang-format -i $(find ./src/cli -name '*.cpp')
+          clang-format -i $(find ./src/cli -name '*.hpp')
+
+          clang-format -i $(find ./src/logger -name '*.c')
+
+          clang-format -i $(find ./src/overlay_client -name '*.c')
+          clang-format -i $(find ./src/overlay_client -name '*.h')
+
+          clang-format -i $(find ./tests -name '*.cpp')
+          git diff --exit-code
