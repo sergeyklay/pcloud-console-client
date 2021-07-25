@@ -3,6 +3,13 @@
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+## 3.0.0-a2 (2021-XX-XX)
+
+### Changes
+
+* Renamed `overlay_callback` pointer to function to `poverlay_callback`.
+* Renamed `overlay_message_t` overlay data type to `poverlay_message_t`.
+
 ## 3.0.0-a1 (2021-07-25)
 
 ### Removals

@@ -21,14 +21,14 @@ typedef struct {
   uint32_t type;
   uint64_t length;
   char value[];
-} overlay_message_t;
+} poverlay_message_t;
 
 /*! \brief The overlay callback.
  *
  * Callback to be registered to be called from file manager extension or
  * commands mode (pcloudcc -k).  Meant for psync_overlay_add_callback().
  */
-typedef int (*overlay_callback)(const char *path, void *rep);
+typedef int (*poverlay_callback)(const char *path, void *rep);
 
 /*! \brief Register an overlay callback.
  *
@@ -39,11 +39,11 @@ typedef int (*overlay_callback)(const char *path, void *rep);
  * \warning These function are not thread-safe. Use them in single thread or
  *          synchronize.
  */
-int psync_overlay_add_callback(int id, overlay_callback callback);
+int psync_overlay_add_callback(int id, poverlay_callback callback);
 
 /*! \brief Process a \a request. */
-void psync_overlay_process_request(overlay_message_t *request,
-                                   overlay_message_t *response);
+void psync_overlay_process_request(poverlay_message_t *request,
+                                   poverlay_message_t *response);
 
 #ifdef __cplusplus
 } /* extern "C" */
