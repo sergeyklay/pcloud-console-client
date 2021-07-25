@@ -63,7 +63,7 @@ char *psync_get_device_string();
 char *psync_get_device_id();
 
 #ifdef __cplusplus
-}  /* extern "C" */
+} /* extern "C" */
 #endif
 
-#endif  /* PCLOUD_PSYNC_PDEVICEID_H_ */
+#endif /* PCLOUD_PSYNC_PDEVICEID_H_ */

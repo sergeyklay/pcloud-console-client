@@ -5,7 +5,7 @@
 // For the full copyright and license information, please view
 // the LICENSE file that was distributed with this source code.
 
-#include "cli/formatter.hpp"
+#include "formatter.hpp"
 
 #include <gtest/gtest.h>
 

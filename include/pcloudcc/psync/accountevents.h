@@ -46,4 +46,4 @@ typedef uint32_t psync_changetype_t;
  */
 typedef void (*paccount_cache_callback_t)(void *event);
 
-#endif  /* PCLOUDCC_PSYNC_ACCOUNTEVENTS_H_ */
+#endif /* PCLOUDCC_PSYNC_ACCOUNTEVENTS_H_ */

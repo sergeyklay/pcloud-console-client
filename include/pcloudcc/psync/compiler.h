@@ -54,25 +54,25 @@
 #endif
 
 #if defined(_MSC_VER)
-# define PSYNC_NO_RETURN __declspec(noreturn)
+#define PSYNC_NO_RETURN __declspec(noreturn)
 #else
 #if __has_attribute(noreturn)
-# define PSYNC_NO_RETURN __attribute__((noreturn))
+#define PSYNC_NO_RETURN __attribute__((noreturn))
 #else
-# define PSYNC_NO_RETURN
+#define PSYNC_NO_RETURN
 #endif
 #endif
 
 #if defined(_MSC_VER)
-# define PSYNC_THREAD   __declspec(thread)
-# define PSYNC_NOINLINE __declspec(noinline)
+#define PSYNC_THREAD __declspec(thread)
+#define PSYNC_NOINLINE __declspec(noinline)
 #else
 #if __has_attribute(noinline)
-# define PSYNC_NOINLINE __attribute__((noinline))
+#define PSYNC_NOINLINE __attribute__((noinline))
 #else
-# define PSYNC_NOINLINE
+#define PSYNC_NOINLINE
 #endif
-# define PSYNC_THREAD __thread
+#define PSYNC_THREAD __thread
 #endif
 
 #if __has_attribute(malloc)
@@ -82,43 +82,43 @@
 #endif
 
 #if __has_attribute(sentinel)
-#define PSYNC_SENTINEL __attribute__ ((sentinel))
+#define PSYNC_SENTINEL __attribute__((sentinel))
 #else
 #define PSYNC_SENTINEL
 #endif
 
 #if __has_attribute(pure)
-#define PSYNC_PURE __attribute__ ((pure))
+#define PSYNC_PURE __attribute__((pure))
 #else
 #define PSYNC_PURE
 #endif
 
 #if __has_attribute(const)
-#define PSYNC_CONST __attribute__ ((const))
+#define PSYNC_CONST __attribute__((const))
 #else
 #define PSYNC_CONST
 #endif
 
 #if __has_attribute(cold)
-#define PSYNC_COLD __attribute__ ((cold))
+#define PSYNC_COLD __attribute__((cold))
 #else
 #define PSYNC_COLD
 #endif
 
 #if __has_attribute(format)
-#define PSYNC_FORMAT(a, b, c) __attribute__ ((format (a, b, c)))
+#define PSYNC_FORMAT(a, b, c) __attribute__((format(a, b, c)))
 #else
 #define PSYNC_FORMAT(a, b, c)
 #endif
 
 #if __has_attribute(nonnull)
-#define PSYNC_NONNULL(...) __attribute__ ((nonnull (__VA_ARGS__)))
+#define PSYNC_NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
 #else
 #define PSYNC_NONNULL(...)
 #endif
 
 #if __has_attribute(packed)
-#define PSYNC_PACKED_STRUCT struct __attribute__ ((packed))
+#define PSYNC_PACKED_STRUCT struct __attribute__((packed))
 #elif defined(_MSC_VER)
 #define PSYNC_PACKED_STRUCT __declspec(align(1)) struct
 #else
@@ -128,7 +128,7 @@
 #if __has_attribute(weak)
 /*! \brief Functions defined with PSYNC_WEAK export their
  *         symbols weakly (if supported). */
-#define PSYNC_WEAK __attribute__ ((weak))
+#define PSYNC_WEAK __attribute__((weak))
 #else
 #define PSYNC_WEAK
 #endif
@@ -139,7 +139,7 @@
 #elif __GNUC__ >= 3
 #define inline __inline
 #define restrict __restrict
-#elif __STDC_VERSION__!=199901L
+#elif __STDC_VERSION__ != 199901L
 #define inline
 #define restrict
 #endif
@@ -149,7 +149,13 @@
 #elif defined(__GNUC__)
 #define psync_alignof __alignof__
 #else
-#define psync_alignof(t) offsetof(struct {char a; t b;}, b)
+#define psync_alignof(t) \
+  offsetof(              \
+      struct {           \
+        char a;          \
+        t b;             \
+      },                 \
+      b)
 #endif
 
 #endif /* PCLOUDCC_PSYNC_COMPILER_H_ */

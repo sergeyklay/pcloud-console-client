@@ -10,7 +10,7 @@
 #ifndef PCLOUD_CLI_CT_HPP_
 #define PCLOUD_CLI_CT_HPP_
 
-#include <pcloudcc/psync/compiler.h>
+#include "pcloudcc/psync/compiler.h"
 
 namespace pcloud {
 namespace cli {

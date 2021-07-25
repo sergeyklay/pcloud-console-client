@@ -32,6 +32,8 @@ jobs:
         if: always()
         run: |
           clang-format --version
+          clang-format -i $(find ./include -name '*.h')
+
           clang-format -i $(find ./src/cli -name '*.cpp')
           clang-format -i $(find ./src/cli -name '*.hpp')
 

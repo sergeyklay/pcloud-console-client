@@ -15,9 +15,8 @@
  *         standard C runtimes.
  */
 
+#include <pcloudcc/psync/compiler.h>
 #include <stddef.h>
-
-#include "pcloudcc/psync/compiler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,10 +41,10 @@ extern "C" {
  *       \a src must be NUL-terminated.
  */
 size_t strlcpy(char *dst, const char *src, size_t size);
-#endif  /* !HAVE_STRLCPY */
+#endif /* !HAVE_STRLCPY */
 
 #ifdef __cplusplus
-}  /* extern "C" */
+} /* extern "C" */
 #endif
 
-#endif  /* PCLOUDCC_PSYNC_STRINGCOMPAT_H_ */
+#endif /* PCLOUDCC_PSYNC_STRINGCOMPAT_H_ */

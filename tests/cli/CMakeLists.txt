@@ -16,7 +16,7 @@ target_sources(cli_tests
 target_include_directories(cli_tests
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   PRIVATE $<BUILD_INTERFACE:${PCLOUD_TESTS_SOURCE_DIR}>
-          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cli>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 target_link_libraries(cli_tests
