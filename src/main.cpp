@@ -9,16 +9,16 @@
 
 #include <iostream>
 #include <vector>
+
 #include <CLI/CLI.hpp>
 
-#include "unistd.h"
-#include "pcloudcc/psync/version.h"
-
-#include "pcloudcc/version.hpp"
-#include "pclcli.hpp"
 #include "control_tools.hpp"
+#include "pclcli.hpp"
+#include "pcloudcc/psync/version.h"
+#include "pcloudcc/version.hpp"
+#include "unistd.h"
 
-static inline std::vector<std::string> prepare_args(int argc, char** argv) {
+static inline std::vector<std::string> prepare_args(int argc, char **argv) {
   std::vector<std::string> args;
   args.reserve(static_cast<size_t>(argc - 1));
   for (int i = argc - 1; i > 0; i--) {
@@ -28,14 +28,21 @@ static inline std::vector<std::string> prepare_args(int argc, char** argv) {
   return args;
 }
 
+/// \brief This is the default Formatter for pcloudcc CLI.
+///
+/// It pretty prints help output, and is broken into quite a few overridable
+/// methods, to be highly customizable with minimal effort.
 class PcloudFormatter : public CLI::Formatter {
  public:
+  /// \brief Gets the usage line.
+  ///
+  /// \param app The pointer to a CLI::App instance
+  /// \param name The application name (e.g. "pcloudcc"). Currently not unused
+  /// \return A program (command) usage string.
   std::string make_usage(const CLI::App *app,
                          const std::string /* name */) const override {
-
     auto out = get_label("Usage") + ":\n";
     out += "  " + app->get_name();
-
 
     auto groups = app->get_groups();
 
@@ -57,6 +64,10 @@ class PcloudFormatter : public CLI::Formatter {
     return out += "\n";
   }
 
+  /// \brief Displays the description line.
+  ///
+  /// \param app The pointer to a CLI::App instance
+  /// \return Program/command description string.
   std::string make_description(const CLI::App *app) const override {
     std::string out;
 
@@ -77,9 +88,15 @@ class PcloudFormatter : public CLI::Formatter {
     return out;
   }
 
-  std::string make_option_name(const CLI::Option *opt, bool is_positional) const override {
+  /// \brief Format the name part of an option.
+  ///
+  /// \param opt The pointer to a CLI::Option instance
+  /// \param is_positional Is this option positional?
+  /// \return Option name as a string.
+  std::string make_option_name(const CLI::Option *opt,
+                               bool is_positional) const override {
     std::string name;
-    if(is_positional)
+    if (is_positional)
       name = opt->get_name(true, false);
     else
       name = opt->get_name(false, true);
@@ -88,8 +105,8 @@ class PcloudFormatter : public CLI::Formatter {
     if (name[0] == '-' && name[1] == '-') {
       new_name = "    " + name;
     } else {
-      for(char i : name) {
-        if(i != ',')
+      for (char i : name) {
+        if (i != ',')
           new_name += i;
         else {
           new_name += i;
@@ -104,8 +121,8 @@ class PcloudFormatter : public CLI::Formatter {
 
 /// \brief pcloudcc entrypoint.
 ///
-/// \return #EXIT_SUCCESS on success, #EXIT_FAILURE otherwise.
-int main(int argc, char** argv) {
+/// \return 0 on success, 1 otherwise.
+int main(int argc, char **argv) {
   auto args = prepare_args(argc, argv);
   auto const description =
       std::string(PCLOUD_PACKAGE_NAME) + " " + std::string(PCLOUD_VERSION);
@@ -125,12 +142,10 @@ int main(int argc, char** argv) {
                "Daemon already started pass only commands");
 
   bool daemonize = false;
-  app.add_flag("--daemonize,-d", daemonize,
-               "Daemonize the process");
+  app.add_flag("--daemonize,-d", daemonize, "Daemonize the process");
 
   std::string username;
-  app.add_option("--username,-u", username,
-                 "pCloud account name");
+  app.add_option("--username,-u", username, "pCloud account name");
 
   bool passwordsw = false;
   app.add_flag("--password,-p", passwordsw, "Ask pCloud account password");
@@ -155,13 +170,11 @@ int main(int argc, char** argv) {
                "Parent stays alive and processes commands");
 
   bool savepassword = false;
-  app.add_flag("--savepassword,-s", commands,
-               "Save password in database");
+  app.add_flag("--savepassword,-s", commands, "Save password in database");
 
-  auto version = [](int /* count */){
-    std::cout << PCLOUD_VERSION_FULL << " ("
-              << PSYNC_VERSION_FULL
-              << ") " << std::endl;
+  auto version = [](int /* count */) {
+    std::cout << PCLOUD_VERSION_FULL << " (" << PSYNC_VERSION_FULL << ") "
+              << std::endl;
 
     std::cout << "Copyright " << PCLOUD_COPYRIGHT << "." << std::endl;
 
@@ -175,27 +188,22 @@ int main(int argc, char** argv) {
               << std::endl;
     exit(EXIT_SUCCESS);
   };
-  app.add_flag_function(
-      "--version,-V",
-      version,
-      "Print client version information and quit");
+  app.add_flag_function("--version,-V", version,
+                        "Print client version information and quit");
 
-  auto vernum = [](int /* count */){
+  auto vernum = [](int /* count */) {
     std::cout << PCLOUD_VERSION_ID << std::endl;
     exit(EXIT_SUCCESS);
   };
-  app.add_flag_function(
-      "--vernum",
-      vernum,
-      "Print the version of the client as integer and quit");
+  app.add_flag_function("--vernum", vernum,
+                        "Print the version of the client as integer and quit");
 
-  auto dumpversion = [](int /* count */){
+  auto dumpversion = [](int /* count */) {
     std::cout << PCLOUD_VERSION << std::endl;
     exit(EXIT_SUCCESS);
   };
   app.add_flag_function(
-      "--dumpversion",
-      dumpversion,
+      "--dumpversion", dumpversion,
       "Print the version of the client and don't do anything else");
 
   // Remove help flag because it shortcuts all processing
@@ -234,13 +242,14 @@ int main(int argc, char** argv) {
         console_client::clibrary::pclcli::get_lib().set_crypto_pass(password);
       else {
         std::cout << "Crypto password: ";
-        console_client::clibrary::pclcli::get_lib().get_cryptopass_from_console();
+        console_client::clibrary::pclcli::get_lib()
+            .get_cryptopass_from_console();
       }
     } else
-       console_client::clibrary::pclcli::get_lib().setup_crypto_ = false;
+      console_client::clibrary::pclcli::get_lib().setup_crypto_ = false;
 
     if (!mountpoint.empty())
-        console_client::clibrary::pclcli::get_lib().set_mount(mountpoint);
+      console_client::clibrary::pclcli::get_lib().set_mount(mountpoint);
 
     console_client::clibrary::pclcli::get_lib().newuser_ = newuser;
     console_client::clibrary::pclcli::get_lib().set_savepass(savepassword);
@@ -251,21 +260,18 @@ int main(int argc, char** argv) {
     else {
       if (commands)
         std::cout << "The \"commands\" option was ignored because the "
-                  << "client is not running in daemon mode"
-                  << std::endl;
-      if (!console_client::clibrary::pclcli::get_lib().init())
-        sleep(360000);
+                  << "client is not running in daemon mode" << std::endl;
+      if (!console_client::clibrary::pclcli::get_lib().init()) sleep(360000);
     }
-  } catch (const CLI::Error& e) {
+  } catch (const CLI::Error &e) {
     auto ret = app.exit(e);
     return ret;
-  } catch(std::exception& e) {
+  } catch (std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
-  } catch(...) {
+  } catch (...) {
     std::cerr << "Unknown error. "
-              << "Please open a bug report: "
-              << PCLOUD_PACKAGE_URL
+              << "Please open a bug report: " << PCLOUD_PACKAGE_URL
               << std::endl;
     return EXIT_FAILURE;
   }
