@@ -15,6 +15,7 @@
 #include "pcloudcc/psync/compiler.h"
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
+#include "logger.h"
 
 #include <sqlite3.h>
 #include <string.h>
@@ -70,15 +71,15 @@
 #define psync_get_number(v)          \
   (likely((v).type == PSYNC_TNUMBER) \
        ? (v).num                     \
-       : psync_err_number_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
+       : psync_err_number_expected(__FILENAME__, __FUNCTION__, __LINE__, &(v)))
 
 #define psync_get_real(v)          \
   (likely((v).type == PSYNC_TREAL) \
        ? (v).real                  \
-       : psync_err_real_expected(__FILE__, __FUNCTION__, __LINE__, &(v)))
+       : psync_err_real_expected(__FILENAME__, __FUNCTION__, __LINE__, &(v)))
 
 #define psync_get_lstring(v, l) \
-   psync_lstring_expected(__FILE__, __FUNCTION__, __LINE__, &(v), l)
+   psync_lstring_expected(__FILENAME__, __FUNCTION__, __LINE__, &(v), l)
 
 #if D_WARNING<=DEBUG_LEVEL
 #define likely_log(x) (likely(x)?1:psync_debug(__FILE__, __FUNCTION__, __LINE__, D_WARNING, "assertion likely_log(%s) failed", TO_STR(x))*0)

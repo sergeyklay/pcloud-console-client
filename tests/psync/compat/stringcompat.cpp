@@ -8,7 +8,8 @@
 #include "pcloudcc/psync/stringcompat.h"
 
 #include <gtest/gtest.h>
-#include <string.h>
+
+#include <cstring>
 
 #include "config.h"
 
@@ -21,7 +22,7 @@ TEST(CompatTest, strlcpy) {
   struct {
     char buf1[16];
     char buf2[16];
-  } s;
+  } s{};
 
   memset(&s, '#', sizeof(s));
   EXPECT_EQ(6, strlcpy(s.buf1, "Hello!", 0));

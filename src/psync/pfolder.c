@@ -376,8 +376,8 @@ char *psync_get_path_by_folderid_sep(psync_folderid_t folderid, const char *sep,
   char *ret;
   int res;
   psync_list_init(&folderlist);
-  res=psync_add_path_to_list_decode(&folderlist, folderid);
-  if (unlikely_log(res)) {
+  res = psync_add_path_to_list_decode(&folderlist, folderid);
+  if (unlikely(res)) {
     psync_free_string_list(&folderlist);
     return PSYNC_INVALID_PATH;
   }

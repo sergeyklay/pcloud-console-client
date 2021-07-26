@@ -811,7 +811,7 @@ int psync_sql_sync() {
 int psync_sql_do_statement(const char *sql, const char *file, unsigned line) {
   char *errmsg;
   int code;
-  log_debug("SQL: %s", sql);
+  log_trace("SQL: %s", sql);
   psync_sql_do_lock(file, line);
   code = sqlite3_exec(psync_db, sql, NULL, NULL, &errmsg);
   psync_sql_unlock();
@@ -1637,7 +1637,8 @@ int psync_rename_conflicted_file(const char *path) {
   char *npath;
   size_t plen, dotidx;
   psync_stat_t st;
-  psync_int_t num, l;
+  psync_int_t num;
+  int l;
   plen=strlen(path);
   dotidx=plen;
   while (dotidx && path[dotidx]!='.')
@@ -1657,7 +1658,12 @@ int psync_rename_conflicted_file(const char *path) {
     memcpy(npath+dotidx+l, path+dotidx, plen-dotidx+1);
     if (psync_stat(npath, &st)) {
       log_info("renaming conflict %s to %s", path, npath);
-      l=psync_file_rename(path, npath);
+      l = rename(path, npath);
+      if (unlikely(l != 0)) {
+        log_error("failed to rename %s to %s:", path, npath,
+                  strerror(errno));
+      }
+
       psync_free(npath);
       return l;
     }

@@ -5,6 +5,11 @@ releases, in reverse chronological order.
 
 ## 3.0.0-a2 (2021-XX-XX)
 
+### Removals
+
+* Removed `psync_rendir` macro.
+* Removed `psync_file_rename` function.
+
 ### Features
 
 * Added `-dumpversion` program option alias for `--dumpversion`.
@@ -16,6 +21,7 @@ releases, in reverse chronological order.
 * Renamed `overlay_message_t` overlay data type to `poverlay_message_t`.
 * Restructured the layout of CLI application.
 * Bumped minimal C++ language version from C++11 to C++14.
+* `psync_check_result()` now is macro, not function.
 
 ## 3.0.0-a1 (2021-07-25)
 

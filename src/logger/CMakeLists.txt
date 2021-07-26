@@ -11,6 +11,12 @@ add_library(pcloud::logger ALIAS logger)
 
 target_include_directories(logger PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
+target_include_directories(
+  logger
+  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
 set(log_levels 0 1 2 3 4 5)
 set(PCLOUD_MAINTAINER_LOGS_LEVEL "1" CACHE STRING "Maintainer logs level")
 set_property(CACHE PCLOUD_MAINTAINER_LOGS_LEVEL PROPERTY STRINGS "${log_levels}")
@@ -35,9 +41,6 @@ if (PCLOUD_MAINTAINER_LOG_FILE)
 endif()
 
 unset(log_levels)
-
-configure_file("${CMAKE_CURRENT_LIST_DIR}/logger.h.in"
-    "${CMAKE_CURRENT_LIST_DIR}/logger.h")
 
 # Create position independent library (add -fPIC)
 set_property(TARGET logger

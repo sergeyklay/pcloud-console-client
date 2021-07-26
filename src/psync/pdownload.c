@@ -145,13 +145,13 @@ static int task_rmdir(const char *path) {
 static void do_move(void *ptr, psync_pstat *st) {
   const char **arr;
   char *oldpath, *newpath;
-  arr=(const char **)ptr;
-  oldpath=psync_strcat(arr[0], st->name, NULL);
-  newpath=psync_strcat(arr[1], st->name, NULL);
-  if (psync_stat_isfolder(&st->stat))
-    psync_rendir(oldpath, newpath);
-  else
-    psync_file_rename(oldpath, newpath);
+  arr = (const char **)ptr;
+  oldpath = psync_strcat(arr[0], st->name, NULL);
+  newpath = psync_strcat(arr[1], st->name, NULL);
+  if (unlikely(rename(oldpath, newpath) != 0)) {
+    log_error("failed to rename %s to %s:", oldpath, newpath,
+              strerror(errno));
+  }
   psync_free(newpath);
   psync_free(oldpath);
 }
@@ -166,10 +166,13 @@ static int move_folder_contents(const char *oldpath, const char *newpath) {
 
 static int task_renamedir(const char *oldpath, const char *newpath) {
   while (1) {
-    if (likely_log(!psync_rendir(oldpath, newpath))) {
+    if (unlikely(rename(oldpath, newpath) != 0)) {
+      log_error("failed to rename %s to %s:", oldpath, newpath,
+                strerror(errno));
       psync_set_local_full(0);
       return 0;
     }
+
     if (psync_fs_err()==P_NOSPC || psync_fs_err()==P_DQUOT) {
       psync_set_local_full(1);
       psync_milisleep(PSYNC_SLEEP_ON_DISK_FULL);
