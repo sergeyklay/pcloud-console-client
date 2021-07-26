@@ -1082,12 +1082,14 @@ static int psync_sent_task_creat_upload_large(fsupload_task_t *task) {
 
 void psync_fsupload_stop_upload_locked(uint64_t taskid) {
   psync_sql_res *res;
-  if (current_upload_taskid==taskid)
-    stop_current_upload=1;
-  res=psync_sql_prep_statement("UPDATE fstask SET status=1 WHERE id=?");
+  if (current_upload_taskid == taskid)
+    stop_current_upload = 1;
+  res = psync_sql_prep_statement("UPDATE fstask SET status=1 WHERE id=?");
   psync_sql_bind_uint(res, 1, taskid);
   psync_sql_run_free(res);
-  assertw(psync_sql_affected_rows());
+  if (unlikely(!(psync_sql_affected_rows()))) {
+    log_warn("failed to update fstask %d status", (int)taskid);
+  }
 }
 
 int psync_fsupload_in_current_small_uploads_batch_locked(uint64_t taskid) {
