@@ -49,6 +49,10 @@ extern "C" {
  * "/home/egrep/work/pcloudcc/include/myheader.h" would set this macro to
  * "include/myheader.h".
  */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
 #ifndef __FILENAME__
 #if __has_builtin(__builtin_strstr)
 #define __FILENAME__                                     \
@@ -63,7 +67,9 @@ extern "C" {
       : __FILE__
 #endif
 #endif /* __FILENAME__ */
-
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #undef log_trace
 #undef log_debug
