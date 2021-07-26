@@ -1,36 +1,24 @@
-/* Copyright (c) 2015 Anton Titov.
- * Copyright (c) 2015 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2015 Anton Titov <anton@pcloud.com>
+ * (c) 2015 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include "pcloudcc/psync/compat.h"
 
 #if defined(P_OS_WINDOWS)
 #define ZLIB_WINAPI
 #endif
+
 #include "zlib.h"
 #include "plibs.h"
 #include "pcompression.h"
+#include "logger.h"
 
 #define BUFFER_SIZE (4*1024)
 
@@ -50,7 +38,7 @@ struct _psync_deflate_t {
   unsigned char buffer[BUFFER_SIZE];
 };
 
-psync_deflate_t *psync_deflate_init(int level){
+psync_deflate_t *psync_deflate_init(int level) {
   psync_deflate_t *def;
   int ret;
   def=psync_new(psync_deflate_t);
@@ -58,23 +46,23 @@ psync_deflate_t *psync_deflate_init(int level){
   def->flushbuff=NULL;
   def->bufferstartoff=0;
   def->bufferendoff=0;
-  if (level==PSYNC_DEFLATE_DECOMPRESS){
+  if (level==PSYNC_DEFLATE_DECOMPRESS) {
     def->flags=0;
     ret=inflateInit2(&def->stream, 15);
   }
-  else{
+  else {
     def->flags=FLAG_DEFLATE;
     ret=deflateInit2(&def->stream, level, Z_DEFLATED, 15, 8, Z_DEFAULT_STRATEGY);
   }
   if (likely_log(ret==Z_OK))
     return def;
-  else{
+  else {
     psync_free(def);
     return NULL;
   }
 }
 
-void psync_deflate_destroy(psync_deflate_t *def){
+void psync_deflate_destroy(psync_deflate_t *def) {
   if (def->flags&FLAG_DEFLATE)
     deflateEnd(&def->stream);
   else
@@ -83,7 +71,7 @@ void psync_deflate_destroy(psync_deflate_t *def){
   psync_free(def);
 }
 
-static int psync_deflate_set_out_buff(psync_deflate_t *def){
+static int psync_deflate_set_out_buff(psync_deflate_t *def) {
   uint32_t end;
   if (def->bufferendoff-def->bufferstartoff==BUFFER_SIZE)
     return -1;
@@ -98,8 +86,8 @@ static int psync_deflate_set_out_buff(psync_deflate_t *def){
   return 0;
 }
 
-static int psync_translate_flush(int flush){
-  switch (flush){
+static int psync_translate_flush(int flush) {
+  switch (flush) {
     case PSYNC_DEFLATE_NOFLUSH:
       return Z_NO_FLUSH;
     case PSYNC_DEFLATE_FLUSH:
@@ -107,12 +95,12 @@ static int psync_translate_flush(int flush){
     case PSYNC_DEFLATE_FLUSH_END:
       return Z_FINISH;
     default:
-      debug(D_WARNING, "invalid flush value %d", flush);
+      log_warn("invalid flush value %d", flush);
       return Z_NO_FLUSH;
   }
 }
 
-static int psync_deflate_call_compressor(psync_deflate_t *def, int flush, int adjustbe){
+static int psync_deflate_call_compressor(psync_deflate_t *def, int flush, int adjustbe) {
   int ret;
   assert(def->stream.avail_out);
   if (def->flags&FLAG_DEFLATE)
@@ -128,7 +116,7 @@ static int psync_deflate_call_compressor(psync_deflate_t *def, int flush, int ad
   return ret;
 }
 
-static int psync_deflate_finish_flush_add_buffer(psync_deflate_t *def, int flush){
+static int psync_deflate_finish_flush_add_buffer(psync_deflate_t *def, int flush) {
   unsigned char *buff;
   uint32_t alloced, used, current;
   int ret;
@@ -138,26 +126,26 @@ static int psync_deflate_finish_flush_add_buffer(psync_deflate_t *def, int flush
   used=0;
   def->flags&=~FLAG_MORE_DATA;
   def->flushbuffoff=0;
-  while (1){
+  while (1) {
     def->stream.next_out=buff+used;
     def->stream.avail_out=current;
     ret=deflate(&def->stream, psync_translate_flush(flush));
-    if (ret!=Z_OK){
+    if (ret!=Z_OK) {
       if (ret!=Z_BUF_ERROR)
         return ret;
-      if (used==0){
+      if (used==0) {
         psync_free(buff);
         return Z_OK;
       }
       def->flushbuff=buff;
       def->flushbufflen=used;
-      debug(D_NOTICE, "added additional buffer of size %u", (unsigned)def->flushbufflen);
+      log_debug("added additional buffer of size %u", (unsigned)def->flushbufflen);
       return Z_OK;
     }
-    if (def->stream.avail_out){
+    if (def->stream.avail_out) {
       def->flushbuff=buff;
       def->flushbufflen=used+current-def->stream.avail_out;
-      debug(D_NOTICE, "added additional buffer of size %u", (unsigned)def->flushbufflen);
+      log_debug("added additional buffer of size %u", (unsigned)def->flushbufflen);
       return Z_OK;
     }
     used+=current;
@@ -167,10 +155,10 @@ static int psync_deflate_finish_flush_add_buffer(psync_deflate_t *def, int flush
   }
 }
 
-int psync_deflate_write(psync_deflate_t *def, const void *data, int len, int flush){
+int psync_deflate_write(psync_deflate_t *def, const void *data, int len, int flush) {
   int ret;
-  if (!len && flush==PSYNC_DEFLATE_NOFLUSH){
-    debug(D_WARNING, "called with no len and no flush");
+  if (!len && flush==PSYNC_DEFLATE_NOFLUSH) {
+    log_warn("called with no len and no flush");
     return PSYNC_DEFLATE_ERROR;
   }
   if (def->flushbuff || psync_deflate_set_out_buff(def))
@@ -178,7 +166,7 @@ int psync_deflate_write(psync_deflate_t *def, const void *data, int len, int flu
   def->stream.next_in=(unsigned char *)data;
   def->stream.avail_in=len;
   ret=psync_deflate_call_compressor(def, flush, 1);
-  if (ret==Z_OK && (def->flags&FLAG_MORE_DATA) && !psync_deflate_set_out_buff(def)){
+  if (ret==Z_OK && (def->flags&FLAG_MORE_DATA) && !psync_deflate_set_out_buff(def)) {
     ret=psync_deflate_call_compressor(def, flush, 1);
     if (ret==Z_BUF_ERROR)
       ret=Z_OK;
@@ -193,28 +181,28 @@ int psync_deflate_write(psync_deflate_t *def, const void *data, int len, int flu
     return len-def->stream.avail_in;
 }
 
-int psync_deflate_read(psync_deflate_t *def, void *data, int len){
+int psync_deflate_read(psync_deflate_t *def, void *data, int len) {
   int ret;
   assert(def->bufferstartoff<=def->bufferendoff);
-  if (def->bufferendoff==def->bufferstartoff){
-    if (def->flushbuff){
+  if (def->bufferendoff==def->bufferstartoff) {
+    if (def->flushbuff) {
       if (len>def->flushbufflen-def->flushbuffoff)
         len=def->flushbufflen-def->flushbuffoff;
       memcpy(data, def->flushbuff+def->flushbuffoff, len);
       def->flushbuffoff+=len;
-      if (def->flushbuffoff==def->flushbufflen){
+      if (def->flushbuffoff==def->flushbufflen) {
         psync_free(def->flushbuff);
         def->flushbuff=NULL;
       }
       return len;
     }
-    if (def->flags&FLAG_MORE_DATA){
+    if (def->flags&FLAG_MORE_DATA) {
       def->stream.next_in=(unsigned char *)"";
       def->stream.avail_in=0;
       def->stream.next_out=(unsigned char *)data;
       def->stream.avail_out=len;
       ret=psync_deflate_call_compressor(def, PSYNC_DEFLATE_NOFLUSH, 0);
-      switch (ret){
+      switch (ret) {
         case Z_BUF_ERROR:
           return PSYNC_DEFLATE_NODATA;
         case Z_STREAM_ERROR:
@@ -239,7 +227,7 @@ int psync_deflate_read(psync_deflate_t *def, void *data, int len){
   assert(def->bufferstartoff<=BUFFER_SIZE);
   if (def->bufferstartoff+len<=BUFFER_SIZE)
     memcpy(data, def->buffer+def->bufferstartoff, len);
-  else{
+  else {
     assert(len-(BUFFER_SIZE-def->bufferstartoff)==def->bufferendoff%BUFFER_SIZE);
     memcpy(data, def->buffer+def->bufferstartoff, BUFFER_SIZE-def->bufferstartoff);
     memcpy((char *)data+BUFFER_SIZE-def->bufferstartoff, def->buffer, len-(BUFFER_SIZE-def->bufferstartoff));
@@ -247,7 +235,7 @@ int psync_deflate_read(psync_deflate_t *def, void *data, int len){
   def->bufferstartoff+=len;
   if (def->bufferstartoff==def->bufferendoff)
     def->bufferstartoff=def->bufferendoff=0;
-  else if (def->bufferstartoff>=BUFFER_SIZE){
+  else if (def->bufferstartoff>=BUFFER_SIZE) {
     def->bufferstartoff-=BUFFER_SIZE;
     assert(def->bufferendoff>=BUFFER_SIZE);
     def->bufferendoff-=BUFFER_SIZE;
@@ -255,6 +243,6 @@ int psync_deflate_read(psync_deflate_t *def, void *data, int len){
   return len;
 }
 
-int psync_deflate_pending(psync_deflate_t *def){
+int psync_deflate_pending(psync_deflate_t *def) {
   return def->bufferendoff-def->bufferstartoff+(def->flushbuff?def->flushbufflen:0);
 }
