@@ -5,6 +5,11 @@ releases, in reverse chronological order.
 
 ## 3.0.0-a2 (2021-XX-XX)
 
+### Removals
+
+* Removed `psync_rendir` macro.
+* Removed `psync_file_rename` function.
+
 ### Features
 
 * Added `-dumpversion` program option alias for `--dumpversion`.

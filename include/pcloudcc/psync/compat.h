@@ -487,8 +487,6 @@ int64_t psync_get_free_space_by_path(const char *path);
 
 int psync_mkdir(const char *path);
 int psync_rmdir(const char *path);
-#define psync_rendir psync_file_rename
-int psync_file_rename(const char *oldpath, const char *newpath);
 int psync_file_rename_overwrite(const char *oldpath, const char *newpath);
 int psync_file_delete(const char *path);
 

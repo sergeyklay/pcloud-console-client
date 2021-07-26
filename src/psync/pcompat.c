@@ -442,8 +442,11 @@ char *psync_get_default_database_path() {
         psync_free(path);
         return dirpath;
       }
-      else
-        psync_file_rename(dirpath, path);
+
+      if (unlikely(rename(dirpath, path) != 0)) {
+        log_error("failed to rename %s to %s:", dirpath, path,
+                  strerror(errno));
+      }
     }
     psync_free(dirpath);
   }
@@ -2773,56 +2776,10 @@ int psync_rmdir(const char *path) {
 #endif
 }
 
-int psync_file_rename(const char *oldpath, const char *newpath) {
-#if defined(P_OS_POSIX)
-  return rename(oldpath, newpath);
-#elif defined(P_OS_WINDOWS) // should we just use rename() here?
-  wchar_t *oldwpath, *newwpath;
-  int ret;
-  oldwpath=utf8_to_wchar_path(oldpath);
-  newwpath=utf8_to_wchar_path(newpath);
-retry:
-  ret=psync_bool_to_zero(MoveFileW(oldwpath, newwpath));
-  if (ret && GetLastError()==ERROR_SHARING_VIOLATION) {
-    log_warn("file %s is locked by another process, will retry after sleep", oldpath);
-    psync_milisleep(PSYNC_SLEEP_ON_OS_LOCK);
-    goto retry;
-  }
-  psync_free(oldwpath);
-  psync_free(newwpath);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
-#endif
-}
-
 int psync_file_rename_overwrite(const char *oldpath, const char *newpath) {
   if (!psync_filename_cmp(oldpath, newpath))
     return 0;
-#if defined(P_OS_POSIX)
   return rename(oldpath, newpath);
-#elif defined(P_OS_WINDOWS) // should we just use rename() here?
-  else {
-    wchar_t *oldwpath, *newwpath;
-    int ret;
-    oldwpath=utf8_to_wchar_path(oldpath);
-    newwpath=utf8_to_wchar_path(newpath);
-retry:
-    ret=psync_bool_to_zero(MoveFileExW(oldwpath, newwpath, MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING));
-    if (ret && GetLastError()==ERROR_SHARING_VIOLATION) {
-      log_warn("file %s is locked by another process, will retry after sleep", oldpath);
-      psync_milisleep(PSYNC_SLEEP_ON_OS_LOCK);
-      goto retry;
-    }
-    else if (ret)
-      log_warn("rename from %s to %s failed with error %d", oldpath, newpath, (int)GetLastError());
-    psync_free(oldwpath);
-    psync_free(newwpath);
-    return ret;
-  }
-#else
-#error "Function not implemented for your operating system"
-#endif
 }
 
 int psync_file_delete(const char *path) {
