@@ -372,7 +372,7 @@ typedef struct {
   struct sockaddr_storage address;
   struct sockaddr_storage broadcast;
   struct sockaddr_storage netmask;
-  int addrsize;
+  socklen_t addrsize;
 } psync_interface_t;
 
 typedef struct {
