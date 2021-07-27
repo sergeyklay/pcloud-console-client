@@ -109,6 +109,8 @@ recognized during the project configuration phase:
 | `PCLOUD_MAINTAINER_LOGS`              | `ON`, `OFF`                                                         | ON to enable maintainer logs, OFF to disable logging.             |
 | `PCLOUD_MAINTAINER_LOG_FILE`          | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
 | `PCLOUD_MAINTAINER_LOGS_LEVEL`        | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
+| `PCLOUD_WITH_LAUNCHD`                 | `ON`, `OFF`                                                         | Enable launchd integration.                                       |
+| `PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR`   | A path recognized by launchd                                        | System or user plist search path for systemd (see bellow).        |
 | `PCLOUD_WITH_SYSTEMD`                 | `ON`, `OFF`                                                         | Enable systemd integration.                                       |
 | `PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR` | A path recognized by systemd                                        | System or user unit search path for systemd (see bellow).         |
 | `PCLOUD_WITH_TESTS`                   | `ON`, `OFF`                                                         | Enable testing support (see bellow).                              |

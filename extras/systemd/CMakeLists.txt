@@ -21,16 +21,17 @@ elseif(NOT SYSTEMD_FOUND AND PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR)
 endif()
 
 if(SYSTEMD_FOUND)
-  set(WITH_SYSTEMD ON)
+  set(with_systemd ON)
   message(STATUS "systemd services install dir: ${PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR}")
 else()
-  set(WITH_SYSTEMD OFF)
+  set(with_systemd OFF)
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service.in"
     "${CMAKE_CURRENT_SOURCE_DIR}/pcloudcc@.service")
 
-if(WITH_SYSTEMD)
+if(with_systemd)
   install(FILES pcloudcc@.service
       DESTINATION ${PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR})
 endif()
+unset(with_systemd)

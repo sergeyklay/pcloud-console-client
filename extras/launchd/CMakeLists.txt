@@ -5,12 +5,9 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-option(PCLOUD_WITH_SYSTEMD "Enable systemd integration" OFF)
-if(PCLOUD_WITH_SYSTEMD)
-  add_subdirectory(systemd)
+if("${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR}" STREQUAL "")
+  message(FATAL_ERROR
+    "Variable PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR is not defined or empty")
 endif()
 
-option(PCLOUD_WITH_LAUNCHD "Enable launchd integration" OFF)
-if(PCLOUD_WITH_LAUNCHD)
-  add_subdirectory(launchd)
-endif()
+message(STATUS "launchd plist install dir: ${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR}")
