@@ -2405,10 +2405,16 @@ static int psync_fs_unlink(const char *path) {
   else if (!(fpath->permissions&PSYNC_PERM_DELETE))
     ret=-EACCES;
   else
-    ret=psync_fstask_unlink(fpath->folderid, fpath->name);
+    ret = psync_fstask_unlink(fpath->folderid, fpath->name);
   psync_sql_unlock();
   psync_free(fpath);
-  log_info("unlink %s=%d", path, ret);
+  if (unlikely(ret != 0)) {
+    /* psync_fstask_unlink() will return ret < 0 in case of error */
+    log_warn("unable to unlink %s: %s", path, strerror(ret * -1));
+  } else {
+    log_info("unlink %s=%d", path, ret);
+  }
+
   return ret;
 }
 
