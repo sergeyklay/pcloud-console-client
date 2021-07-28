@@ -76,10 +76,10 @@ static pthread_mutex_t psync_maintainer_logs_mutex;
 
 PSYNC_NOINLINE void *psync_emergency_malloc(size_t size) {
   void *ret;
-  log_warn("could not allocate %lu bytes", (unsigned long)size);
+  log_error("could not allocate %lu bytes", (unsigned long)size);
 
   psync_try_free_memory();
-  ret=psync_real_malloc(size);
+  ret = psync_real_malloc(size);
   if (likely(ret))
 #if IS_DEBUG
     return memset(ret, 0xfa, size);

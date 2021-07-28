@@ -1,29 +1,17 @@
-/* Copyright (c) 2013-2014 Anton Titov.
- * Copyright (c) 2013-2014 pCloud Ltd.
- * All rights reserved.
+/*
+ * This file is part of the pCloud Console Client.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of pCloud Ltd nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ * (c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+ * (c) 2013-2014 Anton Titov <anton@pcloud.com>
+ * (c) 2013-2014 pCloud Ltd
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL pCloud Ltd BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
+
+#include <string.h>
+
+#include "pcloudcc/psync/compat.h"
 
 #include "psyncer.h"
 #include "plibs.h"
@@ -37,7 +25,7 @@
 #include "pcallbacks.h"
 #include "ptree.h"
 #include "ppathstatus.h"
-#include <string.h>
+#include "logger.h"
 
 typedef struct {
   psync_tree tree;
@@ -48,61 +36,61 @@ static psync_tree *synced_down_folders=PSYNC_TREE_EMPTY;
 
 static pthread_mutex_t sync_down_mutex=PTHREAD_MUTEX_INITIALIZER;
 
-static psync_tree *psync_new_sd_folder(psync_folderid_t folderid){
+static psync_tree *psync_new_sd_folder(psync_folderid_t folderid) {
   synced_down_folder *f=psync_new(synced_down_folder);
   f->folderid=folderid;
   return &f->tree;
 }
 
-static void psync_add_folder_to_downloadlist_locked(psync_folderid_t folderid){
+static void psync_add_folder_to_downloadlist_locked(psync_folderid_t folderid) {
   synced_down_folder *f;
-  if (!synced_down_folders){
+  if (!synced_down_folders) {
     psync_tree_add_after(&synced_down_folders, NULL, psync_new_sd_folder(folderid));
     return;
   }
   f=psync_tree_element(synced_down_folders, synced_down_folder, tree);
-  while (1){
-    if (folderid<f->folderid){
+  while (1) {
+    if (folderid<f->folderid) {
       if (f->tree.left)
         f=psync_tree_element(f->tree.left, synced_down_folder, tree);
-      else{
+      else {
         f->tree.left=psync_new_sd_folder(folderid);
         psync_tree_added_at(&synced_down_folders, &f->tree, f->tree.left);
         break;
       }
     }
-    else if (folderid>f->folderid){
+    else if (folderid>f->folderid) {
       if (f->tree.right)
         f=psync_tree_element(f->tree.right, synced_down_folder, tree);
-      else{
+      else {
         f->tree.right=psync_new_sd_folder(folderid);
         psync_tree_added_at(&synced_down_folders, &f->tree, f->tree.right);
         break;
       }
     }
-    else{
-      debug(D_NOTICE, "not adding folderid %llu to downloadlist as it is already there", (unsigned long long)folderid);
+    else {
+      log_debug( "not adding folderid %llu to downloadlist as it is already there", (unsigned long long)folderid);
       break;
     }
   }
 }
 
-void psync_add_folder_to_downloadlist(psync_folderid_t folderid){
+void psync_add_folder_to_downloadlist(psync_folderid_t folderid) {
   pthread_mutex_lock(&sync_down_mutex);
   psync_add_folder_to_downloadlist_locked(folderid);
   pthread_mutex_unlock(&sync_down_mutex);
 }
 
-void psync_del_folder_from_downloadlist(psync_folderid_t folderid){
+void psync_del_folder_from_downloadlist(psync_folderid_t folderid) {
   synced_down_folder *f;
   pthread_mutex_lock(&sync_down_mutex);
   f=psync_tree_element(synced_down_folders, synced_down_folder, tree);
-  while (f){
+  while (f) {
     if (folderid<f->folderid)
       f=psync_tree_element(f->tree.left, synced_down_folder, tree);
     else if (folderid>f->folderid)
       f=psync_tree_element(f->tree.right, synced_down_folder, tree);
-    else{
+    else {
       psync_tree_del(&synced_down_folders, &f->tree);
       psync_free(f);
       break;
@@ -118,11 +106,11 @@ void psync_clear_downloadlist() {
   pthread_mutex_unlock(&sync_down_mutex);
 }
 
-int psync_is_folder_in_downloadlist(psync_folderid_t folderid){
+int psync_is_folder_in_downloadlist(psync_folderid_t folderid) {
   synced_down_folder *f;
   pthread_mutex_lock(&sync_down_mutex);
   f=psync_tree_element(synced_down_folders, synced_down_folder, tree);
-  while (f){
+  while (f) {
     if (folderid<f->folderid)
       f=psync_tree_element(f->tree.left, synced_down_folder, tree);
     else if (folderid>f->folderid)
@@ -134,7 +122,7 @@ int psync_is_folder_in_downloadlist(psync_folderid_t folderid){
   return f!=NULL;
 }
 
-void psync_increase_local_folder_taskcnt(psync_folderid_t lfolderid){
+void psync_increase_local_folder_taskcnt(psync_folderid_t lfolderid) {
   psync_sql_res *res;
   res=psync_sql_prep_statement("UPDATE localfolder SET taskcnt=taskcnt+1 WHERE id=?");
   psync_sql_bind_uint(res, 1, lfolderid);
@@ -142,7 +130,7 @@ void psync_increase_local_folder_taskcnt(psync_folderid_t lfolderid){
   assertw(psync_sql_affected_rows()==1);
 }
 
-void psync_decrease_local_folder_taskcnt(psync_folderid_t lfolderid){
+void psync_decrease_local_folder_taskcnt(psync_folderid_t lfolderid) {
   psync_sql_res *res;
   res=psync_sql_prep_statement("UPDATE localfolder SET taskcnt=taskcnt+1 WHERE id=?");
   psync_sql_bind_uint(res, 1, lfolderid);
@@ -150,13 +138,13 @@ void psync_decrease_local_folder_taskcnt(psync_folderid_t lfolderid){
   assertw(psync_sql_affected_rows()==1);
 }
 
-psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_folderid_t folderid, psync_folderid_t localparentfolderid, const char *name){
+psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_folderid_t folderid, psync_folderid_t localparentfolderid, const char *name) {
   psync_sql_res *res;
   psync_uint_row row;
   psync_folderid_t lfolderid, dbfolderid;
   const char *ptr;
   char *vname;
-  debug(D_NOTICE, "creating local folder in db as %lu/%s for folderid %lu", (unsigned long)localparentfolderid, name, (unsigned long)folderid);
+  log_debug( "creating local folder in db as %lu/%s for folderid %lu", (unsigned long)localparentfolderid, name, (unsigned long)folderid);
   res=psync_sql_query("SELECT id FROM localfolder WHERE syncid=? AND folderid=?");
   psync_sql_bind_uint(res, 1, syncid);
   psync_sql_bind_uint(res, 2, folderid);
@@ -171,7 +159,7 @@ psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_fo
   vname=NULL;
   if (name)
     for (ptr=name; *ptr; ptr++)
-      if (psync_invalid_filename_chars[(unsigned char)*ptr]){
+      if (psync_invalid_filename_chars[(unsigned char)*ptr]) {
         if (!vname)
           vname=psync_strdup(name);
         vname[ptr-name]='_';
@@ -184,7 +172,7 @@ psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_fo
   psync_sql_bind_uint(res, 3, syncid);
   psync_sql_bind_string(res, 4, name);
   psync_sql_run(res);
-  if (psync_sql_affected_rows()>0){
+  if (psync_sql_affected_rows()>0) {
     lfolderid=psync_sql_insertid();
     psync_sql_free_result(res);
     psync_free(vname);
@@ -196,17 +184,17 @@ psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_fo
   psync_sql_bind_uint(res, 2, syncid);
   psync_sql_bind_string(res, 3, name);
   row=psync_sql_fetch_rowint(res);
-  if (row){
+  if (row) {
     lfolderid=row[0];
     dbfolderid=row[1];
   }
-  else{
+  else {
     lfolderid=0;
     debug(D_ERROR, "local folder %s not found in the database", name);
   }
   psync_sql_free_result(res);
-  if (lfolderid && dbfolderid!=folderid){
-    debug(D_NOTICE, "local folder %lu does not have folderid associated, setting to %lu", (unsigned long)lfolderid, (unsigned long)folderid);
+  if (lfolderid && dbfolderid!=folderid) {
+    log_debug( "local folder %lu does not have folderid associated, setting to %lu", (unsigned long)lfolderid, (unsigned long)folderid);
     res=psync_sql_prep_statement("UPDATE localfolder SET folderid=? WHERE id=?");
     psync_sql_bind_uint(res, 1, lfolderid);
     psync_sql_bind_uint(res, 2, folderid);
@@ -217,7 +205,7 @@ psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_fo
   return lfolderid;
 }
 
-void psync_add_folder_for_downloadsync(psync_syncid_t syncid, psync_synctype_t synctype, psync_folderid_t folderid, psync_folderid_t lfoiderid){
+void psync_add_folder_for_downloadsync(psync_syncid_t syncid, psync_synctype_t synctype, psync_folderid_t folderid, psync_folderid_t lfoiderid) {
   psync_sql_res *res;
   psync_variant_row row;
   const char *name;
@@ -231,8 +219,8 @@ void psync_add_folder_for_downloadsync(psync_syncid_t syncid, psync_synctype_t s
   psync_add_folder_to_downloadlist(folderid);
   res=psync_sql_query("SELECT id, permissions, name FROM folder WHERE parentfolderid=?");
   psync_sql_bind_uint(res, 1, folderid);
-  while ((row=psync_sql_fetch_row(res))){
-    if (psync_get_number(row[1])&PSYNC_PERM_READ){
+  while ((row=psync_sql_fetch_row(res))) {
+    if (psync_get_number(row[1])&PSYNC_PERM_READ) {
       name=psync_get_string(row[2]);
       if (psync_is_name_to_ignore(name))
         continue;
@@ -245,7 +233,7 @@ void psync_add_folder_for_downloadsync(psync_syncid_t syncid, psync_synctype_t s
   psync_sql_free_result(res);
   res=psync_sql_query("SELECT id, name FROM file WHERE parentfolderid=?");
   psync_sql_bind_uint(res, 1, folderid);
-  while ((row=psync_sql_fetch_row(res))){
+  while ((row=psync_sql_fetch_row(res))) {
     name=psync_get_string(row[1]);
     if (psync_is_name_to_ignore(name))
       continue;
@@ -254,7 +242,7 @@ void psync_add_folder_for_downloadsync(psync_syncid_t syncid, psync_synctype_t s
   psync_sql_free_result(res);
 }
 
-static void psync_sync_newsyncedfolder(psync_syncid_t syncid){
+static void psync_sync_newsyncedfolder(psync_syncid_t syncid) {
   psync_sql_res *res;
   psync_uint_row row;
   uint64_t folderid;
@@ -263,7 +251,7 @@ static void psync_sync_newsyncedfolder(psync_syncid_t syncid){
   res=psync_sql_query("SELECT folderid, synctype FROM syncfolder WHERE id=? AND flags=0");
   psync_sql_bind_uint(res, 1, syncid);
   row=psync_sql_fetch_rowint(res);
-  if (unlikely_log(!row)){
+  if (unlikely_log(!row)) {
     psync_sql_free_result(res);
     psync_sql_rollback_transaction();
     return;
@@ -271,7 +259,7 @@ static void psync_sync_newsyncedfolder(psync_syncid_t syncid){
   folderid=row[0];
   synctype=row[1];
   psync_sql_free_result(res);
-  if (synctype&PSYNC_DOWNLOAD_ONLY){
+  if (synctype&PSYNC_DOWNLOAD_ONLY) {
     psync_add_folder_for_downloadsync(syncid, synctype, folderid, 0);
   }
   else {
@@ -284,11 +272,11 @@ static void psync_sync_newsyncedfolder(psync_syncid_t syncid){
   res=psync_sql_prep_statement("UPDATE syncfolder SET flags=1 WHERE flags=0 AND id=?");
   psync_sql_bind_uint(res, 1, syncid);
   psync_sql_run_free(res);
-  if (likely_log(psync_sql_affected_rows())){
-    if (!psync_sql_commit_transaction()){
+  if (likely_log(psync_sql_affected_rows())) {
+    if (!psync_sql_commit_transaction()) {
       if (synctype&PSYNC_UPLOAD_ONLY)
         psync_wake_localscan();
-      if (synctype&PSYNC_DOWNLOAD_ONLY){
+      if (synctype&PSYNC_DOWNLOAD_ONLY) {
         psync_status_recalc_to_download();
         psync_send_status_update();
         psync_wake_download();
@@ -300,18 +288,18 @@ static void psync_sync_newsyncedfolder(psync_syncid_t syncid){
     psync_sql_rollback_transaction();
 }
 
-static void psync_do_sync_thread(void *ptr){
+static void psync_do_sync_thread(void *ptr) {
   psync_sync_newsyncedfolder(*((psync_syncid_t *)ptr));
   psync_free(ptr);
 }
 
-void psync_syncer_new(psync_syncid_t syncid){
+void psync_syncer_new(psync_syncid_t syncid) {
   psync_syncid_t *psid=psync_new(psync_syncid_t);
   *psid=syncid;
   psync_run_thread1("syncer", psync_do_sync_thread, psid);
 }
 
-static void psync_syncer_thread(){
+static void psync_syncer_thread() {
   int64_t syncid;
   psync_sql_lock();
   if (psync_sql_cellint("SELECT COUNT(*) FROM task", -1)==0)
@@ -321,30 +309,30 @@ static void psync_syncer_thread(){
   psync_sql_unlock();
 }
 
-static void delete_delayed_sync(uint64_t id){
+static void delete_delayed_sync(uint64_t id) {
   psync_sql_res *res;
   res=psync_sql_prep_statement("DELETE FROM syncfolderdelayed WHERE id=?");
   psync_sql_bind_uint(res, 1, id);
   psync_sql_run_free(res);
 }
 
-int psync_str_is_prefix(const char *str1, const char *str2){
+int psync_str_is_prefix(const char *str1, const char *str2) {
   size_t len1, len2;
   len1=strlen(str1);
   len2=strlen(str2);
-  if (len2<len1){
+  if (len2<len1) {
     if (str1[len2]!='/' && str1[len2]!=PSYNC_DIRECTORY_SEPARATORC)
       return 0;
     len1=len2;
   }
-  else{
+  else {
     if (str2[len1]!='/' && str2[len1]!=PSYNC_DIRECTORY_SEPARATORC)
       return 0;
   }
   return !psync_filename_cmpn(str1, str2, len1);
 }
 
-void psync_syncer_check_delayed_syncs(){
+void psync_syncer_check_delayed_syncs() {
   psync_stat_t st;
   psync_sql_res *res, *res2, *stmt;
   psync_variant_row row;
@@ -357,7 +345,7 @@ void psync_syncer_check_delayed_syncs(){
   int unsigned md;
 re:
   res=psync_sql_query("SELECT id, localpath, remotepath, synctype FROM syncfolderdelayed");
-  while ((row=psync_sql_fetch_row(res))){
+  while ((row=psync_sql_fetch_row(res))) {
     id=psync_get_number(row[0]);
     localpath=(char *)psync_get_string(row[1]);
     remotepath=(char *)psync_get_string(row[2]);
@@ -366,24 +354,24 @@ re:
       md=7;
     else
       md=5;
-    if (unlikely_log(psync_stat(localpath, &st)) || unlikely_log(!psync_stat_isfolder(&st)) || unlikely_log(!psync_stat_mode_ok(&st, md))){
-      debug(D_WARNING, "ignoring delayed sync id %"P_PRI_U64" for local path %s", id, localpath);
+    if (unlikely_log(psync_stat(localpath, &st)) || unlikely_log(!psync_stat_isfolder(&st)) || unlikely_log(!psync_stat_mode_ok(&st, md))) {
+      log_warn("ignoring delayed sync id %"P_PRI_U64" for local path %s", id, localpath);
       delete_delayed_sync(id);
       continue;
     }
     md=0;
     res2=psync_sql_query("SELECT localpath FROM syncfolder");
     while ((srow=psync_sql_fetch_rowstr(res2)))
-      if (psync_str_is_prefix(srow[0], localpath)){
-        debug(D_WARNING, "skipping localfolder %s, remote %s, because of same parent to %s", localpath, remotepath, srow[0]);
+      if (psync_str_is_prefix(srow[0], localpath)) {
+        log_warn("skipping localfolder %s, remote %s, because of same parent to %s", localpath, remotepath, srow[0]);
         md=1;
       }
-      else if (!psync_filename_cmp(srow[0], localpath)){
-        debug(D_WARNING, "skipping localfolder %s, remote %s, because of same dir to %s", localpath, remotepath, srow[0]);
+      else if (!psync_filename_cmp(srow[0], localpath)) {
+        log_warn("skipping localfolder %s, remote %s, because of same dir to %s", localpath, remotepath, srow[0]);
         md=1;
       }
     psync_sql_free_result(res2);
-    if (md){
+    if (md) {
       delete_delayed_sync(id);
       continue;
     }
@@ -393,11 +381,11 @@ re:
     psync_sql_free_result(res);
 
     folderid=psync_get_folderid_by_path_or_create(remotepath);
-    if (unlikely(folderid==PSYNC_INVALID_FOLDERID)){
-      debug(D_WARNING, "could not get folderid/create folder %s", remotepath);
+    if (unlikely(folderid==PSYNC_INVALID_FOLDERID)) {
+      log_warn("could not get folderid/create folder %s", remotepath);
       psync_free(localpath);
       psync_free(remotepath);
-      if (psync_error!=PERROR_OFFLINE){
+      if (psync_error!=PERROR_OFFLINE) {
         delete_delayed_sync(id);
         goto re;
       }
@@ -410,7 +398,7 @@ re:
     psync_sql_bind_uint(stmt, 1, folderid);
     urow=psync_sql_fetch_rowint(stmt);
     psync_sql_free_result(stmt);
-    if (!urow){
+    if (!urow) {
       psync_sql_commit_transaction();
       psync_free(localpath);
       psync_free(remotepath);
@@ -440,7 +428,7 @@ re:
   psync_sql_free_result(res);
 }
 
-void psync_syncer_init(){
+void psync_syncer_init() {
   psync_sql_res *res;
   psync_uint_row row;
   res=psync_sql_query("SELECT folderid FROM syncedfolder WHERE synctype&"NTO_STR(PSYNC_DOWNLOAD_ONLY)"="NTO_STR(PSYNC_DOWNLOAD_ONLY));
