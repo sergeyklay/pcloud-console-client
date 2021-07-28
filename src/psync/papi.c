@@ -388,14 +388,23 @@ binresult *get_result(psync_socket *sock) {
   unsigned char *data;
   binresult *res;
   uint32_t ressize;
-  if (unlikely_log(psync_socket_readall(sock, &ressize, sizeof(uint32_t))!=sizeof(uint32_t)))
+  size_t ret;
+
+  ret = psync_socket_readall(sock, &ressize, sizeof(uint32_t));
+  if (unlikely(ret != sizeof(uint32_t))) {
+    log_warn("failed to read from socket %lu bytes", sizeof(uint32_t));
     return NULL;
-  data=(unsigned char *)psync_malloc(ressize);
-  if (unlikely_log(psync_socket_readall(sock, data, ressize)!=ressize)) {
+  }
+
+  data = (unsigned char *)psync_malloc(ressize);
+  ret = psync_socket_readall(sock, data, (int)ressize);
+  if (unlikely(ret != ressize)) {
+    log_warn("failed to read from socket %lu bytes", sizeof(uint32_t));
     psync_free(data);
     return NULL;
   }
-  res=parse_result(data, ressize);
+
+  res = parse_result(data, ressize);
   psync_free(data);
   return res;
 }
