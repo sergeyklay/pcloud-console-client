@@ -2014,34 +2014,40 @@ static int psync_socket_readall_ssl(psync_socket *sock, void *buff, int num) {
 
 static int psync_socket_readall_plain(psync_socket *sock, void *buff, int num) {
   int br, r;
-  br=0;
-  while (br<num) {
+  br = 0;
+  while (br < num) {
     psync_socket_try_write_buffer(sock);
+
     if (sock->pending)
-      sock->pending=0;
+      sock->pending = 0;
     else if (psync_wait_socket_read_timeout(sock->sock))
       return -1;
     else
         psync_socket_try_write_buffer(sock);
-    r=psync_read_socket(sock->sock, (char *)buff+br, num-br);
-    if (r==SOCKET_ERROR) {
-      if (likely_log(psync_sock_err()==P_WOULDBLOCK || psync_sock_err()==P_AGAIN))
+
+    r = psync_read_socket(sock->sock, (char *)buff + br, num - br);
+    if (r == SOCKET_ERROR) {
+      if (likely(psync_sock_err() == P_WOULDBLOCK || psync_sock_err() == P_AGAIN)) {
         continue;
-      else
-        return -1;
+      }
+
+      log_warn("socket read error %s", strerror(psync_sock_err()));
+      return -1;
     }
-    if (r==0)
+
+    if (r == 0)
       return br;
-    br+=r;
+    br += r;
   }
+
   return br;
 }
 
 int psync_socket_readall(psync_socket *sock, void *buff, int num) {
   if (sock->ssl)
     return psync_socket_readall_ssl(sock, buff, num);
-  else
-    return psync_socket_readall_plain(sock, buff, num);
+
+  return psync_socket_readall_plain(sock, buff, num);
 }
 
 static int psync_socket_writeall_ssl(psync_socket *sock, const void *buff, int num) {
