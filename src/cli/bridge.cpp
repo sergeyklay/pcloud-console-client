@@ -262,9 +262,10 @@ int pcloud::cli::Bridge::stop_crypto(const char *path, void *rep) {
 }
 
 int pcloud::cli::Bridge::list_sync_folders(const char *path, void *rep) {
-  psync_folder_list_t *folders = psync_get_sync_list();
-  rep = psync_malloc(sizeof(folders));
-  memcpy(rep, folders, sizeof(folders));
+// TODO: Non implemented
+//  psync_folder_list_t *folders = psync_get_sync_list();
+//  rep = psync_malloc(sizeof(folders));
+//  memcpy(rep, folders, sizeof(folders));
   return 0;
 }
 
