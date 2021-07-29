@@ -10,4 +10,12 @@ if("${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR}" STREQUAL "")
     "Variable PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR is not defined or empty")
 endif()
 
-message(STATUS "launchd plist install dir: ${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR}")
+if(NOT PCLOUD_MAINTAINER_LOG_FILE OR "${PCLOUD_MAINTAINER_LOG_FILE}" STREQUAL "")
+  set(PCLOUD_MAINTAINER_LOG_FILE "/dev/null")
+endif()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/com.pcloud.pcloudcc@3.plist.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/com.pcloud.pcloudcc@3.plist" @ONLY)
+
+install(FILES com.pcloud.pcloudcc@3.plist
+  DESTINATION ${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR})

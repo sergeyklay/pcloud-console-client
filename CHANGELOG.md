@@ -14,7 +14,8 @@ releases, in reverse chronological order.
 
 * Added `-dumpversion` program option alias for `--dumpversion`.
 * Amended tests.
-
+* Provided launchd integration for macOS.
+  
 ### Changes
 
 * Renamed `overlay_callback` pointer to function to `poverlay_callback`.

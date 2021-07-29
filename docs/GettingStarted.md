@@ -221,3 +221,23 @@ $ cmake --build .
 # Install client (this will use custom prefix now)
 $ cmake --build . --target install
 ```
+
+To install launchd agent use `-DPCLOUD_WITH_LAUNCHD=ON`. You can also pass
+`-DPCLOUD_LAUNCHD_PLISTS_INSTALL_DIR=/agent/location` to change agent load
+path for launchd. For example:
+
+```sh
+# Configure build
+$ cd build
+$ cmake \
+  -DCMAKE_INSTALL_PREFIX=~/.local \
+  -DPCLOUD_WITH_LAUNCHD=ON \
+  -DPCLOUD_LAUNCHD_PLISTS_INSTALL_DIR=~/Library/LaunchAgents \
+  ..
+
+# Build client
+$ cmake --build .
+
+# Install client (this will use custom prefix now)
+$ cmake --build . --target install
+```

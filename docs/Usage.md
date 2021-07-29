@@ -119,6 +119,57 @@ mechanism varies. It's probably easiet to just follow
 [these instructions](https://www.howtogeek.com/228467/how-to-make-a-program-run-at-startup-on-any-computer/)
 for setting up autostart. Alternatively, you can try following the instructions below.
 
+#### macOS (launchd)
+
+To use systemd integration the project should be built  with
+`-DPCLOUD_WITH_LAUNCHD=ON` flag. `com.pcloud.pcloudcc@3.plist` is an "agent configuration file" for
+macOS' launchd.  See the manual pages for `launchd`, `launchd.plist`, and `launchctl` for details.
+
+You should place this file in: `~/Library/LaunchAgents`. The next required step is to set
+`PCLOUD_USER_NAME` variable. You can put it for example in your `.bashrc/.zhrc` file as follows:
+
+```sh
+launchctl setenv PCLOUD_USER_NAME "example@myemail.com"
+```
+
+For more information about defining environment variables with `launchd`/`launchctl` see:
+
+- https://apple.stackexchange.com/a/64917/267719
+- https://stackoverflow.com/a/588442/1661465
+
+After doing so, `pcloudcc` will start automatically  when you log in. Also, you can start and stop
+it via `launchctl`.
+
+If you have updated an _already running service_, for example:
+
+```sh
+$ cp pcloudcc /usr/local/bin/pcloudcc
+```
+
+you may need to restart it as follows:
+
+```sh
+$ launchctl kickstart -k gui/$(id -u)/com.pcloud.pcloudcc@3.plist
+```
+
+Remember to initialize you account **first** by running:
+
+```sh
+$ pcloudcc -u example@myemail.com -p -s
+```
+
+Note: you can always stop `pcloudcc` agent:
+
+```sh
+launchctl unload ~/Library/LaunchAgents/com.pcloud.pcloudcc@3.plist
+```
+
+edit plist, and re-run it again:
+
+```sh
+launchctl load ~/Library/LaunchAgents/com.pcloud.pcloudcc@3.plist
+```
+
 #### Linux (systemd)
 
 To use systemd integration the project should be built  with
@@ -137,7 +188,7 @@ Then, start it:
 $ systemctl --user start pcloudcc@<example@myemail.com>.service
 ```
 
-Remember to initialize you account first by running:
+Remember to initialize you account **first** by running:
 
 ```sh
 $ pcloudcc -u example@myemail.com -p -s

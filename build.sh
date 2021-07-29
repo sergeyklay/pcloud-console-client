@@ -23,7 +23,7 @@ BUILD_TYPE=${BUILD_TYPE:-Debug}
 
 INSTALL_PREFIX=${INSTALL_PREFIX:-"$HOME/.local"}
 SYSTEMD_UNIT_PATH=${SYSTEMD_UNIT_PATH:-"$HOME/.config/systemd/user"}
-LAUNCHD_PLIST_PATH=${SYSTEMD_UNIT_PATH:-"$HOME/Library/LaunchAgents"}
+LAUNCHD_PLIST_PATH=${LAUNCHD_PLIST_PATH:-"$HOME/Library/LaunchAgents"}
 CONAN_PROFILE=${CONAN_PROFILE:-default}
 LOG_FILE=${LOG_FILE:-""}
 
@@ -43,7 +43,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   WITH_SYSTEMD=OFF
   SYSTEMD_UNIT_PATH=""
   if [[ "$WITH_LOGS" == "ON" ]]; then
-    LOG_FILE=/var/log/pcloudcc.log
+    LOG_FILE=/tmp/pcloudcc.log
   fi
 else
   WITH_LAUNCHD=OFF
@@ -76,3 +76,6 @@ fi
 
 echo "Install client"
 cmake --build build --target install
+
+echo "LAUNCHD: ${WITH_LAUNCHD} -> ${LAUNCHD_PLIST_PATH}"
+echo "SYSTEMD: ${WITH_SYSTEMD} -> ${SYSTEMD_UNIT_PATH}"

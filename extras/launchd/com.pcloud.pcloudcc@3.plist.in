@@ -14,11 +14,9 @@ the LICENSE file that was distributed with this project.
         <string>com.pcloud.pcloudcc@3</string>
         <key>ProgramArguments</key>
         <array>
-            <string>@CMAKE_INSTALL_PREFIX@/bin/pcloudcc</string>
-            <string>--username</string>
-            <string>$PCLOUD_USER_NAME</string>
-            <string>--mountpoint</string>
-            <string>$HOME/pCloud Drive</string>
+            <string>/bin/sh</string>
+            <string>-c</string>
+            <string>exec @CMAKE_INSTALL_PREFIX@/bin/pcloudcc -u $PCLOUD_USER_NAME</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
@@ -28,17 +26,5 @@ the LICENSE file that was distributed with this project.
         <string>@PCLOUD_MAINTAINER_LOG_FILE@</string>
         <key>StandardErrorPath</key>
         <string>@PCLOUD_MAINTAINER_LOG_FILE@</string>
-        <key>Debug</key>
-        <true/>
-        <key>SoftResourceLimits</key>
-        <dict>
-            <key>Core</key>
-            <integer>9223372036854775807</integer>
-        </dict>
-        <key>HardResourceLimits</key>
-        <dict>
-            <key>Core</key>
-            <integer>9223372036854775807</integer>
-        </dict>
     </dict>
 </plist>
