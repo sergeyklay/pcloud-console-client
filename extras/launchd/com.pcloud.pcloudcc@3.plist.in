@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file is part of the pCloud Console Client.
+
+(c) 2021 Serghei Iakovlev <egrep@protonmail.ch>
+
+For the full copyright and license information, please view
+the LICENSE file that was distributed with this project.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.pcloud.pcloudcc@3</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/bin/sh</string>
+            <string>-c</string>
+            <string>exec @CMAKE_INSTALL_PREFIX@/bin/pcloudcc -u $PCLOUD_USER_NAME</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <true/>
+        <key>StandardOutPath</key>
+        <string>@PCLOUD_MAINTAINER_LOG_FILE@</string>
+        <key>StandardErrorPath</key>
+        <string>@PCLOUD_MAINTAINER_LOG_FILE@</string>
+    </dict>
+</plist>

@@ -9,3 +9,8 @@ option(PCLOUD_WITH_SYSTEMD "Enable systemd integration" OFF)
 if(PCLOUD_WITH_SYSTEMD)
   add_subdirectory(systemd)
 endif()
+
+option(PCLOUD_WITH_LAUNCHD "Enable launchd integration" OFF)
+if(PCLOUD_WITH_LAUNCHD)
+  add_subdirectory(launchd)
+endif()

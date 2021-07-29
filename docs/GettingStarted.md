@@ -109,6 +109,8 @@ recognized during the project configuration phase:
 | `PCLOUD_MAINTAINER_LOGS`              | `ON`, `OFF`                                                         | ON to enable maintainer logs, OFF to disable logging.             |
 | `PCLOUD_MAINTAINER_LOG_FILE`          | A path like `/tmp/pcloudcc.log`                                     | Maintainer log file.                                              |
 | `PCLOUD_MAINTAINER_LOGS_LEVEL`        | 0, 1, 2, 3, 4, 5                                                    | Logs level. From 0 (trace), to 5 (fatal error).                   |
+| `PCLOUD_WITH_LAUNCHD`                 | `ON`, `OFF`                                                         | Enable launchd integration.                                       |
+| `PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR`   | A path recognized by launchd                                        | System or user plist search path for systemd (see bellow).        |
 | `PCLOUD_WITH_SYSTEMD`                 | `ON`, `OFF`                                                         | Enable systemd integration.                                       |
 | `PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR` | A path recognized by systemd                                        | System or user unit search path for systemd (see bellow).         |
 | `PCLOUD_WITH_TESTS`                   | `ON`, `OFF`                                                         | Enable testing support (see bellow).                              |
@@ -211,6 +213,26 @@ $ cmake \
   -DCMAKE_INSTALL_PREFIX=~/.local \
   -DPCLOUD_WITH_SYSTEMD=ON \
   -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR==~/.config/systemd/user \
+  ..
+
+# Build client
+$ cmake --build .
+
+# Install client (this will use custom prefix now)
+$ cmake --build . --target install
+```
+
+To install launchd agent use `-DPCLOUD_WITH_LAUNCHD=ON`. You can also pass
+`-DPCLOUD_LAUNCHD_PLISTS_INSTALL_DIR=/agent/location` to change agent load
+path for launchd. For example:
+
+```sh
+# Configure build
+$ cd build
+$ cmake \
+  -DCMAKE_INSTALL_PREFIX=~/.local \
+  -DPCLOUD_WITH_LAUNCHD=ON \
+  -DPCLOUD_LAUNCHD_PLISTS_INSTALL_DIR=~/Library/LaunchAgents \
   ..
 
 # Build client
