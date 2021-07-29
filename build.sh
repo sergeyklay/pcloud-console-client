@@ -76,6 +76,3 @@ fi
 
 echo "Install client"
 cmake --build build --target install
-
-echo "LAUNCHD: ${WITH_LAUNCHD} -> ${LAUNCHD_PLIST_PATH}"
-echo "SYSTEMD: ${WITH_SYSTEMD} -> ${SYSTEMD_UNIT_PATH}"
