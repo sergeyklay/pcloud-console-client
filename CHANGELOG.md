@@ -17,7 +17,7 @@ releases, in reverse chronological order.
 * Added `-dumpversion` program option alias for `--dumpversion`.
 * Amended tests.
 * Provided launchd integration for macOS.
-* Provided ability to specify fuse (Dokan) implementation on Windows.
+* Provided ability to specify fuse implementation (Dokan) on Windows.
   
 ### Changes
 
