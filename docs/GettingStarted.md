@@ -7,9 +7,10 @@ local machine for development and testing purposes.
 
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
-- [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in Userspace
+- [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
+  Userspace
 
-Additionally, on Linux you'll need `pkg-config` to perform some system checks.
+On Linux you'll need `pkg-config` to perform some system checks.
 
 Also, you'll need the following build tools:
 - A C99/C++14 compatible compiler such as
@@ -19,7 +20,8 @@ Also, you'll need the following build tools:
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
 - [CMake](https://cmake.org/) >= 3.12
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
-- [Conan](https://conan.io/) decentralized package manager with a client-server architecture
+- [Conan](https://conan.io/) decentralized package manager with a
+  client-server architecture
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
 thus your compiler should support `-std=gnu99`. Also notice, MSVC does not
@@ -28,6 +30,8 @@ support C99, and only halfway supports the older versions of the C standard.
 Optional prerequisites are:
 - Documentation generation tool: [Doxygen](http://www.doxygen.org/)
 - Graph visualization toolkit: [Graphviz](http://www.graphviz.org/)
+
+#### Debian
 
 On Debian and its derivatives you can install the required packages this way:
 ```sh
@@ -42,15 +46,13 @@ $ sudo apt install \
     pkg-config
 ```
 
-On macOS, you most likely have a bundled with Xcode compiler as well as pthread:
+To install conan on Linux use pip:
 ```sh
-$ brew install \
-    cmake \
-    macfuse
+$ pip3 install --user conan
 ```
 
-**Note:** On some systems the standard version of CMake is less than 3.12.
-To install at least 3.12 version use the following approach:
+**Note:** On some Linux systems the standard version of CMake is less than
+3.12. To install at least 3.12 version use the following approach:
 ```sh
 $ wget https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0.tar.gz
 $ tar -zxvf cmake-3.12.0.tar.gz
@@ -58,6 +60,24 @@ $ cd cmake-3.12.0
 $ ./bootstrap
 $ make
 $ sudo make install
+
+#### macOS
+
+```
+On macOS, you most likely have a bundled with Xcode compiler as well as
+pthread:
+```sh
+$ brew install \
+    cmake \
+    conan \
+    macfuse
+```
+#### Windows
+
+On Windows, you'll need to install Visual Studio by hand. The following
+dependencies can be installed using chocolatey:
+```ps
+C:\> choco install cmake conan
 ```
 
 ### Build steps
@@ -66,11 +86,6 @@ First you'll need clone the project:
 ```sh
 $ git clone https://github.com/sergeyklay/pcloud-console-client.git
 $ cd pcloud-console-client
-```
-
-Then, install Conan:
-```sh
-$ pip3 install --user -r requirements.txt
 ```
 
 Next, initialize project with Conan - this is using the `conanfile.txt`
