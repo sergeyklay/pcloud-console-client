@@ -10,8 +10,8 @@ local machine for development and testing purposes.
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
-  Userspace on Linux/UNIX (or [Dokany](https://github.com/dokan-dev/dokany)
-  on Windows)
+  Userspace on Linux/UNIX ([Dokany](https://github.com/dokan-dev/dokany)
+  on Windows or [macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
 
 #### Build tools
@@ -27,7 +27,6 @@ To build pCloud Console Client you'll need the following build tools:
 - Any build tool supported by CMake like
   [GNU Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/) and so on
-- [GNU Make](https://www.gnu.org/software/make) >= 3.82
 - [Conan](https://conan.io/) decentralized package manager with a
   client-server architecture
 
@@ -62,15 +61,7 @@ $ pip3 install --user conan
 ```
 
 **Note:** On some Linux systems the standard version of CMake is less than
-3.12. To install at least 3.12 version use the following approach:
-```sh
-$ wget https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0.tar.gz
-$ tar -zxvf cmake-3.12.0.tar.gz
-$ cd cmake-3.12.0
-$ ./bootstrap
-$ make
-$ sudo make install
-```
+3.12 so, you'll need to upgrade CMake.
 
 #### macOS
 
@@ -153,6 +144,7 @@ recognized during the project configuration phase:
 | `PCLOUD_WITH_TESTS`                   | `ON`, `OFF`                                                         | Enable testing support (see bellow).                              |
 | `CMAKE_BUILD_TYPE`                    | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
 | `CMAKE_INSTALL_PREFIX`                | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
+| `DOKAN_PATH`                          | A path like `C:\\Program Files\\Dokan\\DokanLibrary-1.5.0`          | Location of the Dokan library (Windows only).                     |
 
 ##### Switching build modes in CMake
 

@@ -23,6 +23,10 @@ set(unix-warnings
     -Wswitch-enum)    # Warn whenever a "switch" lacks a "case"
 
 # MSVC
+if(MSVC AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0")
+  cmake_policy(SET CMP0092 NEW)
+endif(MSVC)
+
 # For "/WX" see target_compile_options() bellow
 set(msvc-warnings
     /W4) # Baseline reasonable warnings
