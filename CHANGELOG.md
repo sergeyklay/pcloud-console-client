@@ -9,6 +9,8 @@ releases, in reverse chronological order.
 
 * Removed `psync_rendir` macro.
 * Removed `psync_file_rename` function.
+* Removed `requirements.txt` file from the project. It was only needed to
+  install conan at CI phase.
 
 ### Features
 
