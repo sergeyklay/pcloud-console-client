@@ -86,17 +86,18 @@ $ brew install \
 #### Windows
 
 On Windows, you'll need to download and install Visual Studio as well as
-Build Tools for Visual Studio from the following web page:
-https://visualstudio.microsoft.com/downloads/ . During the installer dialog
-select MSVC, CMake, Developer Tools and Classic C/C++ support.
+Build Tools for Visual Studio from the
+[official home page](https://visualstudio.microsoft.com/downloads). During the
+installer dialog select MSVC, CMake, Developer Tools and Classic C/C++ support.
 
 The following dependencies can be installed using
-[`chocolatey`](https://chocolatey.org):
-```ps
-C:\> choco install conan
+[Chocolatey](https://chocolatey.org):
+```powershell
+PS C:\> choco install conan
 ```
 
-Finally, install [Dokany](https://github.com/dokan-dev/dokany).
+Finally, follow [Dokany](https://github.com/dokan-dev/dokany) documentation to
+install fuse-like library and development headers.
 
 ### Build steps
 
