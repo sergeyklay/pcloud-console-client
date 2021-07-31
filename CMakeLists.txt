@@ -27,26 +27,17 @@ include(Bootstrap)
 include(CompilerFlags)
 include(CommonDefinitions)
 include(LanguageStandard)
-
-# Conan helpers
+include(Utils)
 include(ConanHelper)
-
-# Project specific variables
 include(ProjectInfo)
 
 message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
 
-if(UNIX)
-  # Use a standard directory layout
-  include(GNUInstallDirs)
-elseif(WIN32)
-  set(${CMAKE_INSTALL_LIBDIR} "lib")
-  set(${CMAKE_INSTALL_DATADIR} "share")
-  set(${CMAKE_INSTALL_INCLUDEDIR} "include")
-  set(${CMAKE_INSTALL_BINDIR} "bin")
-else()
-  message(FATAL_ERROR "System not UNIX nor WIN32. You OS is not be supported yet")
-endif()
+get_target_architecture(PCLOUD_TARGET_ARCH)
+message(STATUS "Target architecture: ${PCLOUD_TARGET_ARCH}")
+
+# Use a standard directory layout
+include(GNUInstallDirs)
 
 add_subdirectory(src)
 add_subdirectory(extras)
