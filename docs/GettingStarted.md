@@ -5,15 +5,18 @@ local machine for development and testing purposes.
 
 ### Prerequisites
 
+### Build and runtime dependencies
+
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX (or [Dokany](https://github.com/dokan-dev/dokany)
   on Windows)
+- `pkg-config` on Linux to perform some system checks
 
-On Linux you'll need `pkg-config` to perform some system checks.
+### Build tools
 
-Also, you'll need the following build tools:
+To build pCloud Console Client you'll need the following build tools:
 - A C99/C++14 compatible compiler such as
   [GCC](https://gcc.gnu.org),
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
@@ -21,6 +24,9 @@ Also, you'll need the following build tools:
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835) or
   [Microsoft Visual Studio](https://visualstudio.microsoft.com)
 - [CMake](https://cmake.org/) >= 3.12
+- Any build tool supported by CMake like
+  [GNU Make](https://www.gnu.org/software/make/),
+  [Ninja](https://ninja-build.org/) and so on
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
 - [Conan](https://conan.io/) decentralized package manager with a
   client-server architecture
@@ -28,6 +34,8 @@ Also, you'll need the following build tools:
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
 thus your compiler should support `-std=gnu99`. Also notice, MSVC does not
 support C99, and only halfway supports the older versions of the C standard.
+
+#### Optional
 
 Optional prerequisites are:
 - Documentation generation tool: [Doxygen](http://www.doxygen.org/)
@@ -48,7 +56,7 @@ $ sudo apt install \
     pkg-config
 ```
 
-To install conan on Linux distros use pip:
+To install conan on Linux distros use [`pip`](https://pip.pypa.io/):
 ```sh
 $ pip3 install --user conan
 ```
@@ -66,7 +74,6 @@ $ sudo make install
 
 #### macOS
 
-```
 On macOS, you most likely have a bundled compiler with Xcode as well as
 pthread library. If so, you'll need only these packages:
 ```sh
@@ -79,16 +86,18 @@ $ brew install \
 #### Windows
 
 On Windows, you'll need to download and install Visual Studio as well as
-Build Tools for Visual Studio from the followinf web page:
-https://visualstudio.microsoft.com/downloads/ . During the installer dialog
-select MSVC, CMake, Developer Tools and Classic C/C++ support.
+Build Tools for Visual Studio from the
+[official home page](https://visualstudio.microsoft.com/downloads). During the
+installer dialog select MSVC, CMake, Developer Tools and Classic C/C++ support.
 
-The following dependencies can be installed using chocolatey:
-```ps
-C:\> choco install conan
+The following dependencies can be installed using
+[Chocolatey](https://chocolatey.org):
+```powershell
+PS C:\> choco install conan
 ```
 
-Finally install [Dokany](https://github.com/dokan-dev/dokany).
+Finally, follow [Dokany](https://github.com/dokan-dev/dokany) documentation to
+install fuse-like library and development headers.
 
 ### Build steps
 
