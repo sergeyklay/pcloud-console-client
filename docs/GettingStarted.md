@@ -8,7 +8,8 @@ local machine for development and testing purposes.
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
-  Userspace
+  Userspace on Linux/UNIX (or [Dokany](https://github.com/dokan-dev/dokany)
+  on Windows)
 
 On Linux you'll need `pkg-config` to perform some system checks.
 
@@ -16,8 +17,9 @@ Also, you'll need the following build tools:
 - A C99/C++14 compatible compiler such as
   [GCC](https://gcc.gnu.org),
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
-  [Clang](https://clang.llvm.org) or
-  [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
+  [Clang](https://clang.llvm.org),
+  [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835) or
+  [Microsoft Visual Studio](https://visualstudio.microsoft.com)
 - [CMake](https://cmake.org/) >= 3.12
 - [GNU Make](https://www.gnu.org/software/make) >= 3.82
 - [Conan](https://conan.io/) decentralized package manager with a
@@ -46,7 +48,7 @@ $ sudo apt install \
     pkg-config
 ```
 
-To install conan on Linux use pip:
+To install conan on Linux distros use pip:
 ```sh
 $ pip3 install --user conan
 ```
@@ -60,27 +62,37 @@ $ cd cmake-3.12.0
 $ ./bootstrap
 $ make
 $ sudo make install
+```
 
 #### macOS
 
 ```
-On macOS, you most likely have a bundled with Xcode compiler as well as
-pthread:
+On macOS, you most likely have a bundled compiler with Xcode as well as
+pthread library. If so, you'll need only these packages:
 ```sh
 $ brew install \
     cmake \
     conan \
     macfuse
 ```
+
 #### Windows
 
-On Windows, you'll need to install Visual Studio by hand. The following
-dependencies can be installed using chocolatey:
+On Windows, you'll need to download and install Visual Studio as well as
+Build Tools for Visual Studio from the followinf web page:
+https://visualstudio.microsoft.com/downloads/ . During the installer dialog
+select MSVC, CMake, Developer Tools and Classic C/C++ support.
+
+The following dependencies can be installed using chocolatey:
 ```ps
-C:\> choco install cmake conan
+C:\> choco install conan
 ```
 
+Finally install [Dokany](https://github.com/dokan-dev/dokany).
+
 ### Build steps
+
+#### Linux/macOS
 
 First you'll need clone the project:
 ```sh
@@ -94,9 +106,10 @@ specifying that Conan should integrate with CMake:
 $ conan install . -if=build --build=missing
 ```
 
-This example establishes out-of-source `build/` directory, so that source folder
-is not polluted. For a detailed instruction on how to use and customize conan
-please refer [here](https://docs.conan.io/en/latest/getting_started.html).
+This example establishes out-of-source `build/` directory, so that source
+folder is not polluted. For a detailed instruction on how to use and
+customize conan please refer
+[here](https://docs.conan.io/en/latest/getting_started.html).
 
 Next, generate the build files using CMake:
 ```sh
@@ -139,8 +152,8 @@ The following modes are supported:
 
 * **Release:** This generates the default code without any unnecessary
   information in the binary files.
-* **Debug:** This generates debug information and disables optimization of the
-  code.
+* **Debug:** This generates debug information and disables optimization of
+  the code.
 * **RelWithDebInfo:** Is the same as **Release**, allowing
   you to have symbol files for debugging.
 * **MinSizeRel:** Is the same as **Release**, with its
@@ -166,14 +179,17 @@ cmake --build . --config Release
 
 Follow these steps:
 
-1. Configure with code coverage instrumentation enabled `-DPCLOUD_BUILD_DOC=ON`
+1. Configure with code coverage instrumentation enabled
+  `-DPCLOUD_BUILD_DOC=ON`
 2. Build project
 3. Call `cmake --build build --target doc` from the project root directory
-4. Open `build/docs/html/index.html` in your browser to view the API documentation
+4. Open `build/docs/html/index.html` in your browser to view the API
+   documentation
 
 #### Running the tests
 
-To build with testing support, you have to configure project with special flags:
+To build with testing support, you have to configure project with special
+flags:
 
 ```shell
 # Configure client
