@@ -5,7 +5,7 @@ local machine for development and testing purposes.
 
 ### Prerequisites
 
-### Build and runtime dependencies
+#### Build and runtime dependencies
 
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
@@ -14,7 +14,7 @@ To build pCloud Console Client you'll need the following requirements:
   on Windows)
 - `pkg-config` on Linux to perform some system checks
 
-### Build tools
+#### Build tools
 
 To build pCloud Console Client you'll need the following build tools:
 - A C99/C++14 compatible compiler such as
