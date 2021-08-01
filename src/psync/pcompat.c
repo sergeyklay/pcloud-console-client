@@ -9,13 +9,15 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include <pthread.h>
 #include <string.h>
+
+#include "config.h"
+
+#include <pthread.h>
+
 #include <stdio.h>
 #include <stddef.h>
 #include <time.h>
-
-#include "config.h"
 
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"

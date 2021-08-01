@@ -23,4 +23,4 @@ target_link_libraries(
           pcloud::psync
           pcloud::overlay_client
           CONAN_PKG::sqlite3
-          ${CMAKE_THREAD_LIBS_INIT})
+          ${PTHREAD_LIBRARY})

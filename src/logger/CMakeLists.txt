@@ -9,13 +9,19 @@
 add_library(logger STATIC logger.c)
 add_library(pcloud::logger ALIAS logger)
 
-target_include_directories(logger PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-
 target_include_directories(
   logger
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
+
+if (WIN32)
+  target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
+endif()
+
+target_link_libraries(logger
+  PRIVATE ${PTHREAD_LIBRARY})
 
 set(log_levels 0 1 2 3 4 5)
 set(PCLOUD_MAINTAINER_LOGS_LEVEL "1" CACHE STRING "Maintainer logs level")

@@ -123,7 +123,8 @@ target_link_libraries(psync
     PRIVATE pcloud::logger
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
-            ${FUSE_LIBRARY})
+            ${FUSE_LIBRARY}
+            ${PTHREAD_LIBRARY})
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
@@ -139,8 +140,8 @@ elseif(NOT WIN32)
   # Also amend documentation and CI workflow file.
 endif()
 
-if (NOT WIN32)
-  target_link_libraries(psync PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+if (WIN32)
+  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 
 # Library version info
