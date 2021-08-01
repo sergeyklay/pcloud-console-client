@@ -8,12 +8,6 @@
 # Setup TLS implementation
 include(TLSImplementation)
 
-include(CheckSymbolExists)
-message(STATUS "Checking symbols")
-# macOS, *BSD, Cygwin, musl
-check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
-message(STATUS "Checking symbols - done")
-
 set(psync_sources
     pcompat.c
     pstringcompat.c
@@ -111,8 +105,9 @@ target_compile_definitions(psync
 target_include_directories(psync
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-          ${FUSE_INCLUDE_DIR})
+          ${FUSE_INCLUDE_DIR}
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
@@ -123,10 +118,6 @@ else()
   target_link_libraries(psync PUBLIC CONAN_PKG::mbedtls)
   target_compile_definitions(psync PUBLIC P_SSL_MBEDTLS)
 endif()
-
-
-configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
-    "${CMAKE_CURRENT_LIST_DIR}/config.h")
 
 target_link_libraries(psync
     PRIVATE pcloud::logger
