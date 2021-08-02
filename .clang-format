@@ -73,7 +73,10 @@ IncludeCategories:
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
 SortUsingDeclarations: true
-SortIncludes: true
+
+# SortIncludes can potentially break our code
+SortIncludes: Never
+
 IncludeBlocks: Regroup
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 CompactNamespaces: false
