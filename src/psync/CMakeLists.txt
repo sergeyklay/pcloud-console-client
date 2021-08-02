@@ -128,7 +128,7 @@ target_link_libraries(psync
             ${FUSE_LIBRARY})
 
 if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(logger PRIVATE ${PTHREADS_LIBRARY})
+  target_link_libraries(psync PRIVATE ${PTHREADS_LIBRARY})
 endif()
 
 if(APPLE)
