@@ -6,7 +6,7 @@
 // the LICENSE file that was distributed with this source code.
 
 #include "config.h"
-
+// must come after config.h
 #include "pcloudcc/psync/stringcompat.h"
 
 #include <gtest/gtest.h>
