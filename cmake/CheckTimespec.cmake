@@ -21,7 +21,7 @@ macro(check_timespec_exists VARIABLE)
       "  ts.tv_nsec = 0;\n"
       "  return 0;\n"
       "}\n")
-    message("HAVE_${VARIABLE}: ${HAVE_${VARIABLE}}")
+
     # Try to build the file
     try_compile(HAVE_${VARIABLE}
       "${CMAKE_BINARY_DIR}"

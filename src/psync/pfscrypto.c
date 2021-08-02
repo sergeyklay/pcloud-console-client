@@ -9,6 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #include <ctype.h>
 
 #include "plibs.h"

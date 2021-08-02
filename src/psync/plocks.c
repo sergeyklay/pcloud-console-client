@@ -25,6 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "plocks.h"
 #include "plibs.h"
 
@@ -380,4 +382,3 @@ int psync_rwlock_holding_lock(psync_rwlock_t *rw){
   cnt=psync_rwlock_get_count(rw);
   return cnt.cnt[0]!=0 || cnt.cnt[1]!=0;
 }
-
