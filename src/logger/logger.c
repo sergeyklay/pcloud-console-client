@@ -17,6 +17,8 @@
 #ifdef P_OS_POSIX
 #include <pwd.h> /* getpwuid */
 #include <unistd.h> /* getuid */
+#elif defined(P_OS_WINDOWS)
+#include <windows.h>
 #endif /* P_OS_POSIX */
 
 #include <stdlib.h>
