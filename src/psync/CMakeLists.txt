@@ -124,7 +124,7 @@ target_link_libraries(psync
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
             ${FUSE_LIBRARY}
-            ${PTHREAD_LIBRARY})
+            ${PTHREADS_LIBRARY})
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
