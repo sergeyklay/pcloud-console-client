@@ -20,6 +20,16 @@ if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
   target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 
+if (WIN32)
+  target_compile_definitions(logger PRIVATE P_OS_WINDOWS)
+elseif(APPLE)
+  target_compile_definitions(logger PRIVATE P_OS_MACOSX)
+  target_compile_definitions(logger PRIVATE P_OS_POSIX)
+elseif(UNIX)
+  target_compile_definitions(logger PRIVATE P_OS_LINUX)
+  target_compile_definitions(logger PRIVATE P_OS_POSIX)
+endif()
+
 # See: https://stackoverflow.com/q/33557506/1661465
 if(WIN32 AND HAVE_STRUCT_TIMESPEC)
   target_compile_definitions(logger PRIVATE HAVE_STRUCT_TIMESPEC)
