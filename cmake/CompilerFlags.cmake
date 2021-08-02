@@ -22,15 +22,6 @@ set(unix-warnings
     -Wsign-conversion # Warn for implicit conversions that may change the sign of an integer value
     -Wswitch-enum)    # Warn whenever a "switch" lacks a "case"
 
-# MSVC
-if(MSVC AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0")
-  cmake_policy(SET CMP0092 NEW)
-endif()
-
-# For "/WX" see target_compile_options() bellow
-set(msvc-warnings
-    /W4) # Baseline reasonable warnings
-
 # This is recognized as a valid compiler flag only by GCC
 if(CMAKE_COMPILER_IS_GNUCXX)
   # Warn for constructs that violate guidelines in Effective C++
@@ -40,10 +31,8 @@ endif()
 # Enable all flags
 target_compile_options(
     compilerflags
-    INTERFACE $<$<CXX_COMPILER_ID:MSVC>:${msvc-warnings}
-              $<$<BOOL:${PCL_WARNINGS_AS_ERRORS}>:/WX>>
-              $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${unix-warnings}
-              $<$<BOOL:${PCL_WARNINGS_AS_ERRORS}>:-Werror>>)
+    INTERFACE ${unix-warnings}
+              $<$<BOOL:${PCLOUD_WARNINGS_AS_ERRORS}>:-Werror>)
 
 # Verify compiler flags
 string(TOUPPER ${CMAKE_BUILD_TYPE} _config)
