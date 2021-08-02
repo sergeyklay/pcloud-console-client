@@ -26,28 +26,18 @@ if(NOT isMultiConfig) # Makefiles, Ninja, ...
   endif()
 
   unset(_allowed_build_types)
-elseif(NOT MULTICONFIG_DONE) # Xcode, Visual Studio, ...
+elseif(NOT MULTICONFIG_DONE) # Xcode, ...
   set(MULTICONFIG_DONE TRUE)
-  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    list(APPEND CMAKE_CONFIGURATION_TYPES Asan Ubsan)
+  list(APPEND CMAKE_CONFIGURATION_TYPES Asan Ubsan)
 
-    # This is needed because user can set CMAKE_CONFIGURATION_TYPES
-    # at the cmake command line
-    list(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
+  # This is needed because user can set CMAKE_CONFIGURATION_TYPES
+  # at the cmake command line
+  list(REMOVE_DUPLICATES CMAKE_CONFIGURATION_TYPES)
 
-    set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-        "Semicolon separated list of supported configuration types." FORCE)
-  endif()
+  set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+    "Semicolon separated list of supported configuration types." FORCE)
 endif()
 
-# Notes for Windows with Visual Studio:
-#
-# - Address Sanitizer (Asan) currently is under experimental stage
-# - Undefined Behavior Sanitizer (Ubsan) is not supported at this time
-#
-# Therefore, we have disabled support for these build types now, but
-# this support may be enabled in the future.
-#
 # Notes about '-fno-omit-frame-pointer' flag:
 #
 # Frame pointer omission does make debugging significantly harder. Local
@@ -60,47 +50,45 @@ endif()
 # that maintains and uses stack frame pointer for all functions so that a
 # debugger can still produce a stack backtrace even with optimizations flags
 # (eg '-O1', '-O2', etc).
-#
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # Setup Asan flags
-  set(CMAKE_C_FLAGS_ASAN
-      "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
-      "Flags used by the C compiler for Asan build type or configuration." FORCE)
 
-  set(CMAKE_CXX_FLAGS_ASAN
-      "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
-      "Flags used by the C++ compiler for Asan build type or configuration." FORCE)
+# Setup Asan flags
+set(CMAKE_C_FLAGS_ASAN
+    "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C compiler for Asan build type or configuration." FORCE)
 
-  set(CMAKE_EXE_LINKER_FLAGS_ASAN
-      "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
-      "Linker flags to be used to create executables for Asan build type." FORCE)
+set(CMAKE_CXX_FLAGS_ASAN
+    "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C++ compiler for Asan build type or configuration." FORCE)
 
-  set(CMAKE_SHARED_LINKER_FLAGS_ASAN
-      "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
-      "Linker flags to be used to create shared libraries for Asan build type." FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_ASAN
+    "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
+    "Linker flags to be used to create executables for Asan build type." FORCE)
 
-  set(CMAKE_STATIC_LINKER_FLAGS_ASAN
-      "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
-      "Linker flags to be used to create static libraries for Asan build type." FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS_ASAN
+    "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
+    "Linker flags to be used to create shared libraries for Asan build type." FORCE)
 
-  # Setup Ubsan flags
-  set(CMAKE_C_FLAGS_UBSAN
-      "${CMAKE_C_FLAGS_DEBUG} -fsanitize=undefined -fno-omit-frame-pointer" CACHE STRING
-      "Flags used by the C compiler for Ubsan build type or configuration." FORCE)
+set(CMAKE_STATIC_LINKER_FLAGS_ASAN
+    "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
+    "Linker flags to be used to create static libraries for Asan build type." FORCE)
 
-  set(CMAKE_CXX_FLAGS_UBSAN
-      "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined -fno-omit-frame-pointer" CACHE STRING
-      "Flags used by the C++ compiler for Ubsan build type or configuration." FORCE)
+# Setup Ubsan flags
+set(CMAKE_C_FLAGS_UBSAN
+    "${CMAKE_C_FLAGS_DEBUG} -fsanitize=undefined -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C compiler for Ubsan build type or configuration." FORCE)
 
-  set(CMAKE_EXE_LINKER_FLAGS_UBSAN
-      "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
-      "Linker flags to be used to create executables for Ubsan build type." FORCE)
+set(CMAKE_CXX_FLAGS_UBSAN
+    "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C++ compiler for Ubsan build type or configuration." FORCE)
 
-  set(CMAKE_SHARED_LINKER_FLAGS_UBSAN
-      "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
-      "Linker flags to be used to create shared libraries for Ubsan build type." FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_UBSAN
+    "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
+    "Linker flags to be used to create executables for Ubsan build type." FORCE)
 
-  set(CMAKE_STATIC_LINKER_FLAGS_UBSAN
-      "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
-      "Linker flags to be used to create static libraries for Ubsan build type." FORCE)
-endif()
+set(CMAKE_SHARED_LINKER_FLAGS_UBSAN
+    "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
+    "Linker flags to be used to create shared libraries for Ubsan build type." FORCE)
+
+set(CMAKE_STATIC_LINKER_FLAGS_UBSAN
+    "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fsanitize=undefined" CACHE STRING
+    "Linker flags to be used to create static libraries for Ubsan build type." FORCE)
