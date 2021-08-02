@@ -20,7 +20,8 @@ endif()
 
 target_include_directories(overlay_client
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
 target_link_libraries(overlay_client
   PUBLIC pcloud::logger

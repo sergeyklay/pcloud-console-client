@@ -8,12 +8,6 @@
 # Setup TLS implementation
 include(TLSImplementation)
 
-include(CheckSymbolExists)
-message(STATUS "Checking symbols")
-# macOS, *BSD, Cygwin, musl
-check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
-message(STATUS "Checking symbols - done")
-
 set(psync_sources
     pcompat.c
     pstringcompat.c
@@ -97,10 +91,8 @@ if (WIN32)
   target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
 elseif(APPLE)
   target_compile_definitions(psync PRIVATE P_OS_MACOSX)
-  find_package(Threads REQUIRED)
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
-  find_package(Threads REQUIRED)
 endif()
 
 find_package(FUSE 2.6 REQUIRED)
@@ -111,8 +103,13 @@ target_compile_definitions(psync
 target_include_directories(psync
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-          ${FUSE_INCLUDE_DIR})
+          ${FUSE_INCLUDE_DIR}
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
+
+if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
+  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
+endif()
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
@@ -124,15 +121,15 @@ else()
   target_compile_definitions(psync PUBLIC P_SSL_MBEDTLS)
 endif()
 
-
-configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
-    "${CMAKE_CURRENT_LIST_DIR}/config.h")
-
 target_link_libraries(psync
     PRIVATE pcloud::logger
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
             ${FUSE_LIBRARY})
+
+if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
+  target_link_libraries(psync PRIVATE ${PTHREADS_LIBRARY})
+endif()
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
@@ -146,10 +143,6 @@ elseif(NOT WIN32)
   #
   # Not:e After enable do not forget install 'libudev-dev' on Linux.
   # Also amend documentation and CI workflow file.
-endif()
-
-if (NOT WIN32)
-  target_link_libraries(psync PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # Library version info

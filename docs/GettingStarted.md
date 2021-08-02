@@ -9,6 +9,8 @@ local machine for development and testing purposes.
 
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
+  ([POSIX Threads for Win32](https://www.sourceware.org/pthreads-win32)
+  on Windows)
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([Dokany](https://github.com/dokan-dev/dokany)
   on Windows or [macFUSE](https://osxfuse.github.io) on macOS)
@@ -87,8 +89,8 @@ The following dependencies can be installed using
 PS C:\> choco install conan
 ```
 
-Finally, follow [Dokany](https://github.com/dokan-dev/dokany) documentation to
-install fuse-like library and development headers.
+Finally, install [Dokany](https://github.com/dokan-dev/dokany) and
+[POSIX Threads for Win32](https://www.sourceware.org/pthreads-win32).
 
 ### Build steps
 

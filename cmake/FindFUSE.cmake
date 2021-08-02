@@ -53,11 +53,11 @@ if (WIN32)
     message(SEND_ERROR "${fuse_message}: not found")
     set(FUSE_LIBRARY "" CACHE STRING "" FORCE) # delete it
   endif()
+  unset(dokan_libs)
 
   install(
-    FILES ${dokan_libs}
+    FILES "${DOKAN_LIB_PATH}/dokan1.dll" "${DOKAN_LIB_PATH}/dokanfuse1.dll"
     DESTINATION ${CMAKE_INSTALL_BINDIR})
-  unset(dokan_libs)
 else()
   if(FUSE_INCLUDE_DIR)
     set(FUSE_FIND_QUIETLY TRUE)

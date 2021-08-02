@@ -7,6 +7,17 @@
 
 add_compile_definitions(P_CONSOLE_CLIENT)
 
+include(CheckSymbolExists)
+message(STATUS "Checking symbols")
+# macOS, *BSD, Cygwin, musl
+check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
+message(STATUS "Checking symbols - done")
+
+find_package(Pthreads REQUIRED)
+
+configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
+  "${CMAKE_CURRENT_LIST_DIR}/config.h")
+
 add_subdirectory(logger)
 add_subdirectory(psync)
 add_subdirectory(overlay_client)

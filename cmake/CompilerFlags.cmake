@@ -25,7 +25,7 @@ set(unix-warnings
 # MSVC
 if(MSVC AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.15.0")
   cmake_policy(SET CMP0092 NEW)
-endif(MSVC)
+endif()
 
 # For "/WX" see target_compile_options() bellow
 set(msvc-warnings
