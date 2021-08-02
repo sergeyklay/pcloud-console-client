@@ -16,7 +16,7 @@ target_include_directories(
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (WIN32)
+if (WIN32 AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
   target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 

@@ -91,10 +91,8 @@ if (WIN32)
   target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
 elseif(APPLE)
   target_compile_definitions(psync PRIVATE P_OS_MACOSX)
-  find_package(Threads REQUIRED)
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
-  find_package(Threads REQUIRED)
 endif()
 
 find_package(FUSE 2.6 REQUIRED)
@@ -108,6 +106,10 @@ target_include_directories(psync
           ${FUSE_INCLUDE_DIR}
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
+
+if (WIN32 AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
+  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
+endif()
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
@@ -138,10 +140,6 @@ elseif(NOT WIN32)
   #
   # Not:e After enable do not forget install 'libudev-dev' on Linux.
   # Also amend documentation and CI workflow file.
-endif()
-
-if (WIN32)
-  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 
 # Library version info
