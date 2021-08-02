@@ -107,7 +107,7 @@ target_include_directories(psync
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (WIN32 AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
+if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
   target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 
@@ -125,8 +125,11 @@ target_link_libraries(psync
     PRIVATE pcloud::logger
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
-            ${FUSE_LIBRARY}
-            ${PTHREADS_LIBRARY})
+            ${FUSE_LIBRARY})
+
+if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
+  target_link_libraries(logger PRIVATE ${PTHREADS_LIBRARY})
+endif()
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
