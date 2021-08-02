@@ -11,14 +11,18 @@ releases, in reverse chronological order.
 * Removed `psync_file_rename` function.
 * Removed `requirements.txt` file from the project. It was only needed to
   install conan at CI phase.
+* Drop Windows support. In fact, this project never built natively on Windows.
+  All users could do is to build it with Cygwin or Msys. However, this project
+  depends on some components (for ex. FUSE and POSIX threads) that either don't
+  work under Windows, or have poor support, or require significant support costs.
+  Given the fact that this console project is intended for UNIX/Linux users,
+  Windows support becomes an unaffordable luxury.
 
 ### Features
 
 * Added `-dumpversion` program option alias for `--dumpversion`.
 * Amended tests.
 * Provided launchd integration for macOS.
-* Provided ability to specify fuse implementation (Dokan) on Windows.
-* Provided ability to specify POSIX threads implementation on Windows.
   
 ### Changes
 
