@@ -30,6 +30,7 @@ include(LanguageStandard)
 include(Utils)
 include(ConanHelper)
 include(ProjectInfo)
+include(CheckSymbols)
 
 message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
 
