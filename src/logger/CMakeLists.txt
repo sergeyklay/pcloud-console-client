@@ -20,6 +20,11 @@ if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
   target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
 endif()
 
+# See: https://stackoverflow.com/q/33557506/1661465
+if(WIN32 AND HAVE_STRUCT_TIMESPEC)
+  target_compile_definitions(logger PRIVATE HAVE_STRUCT_TIMESPEC)
+endif()
+
 if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
   target_link_libraries(logger PRIVATE ${PTHREADS_LIBRARY})
 endif()

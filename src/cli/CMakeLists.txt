@@ -29,6 +29,11 @@ target_link_libraries(
           pcloud::overlay_client
           CONAN_PKG::sqlite3)
 
+# See: https://stackoverflow.com/q/33557506/1661465
+if(WIN32 AND HAVE_STRUCT_TIMESPEC)
+  target_compile_definitions(cli PRIVATE HAVE_STRUCT_TIMESPEC)
+endif()
+
 if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
   target_link_libraries(cli PRIVATE ${PTHREADS_LIBRARY})
 endif()
