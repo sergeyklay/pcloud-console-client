@@ -13,9 +13,13 @@
 
 #include <limits.h>
 #include <pthread.h>
-#include <pwd.h>
+
+#ifdef P_OS_POSIX
+#include <pwd.h> /* getpwuid */
+#include <unistd.h> /* getuid */
+#endif /* P_OS_POSIX */
+
 #include <stdlib.h>
-#include <unistd.h>
 
 void log_lock(bool lock, void *udata) {
   pthread_mutex_t *LOCK = (pthread_mutex_t *)(udata);
@@ -45,11 +49,16 @@ static const char *resolve_filepath(const char *rawpath) {
       return NULL;
     }
 
+#ifdef P_OS_POSIX
     /* check the $HOME environment variable */
     if ((homedir = getenv("HOME")) == NULL) {
       /* use getpwuid if env var HOME does not exist */
       homedir = getpwuid(getuid())->pw_dir;
     }
+#elif defined(P_OS_WINDOWS)
+    /* check the $USERPROFILE environment variable */
+    homedir = getenv("USERPROFILE");
+#endif /* P_OS_POSIX */
 
     if (!homedir) {
       /* rawpath is not empty, but we can't resolve homedir */
