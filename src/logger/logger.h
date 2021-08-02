@@ -11,6 +11,7 @@
 #define PCLOUD_LOGGER_H_
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "pcloudcc/psync/compiler.h"
 

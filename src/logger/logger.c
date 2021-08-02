@@ -8,20 +8,19 @@
  */
 
 #include "config.h"
+#include "pcloudcc/compat/limits.h"
 
 #include "logger.h"
 
-#include <limits.h>
 #include <pthread.h>
 
 #ifdef P_OS_POSIX
 #include <pwd.h> /* getpwuid */
 #include <unistd.h> /* getuid */
-#elif defined(P_OS_WINDOWS)
-#include <windows.h>
 #endif /* P_OS_POSIX */
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 void log_lock(bool lock, void *udata) {
   pthread_mutex_t *LOCK = (pthread_mutex_t *)(udata);

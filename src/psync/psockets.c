@@ -10,8 +10,8 @@
 #include "config.h"
 
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/compat/limits.h"
 
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
