@@ -18,6 +18,14 @@ target_include_directories(
 
 target_link_libraries(logger PRIVATE Threads::Threads)
 
+# The additional / is important to remove the last character from the path.
+# Note that it does not matter if the OS uses / or \, because we are only
+# saving the path size.
+string(LENGTH "${PROJECT_SOURCE_DIR}/" PCLOUD_SOURCE_PATH_SIZE)
+target_compile_definitions(logger
+  PRIVATE "-DPCLOUD_SOURCE_PATH_SIZE=${PCLOUD_SOURCE_PATH_SIZE}"
+          "-DPCLOUD_SOURCE_PATH=\"${PROJECT_SOURCE_DIR}\"")
+
 set(log_levels 0 1 2 3 4 5)
 set(PCLOUD_MAINTAINER_LOGS_LEVEL "1" CACHE STRING "Maintainer logs level")
 set_property(CACHE PCLOUD_MAINTAINER_LOGS_LEVEL PROPERTY STRINGS "${log_levels}")
