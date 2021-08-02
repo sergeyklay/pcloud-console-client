@@ -18,6 +18,7 @@ releases, in reverse chronological order.
 * Amended tests.
 * Provided launchd integration for macOS.
 * Provided ability to specify fuse implementation (Dokan) on Windows.
+* Provided ability to specify POSIX threads implementation on Windows.
   
 ### Changes
 
