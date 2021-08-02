@@ -8,6 +8,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/overlay.h"
 

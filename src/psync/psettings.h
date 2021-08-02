@@ -12,6 +12,8 @@
 #ifndef PCLOUD_PSYNC_PSETTINGS_H_
 #define PCLOUD_PSYNC_PSETTINGS_H_
 
+#include "config.h"
+
 #include <stdint.h>
 #include <stdio.h>
 

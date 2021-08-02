@@ -12,6 +12,8 @@
 #ifndef PCLOUD_PSYNC_PFS_H_
 #define PCLOUD_PSYNC_PFS_H_
 
+#include "config.h"
+
 #include <pthread.h>
 
 #include "pcloudcc/psync/compat.h"

@@ -11,6 +11,8 @@
 #ifndef PCLOUD_PSYNC_PFSXATTR_H_
 #define PCLOUD_PSYNC_PFSXATTR_H_
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
 

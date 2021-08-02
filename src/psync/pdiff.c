@@ -9,9 +9,9 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include <ctype.h>
-
 #include "config.h"
+
+#include <ctype.h>
 
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/stringcompat.h"

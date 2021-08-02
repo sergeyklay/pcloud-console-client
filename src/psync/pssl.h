@@ -12,6 +12,8 @@
 #ifndef PCLOUD_PSYNC_PSSL_H_
 #define PCLOUD_PSYNC_PSSL_H_
 
+#include "config.h"
+
 #include "pcloudcc/psync/compiler.h"
 #include "pcloudcc/psync/compat.h"
 

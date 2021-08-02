@@ -12,6 +12,8 @@
 #ifndef PCLOUD_PSYNC_PNETLIBS_H_
 #define PCLOUD_PSYNC_PNETLIBS_H_
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
 #include "psynclib.h"
 #include "plist.h"

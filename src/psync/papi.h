@@ -12,6 +12,8 @@
 #ifndef PCLOUD_PSYNC_PAPI_H_
 #define PCLOUD_PSYNC_PAPI_H_
 
+#include "config.h"
+
 #include <string.h>
 #include <stdint.h>
 

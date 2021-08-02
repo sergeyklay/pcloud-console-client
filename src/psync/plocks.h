@@ -28,6 +28,8 @@
 #ifndef _PSYNC_LOCKS_H
 #define _PSYNC_LOCKS_H
 
+#include "config.h"
+
 #include <pthread.h>
 
 typedef struct {

@@ -13,7 +13,8 @@ target_include_directories(
   cli
   PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/psync
+  PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/psync
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/overlay_client)
 
 if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
@@ -26,8 +27,7 @@ target_link_libraries(
   PRIVATE pcloud::logger
           pcloud::psync
           pcloud::overlay_client
-          CONAN_PKG::sqlite3
-          ${PTHREADS_LIBRARY})
+          CONAN_PKG::sqlite3)
 
 if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
   target_link_libraries(cli PRIVATE ${PTHREADS_LIBRARY})

@@ -9,9 +9,9 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include <string.h>
-
 #include "config.h"
+
+#include <string.h>
 
 #include <pthread.h>
 

@@ -16,10 +16,11 @@
 #include <memory>
 #include <string>
 
+#include "config.h"
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcrypto.h"
 
-#if defined P_CONSOLE_CLIENT && defined P_OS_LINUX
+#ifdef P_OS_LINUX
 #include <regex>
 #endif
 
@@ -270,12 +271,9 @@ int pcloud::cli::Bridge::list_sync_folders(const char *path, void *rep) {
 }
 
 // Has to be static
-#ifdef P_CONSOLE_CLIENT
 static const char *software_string = PCLOUD_VERSION_FULL;
-#endif
 
 int pcloud::cli::Bridge::init() {
-#ifdef P_CONSOLE_CLIENT
 #ifdef P_OS_LINUX
   std::string os_string_tmp = exec("lsb_release -ds").substr(0, 20);
   if (os_string_tmp.length()) {
@@ -289,7 +287,6 @@ int pcloud::cli::Bridge::init() {
   }
 #endif  // P_OS_LINUX
   psync_set_software_name(software_string);
-#endif  // P_CONSOLE_CLIENT
   if (setup_crypto_ && crypto_pass_.empty()) return 3;
 
   if (psync_init()) {

@@ -9,6 +9,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #define __STDC_FORMAT_MACROS
 
 #include <stdio.h>
