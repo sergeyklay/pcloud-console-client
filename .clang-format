@@ -75,7 +75,7 @@ MacroBlockEnd:   ''
 SortUsingDeclarations: true
 
 # SortIncludes can potentially break our code
-SortIncludes: Never
+SortIncludes: false
 
 IncludeBlocks: Regroup
 IncludeIsMainRegex: '([-_](test|unittest))?$'
