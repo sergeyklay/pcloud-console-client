@@ -13,7 +13,8 @@ message(STATUS "Checking symbols")
 check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
 message(STATUS "Checking symbols - done")
 
-find_package(Pthreads REQUIRED)
+set(CMAKE_THREAD_PREFER_PTHREAD True)
+find_package(Threads REQUIRED)
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
   "${CMAKE_CURRENT_LIST_DIR}/config.h")

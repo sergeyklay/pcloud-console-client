@@ -16,13 +16,7 @@ target_include_directories(
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
-  target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
-endif()
-
-if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(logger PRIVATE ${PTHREADS_LIBRARY})
-endif()
+target_link_libraries(logger PRIVATE Threads::Threads)
 
 set(log_levels 0 1 2 3 4 5)
 set(PCLOUD_MAINTAINER_LOGS_LEVEL "1" CACHE STRING "Maintainer logs level")

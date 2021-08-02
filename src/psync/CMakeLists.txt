@@ -107,10 +107,6 @@ target_include_directories(psync
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
-  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
-endif()
-
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
   target_compile_definitions(psync PUBLIC P_SSL_OPENSSL)
@@ -125,11 +121,8 @@ target_link_libraries(psync
     PRIVATE pcloud::logger
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
+            Threads::Threads
             ${FUSE_LIBRARY})
-
-if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(psync PRIVATE ${PTHREADS_LIBRARY})
-endif()
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
