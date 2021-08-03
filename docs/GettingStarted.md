@@ -7,7 +7,8 @@ local machine for development and testing purposes.
 
 #### Build and runtime dependencies
 
-To build pCloud Console Client you'll need the following requirements:
+To build pCloud Console Client you'll need a POSIX-compliant operating system
+and the presence of the following libraries:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
@@ -29,8 +30,7 @@ To build pCloud Console Client you'll need the following build tools:
   client-server architecture
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
-thus your compiler should support `-std=gnu99`. Also notice, MSVC does not
-support C99, and only halfway supports the older versions of the C standard.
+thus your compiler should support `-std=gnu99`.
 
 #### Optional
 
