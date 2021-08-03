@@ -104,8 +104,8 @@ static void add_dir_scan(localnotify_dir *dir, const char *path){
   if (likely_log(dh=opendir(path))){
     cpath=(char *)psync_malloc(pl+namelen+2);
     memcpy(cpath, path, pl);
-    if (!pl || cpath[pl-1]!=PSYNC_DIRECTORY_SEPARATORC)
-      cpath[pl++]=PSYNC_DIRECTORY_SEPARATORC;
+    if (!pl || cpath[pl-1]!='/')
+      cpath[pl++]='/';
     while (NULL != (de = readdir(dh)))
       if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))) {
         strlcpy(cpath+pl, de->d_name, namelen+1);
@@ -494,8 +494,8 @@ static localnotify_dir *get_dir_scan(const char *path, psync_syncid_t syncid){
     cpath=(char *)psync_malloc(len+namelen+1);
     len--;
     memcpy(cpath, path, len);
-    if (!len || cpath[len-1]!=PSYNC_DIRECTORY_SEPARATORC)
-      cpath[len++]=PSYNC_DIRECTORY_SEPARATORC;
+    if (!len || cpath[len-1]!='/')
+      cpath[len++]='/';
     while (NULL != (de = readdir(dh)))
       if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))){
         strlcpy(cpath+len, de->d_name, namelen+1);
@@ -601,8 +601,8 @@ static void process_notification(localnotify_dir *dir){
     namelen=255;
   cpath=(char *)psync_malloc(len+namelen+2);
   memcpy(cpath, dir->path, len);
-  if (!len || cpath[len-1]!=PSYNC_DIRECTORY_SEPARATORC)
-    cpath[len++]=PSYNC_DIRECTORY_SEPARATORC;
+  if (!len || cpath[len-1]!='/')
+    cpath[len++]='/';
   psync_list_init(&tlist);
   while (NULL != (de = readdir(dh)))
     if (de->d_name[0]!='.' || (de->d_name[1]!=0 && (de->d_name[1]!='.' || de->d_name[2]!=0))){

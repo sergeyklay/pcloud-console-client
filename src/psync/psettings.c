@@ -61,10 +61,10 @@ void psync_settings_reset() {
   char *home, *defaultfs, *defaultcache;
   psync_settingid_t i;
   home=psync_get_home_dir();
-  defaultfs=psync_strcat(home, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_FS_FOLDER, NULL);
+  defaultfs=psync_strcat(home, "/", PSYNC_DEFAULT_FS_FOLDER, NULL);
   psync_free(home);
   home=psync_get_pcloud_path();
-  defaultcache=psync_strcat(home, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_CACHE_FOLDER, NULL);
+  defaultcache=psync_strcat(home, "/", PSYNC_DEFAULT_CACHE_FOLDER, NULL);
   psync_free(home);
   for (i=0; i<ARRAY_SIZE(settings); i++)
     if (settings[i].type==PSYNC_TSTRING)
@@ -104,10 +104,10 @@ void psync_settings_init() {
   char *home, *defaultfs, *defaultcache;
   psync_settingid_t i;
   home=psync_get_home_dir();
-  defaultfs=psync_strcat(home, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_FS_FOLDER, NULL);
+  defaultfs=psync_strcat(home, "/", PSYNC_DEFAULT_FS_FOLDER, NULL);
   psync_free(home);
   home=psync_get_pcloud_path();
-  defaultcache=psync_strcat(home, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_CACHE_FOLDER, NULL);
+  defaultcache=psync_strcat(home, "/", PSYNC_DEFAULT_CACHE_FOLDER, NULL);
   psync_free(home);
   settings[_PS(ignorepatterns)].str=PSYNC_IGNORE_PATTERNS_DEFAULT;
   settings[_PS(fsroot)].str=defaultfs;

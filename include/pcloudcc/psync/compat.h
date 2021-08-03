@@ -160,9 +160,6 @@ typedef struct stat psync_stat_t;
 
 typedef int psync_fs_err_t;
 
-#define PSYNC_DIRECTORY_SEPARATOR "/"
-#define PSYNC_DIRECTORY_SEPARATORC '/'
-
 #define P_WOULDBLOCK EWOULDBLOCK
 #define P_AGAIN EAGAIN
 #define P_INPROGRESS EINPROGRESS
@@ -187,9 +184,8 @@ typedef int psync_fs_err_t;
 #define P_O_TRUNC O_TRUNC
 #define P_O_EXCL O_EXCL
 
+/* TODO: Do we still need this? */
 #define P_SEEK_SET SEEK_SET
-#define P_SEEK_CUR SEEK_CUR
-#define P_SEEK_END SEEK_END
 
 typedef int psync_socket_t;
 typedef int psync_file_t;

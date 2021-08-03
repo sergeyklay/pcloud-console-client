@@ -27,6 +27,10 @@ releases, in reverse chronological order.
 * Removed no longer used `psync_stat_ctime` macro.
 * Removed no longer used `psync_inode_supported` macro.
 * Removed no longer used `psync_sock_err_t` typedef.
+* Removed no longer used `PSYNC_DIRECTORY_SEPARATOR` macro.
+* Removed no longer used `PSYNC_DIRECTORY_SEPARATORC` macro.
+* Removed no longer used `P_SEEK_CUR` macro.
+* Removed no longer used `P_SEEK_END` macro.
 
 ### Features
 

@@ -638,7 +638,7 @@ static int task_download_file(download_task_t *dt) {
   oldcnt=0;
   if (serversize>=PSYNC_MIN_SIZE_FOR_CHECKSUMS) {
     if (!psync_stat(dt->tmpname, &st) && psync_stat_size(&st)>=PSYNC_MIN_SIZE_FOR_CHECKSUMS) {
-      tmpold=psync_strcat(dt->localpath, PSYNC_DIRECTORY_SEPARATOR, dt->filename, "-old", PSYNC_APPEND_PARTIAL_FILES, NULL);
+      tmpold=psync_strcat(dt->localpath, "/", dt->filename, "-old", PSYNC_APPEND_PARTIAL_FILES, NULL);
       if (psync_file_rename_overwrite(dt->tmpname, tmpold)) {
         psync_free(tmpold);
         tmpold=NULL;
@@ -868,7 +868,7 @@ static int task_rename_file(psync_syncid_t oldsyncid, psync_syncid_t newsyncid, 
     psync_free(newfolder);
     return 0;
   }
-  newpath=psync_strcat(newfolder, PSYNC_DIRECTORY_SEPARATOR, newname, NULL);
+  newpath=psync_strcat(newfolder, "/", newname, NULL);
   ret=0;
   psync_stop_localscan();
   if (psync_file_rename_overwrite(oldpath, newpath)) {
@@ -1080,8 +1080,8 @@ static int task_run_download_file(uint64_t taskid, psync_syncid_t syncid, psync_
   localpath=psync_local_path_for_local_folder(localfolderid, syncid, NULL);
   if (unlikely_log(!localpath))
     return 0;
-  localname=psync_strcat(localpath, PSYNC_DIRECTORY_SEPARATOR, filename, NULL);
-  tmpname=psync_strcat(localpath, PSYNC_DIRECTORY_SEPARATOR, filename, PSYNC_APPEND_PARTIAL_FILES, NULL);
+  localname=psync_strcat(localpath, "/", filename, NULL);
+  tmpname=psync_strcat(localpath, "/", filename, PSYNC_APPEND_PARTIAL_FILES, NULL);
   len=strlen(filename);
   dt=(download_task_t *)psync_malloc(offsetof(download_task_t, filename)+len+1);
   memset(dt, 0, offsetof(download_task_t, filename));
@@ -1196,7 +1196,7 @@ static void task_del_folder_rec_do(const char *localpath, psync_folderid_t local
   psync_sql_bind_uint(res, 2, syncid);
   while ((vrow=psync_sql_fetch_row(res))) {
     psync_delete_upload_tasks_for_file(psync_get_number(vrow[0]));
-    nm=psync_strcat(localpath, PSYNC_DIRECTORY_SEPARATOR, psync_get_string(vrow[1]), NULL);
+    nm=psync_strcat(localpath, "/", psync_get_string(vrow[1]), NULL);
     log_info("deleting %s", nm);
     psync_file_delete(nm);
     psync_free(nm);
@@ -1210,7 +1210,7 @@ static void task_del_folder_rec_do(const char *localpath, psync_folderid_t local
   psync_sql_bind_uint(res, 1, localfolderid);
   psync_sql_bind_uint(res, 2, syncid);
   while ((vrow=psync_sql_fetch_row(res))) {
-    nm=psync_strcat(localpath, PSYNC_DIRECTORY_SEPARATOR, psync_get_string(vrow[1]), NULL);
+    nm=psync_strcat(localpath, "/", psync_get_string(vrow[1]), NULL);
     task_del_folder_rec_do(nm, psync_get_number(vrow[0]), syncid);
     psync_free(nm);
   }

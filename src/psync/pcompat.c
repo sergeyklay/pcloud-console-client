@@ -238,7 +238,7 @@ char *psync_get_default_database_path_old() {
       return NULL;
     dir=result->pw_dir;
   }
-  return psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_POSIX_DBNAME, NULL);
+  return psync_strcat(dir, "/", PSYNC_DEFAULT_POSIX_DBNAME, NULL);
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -258,7 +258,7 @@ static char *psync_get_pcloud_path_nc() {
       return NULL;
     dir=result->pw_dir;
   }
-  return psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_POSIX_DIR, NULL);
+  return psync_strcat(dir, "/", PSYNC_DEFAULT_POSIX_DIR, NULL);
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -283,7 +283,7 @@ char *psync_get_private_dir(char *name) {
   path=psync_get_pcloud_path();
   if (!path)
     return NULL;
-  rpath=psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR, name, NULL);
+  rpath=psync_strcat(path, "/", name, NULL);
   free(path);
   if (psync_stat(rpath, &st) && psync_mkdir(rpath)) {
     psync_free(rpath);
@@ -302,7 +302,7 @@ char *psync_get_default_database_path() {
   dirpath=psync_get_pcloud_path();
   if (!dirpath)
     return NULL;
-  path=psync_strcat(dirpath, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_DB_NAME, NULL);
+  path=psync_strcat(dirpath, "/", PSYNC_DEFAULT_DB_NAME, NULL);
   psync_free(dirpath);
   if (psync_stat(path, &st) && (dirpath=psync_get_default_database_path_old())) {
     if (!psync_stat(dirpath, &st)) {
@@ -2092,8 +2092,8 @@ int psync_list_dir(const char *path, psync_list_dir_callback cb, void *ptr) {
 
   cpath = (char *)psync_malloc(pl + namelen + 2);
   memcpy(cpath, path, pl);
-  if (!pl || cpath[pl - 1] != PSYNC_DIRECTORY_SEPARATORC)
-    cpath[pl++] = PSYNC_DIRECTORY_SEPARATORC;
+  if (!pl || cpath[pl - 1] != '/')
+    cpath[pl++] = '/';
   pst.path = cpath;
 
   while (NULL != (ent = readdir(dh))) {
@@ -2156,8 +2156,8 @@ int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast cb, void 
 
   cpath = (char *)psync_malloc(pl + namelen + 2);
   memcpy(cpath, path, pl);
-  if (!pl || cpath[pl - 1] != PSYNC_DIRECTORY_SEPARATORC)
-    cpath[pl++] = PSYNC_DIRECTORY_SEPARATORC;
+  if (!pl || cpath[pl - 1] != '/')
+    cpath[pl++] = '/';
 
   while (NULL != (ent = readdir(dh))) {
     if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {

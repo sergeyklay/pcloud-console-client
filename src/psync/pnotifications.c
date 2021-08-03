@@ -76,7 +76,7 @@ static void psync_notifications_download_thumb(const binresult *thumb, const cha
   filename=strrchr(path, '/');
   if (unlikely_log(!filename++))
     return;
-  filepath=psync_strcat(thumbpath, PSYNC_DIRECTORY_SEPARATOR, filename, NULL);
+  filepath=psync_strcat(thumbpath, "/", filename, NULL);
   if (!psync_stat(filepath, &st)){
     debug(D_NOTICE, "skipping download of %s as it already exists", filename);
     goto err0;
@@ -342,7 +342,7 @@ psync_notification_list_t *psync_notifications_get(){
         filename=strrchr(psync_find_result(br, "path", PARAM_STR)->str, '/');
         if (filename++){
           psync_notification_remove_from_list(&thumbs, filename);
-          filepath=psync_strcat(thumbpath, PSYNC_DIRECTORY_SEPARATOR, filename, NULL);
+          filepath=psync_strcat(thumbpath, "/", filename, NULL);
           if (!psync_stat(filepath, &st)){
             pntf->thumb=filepath;
             psync_list_add_string_offset(builder, offsetof(psync_notification_t, thumb));
@@ -366,7 +366,7 @@ psync_notification_list_t *psync_notifications_get(){
   while (thumbs){
     nx=psync_tree_get_next_safe(thumbs);
     debug(D_NOTICE, "deleting unused thumb %s", psync_tree_element(thumbs, psync_thumb_list_t, tree)->name);
-    filepath=psync_strcat(thumbpath, PSYNC_DIRECTORY_SEPARATOR, psync_tree_element(thumbs, psync_thumb_list_t, tree)->name, NULL);
+    filepath=psync_strcat(thumbpath, "/", psync_tree_element(thumbs, psync_thumb_list_t, tree)->name, NULL);
     psync_file_delete(filepath);
     psync_free(filepath);
     psync_free(psync_tree_element(thumbs, psync_thumb_list_t, tree));
