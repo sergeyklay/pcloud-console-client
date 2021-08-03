@@ -19,6 +19,8 @@ releases, in reverse chronological order.
   UNIX/Linux users, Windows support becomes an unaffordable luxury. Anyway, in the
   WSL/Docker era, things get a little easier, even for Windows users.
 * Removed `PSYNC_THREAD` macro in favor of `__thread`.
+* Removed `PSYNC_DEFAULT_WINDOWS_DBNAME` macro.
+* Removed `PSYNC_DEFAULT_WINDOWS_DIR` macro.
 
 ### Features
 
