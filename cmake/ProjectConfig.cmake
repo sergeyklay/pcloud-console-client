@@ -8,13 +8,13 @@
 include(CheckSymbolExists)
 
 message(STATUS "Checking symbols")
-
 # macOS, *BSD, Cygwin, musl
 check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
-
 message(STATUS "Checking symbols - done")
 
-message(STATUS "Generating config: ${PROJECT_SOURCE_DIR}/src/config.h")
-configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
-  "${PROJECT_SOURCE_DIR}>/src/config.h")
-message(STATUS "Generating config - done")
+macro(generate_project_config TARGET_PATH)
+  message(STATUS "Generating project config")
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/config.h.in"
+                 "${TARGET_PATH}/config.h")
+  message(STATUS "Generating project config - done")
+endmacro()
