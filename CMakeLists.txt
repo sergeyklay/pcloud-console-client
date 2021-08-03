@@ -20,20 +20,18 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   # Print the version number of CMake if this is the main project
   message(STATUS "CMake version: ${CMAKE_VERSION}")
   message(STATUS "Used generator: ${CMAKE_GENERATOR}")
+  message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Common CMake scripts
 include(Bootstrap)
 include(CompilerFlags)
 include(LanguageStandard)
-include(Utils)
 include(ConanHelper)
 include(ProjectInfo)
+include(ProjectConfig)
 
-message(STATUS "Setting installation destination to: ${CMAKE_INSTALL_PREFIX}")
-
-get_target_architecture(PCLOUD_TARGET_ARCH)
-message(STATUS "Target architecture: ${PCLOUD_TARGET_ARCH}")
+generate_project_config("${PROJECT_SOURCE_DIR}/src")
 
 # Use a standard directory layout
 include(GNUInstallDirs)
