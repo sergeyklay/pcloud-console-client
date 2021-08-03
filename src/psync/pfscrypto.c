@@ -827,10 +827,10 @@ static int psync_fs_crypto_log_flush_and_process(psync_openfile_t *of, const cha
   if (unlikely_log(psync_file_sync(fd)))
     goto err_eio;
   log_info("flushed log data %s", filename);
-/* flushing directory does not seem to work on either Windows on Mac, disable for now, maybe look at SQLite code to see if they flush
-  if (unlikely_log(psync_fs_flush_cache_dir()))
-    goto err_eio;
-*/
+  /* TODO: flushing directory does not seem to work on Mac, disable for now,
+   * maybe look at SQLite code to see if they flush */
+  /* if (unlikely_log(psync_fs_flush_cache_dir()))
+    goto err_eio; */
 
 //  assert(NULL=="break here to test log replay");
   if (unlikely_log(psync_fs_crypto_process_log(fd, of->datafile, of->indexfile, 0)))

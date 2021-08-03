@@ -22,11 +22,10 @@ extern int callbacks_running;
 
 /*! \brief The main overlay loop.
  *
- * The main loop creates an instance of the named pipe on Windows, or a UNIX
- * socket on Linux/macOS/BSD and then waits for a client to connect to it.
- * When the client connects, a thread is created to handle communications with
- * that client, and this loop is free to wait for the next client connect
- * request. It is an infinite loop.
+ * The main loop creates an instance of a UNIX socket and then waits for a
+ * client to connect to it. When the client connects, a thread is created to
+ * handle communications with that client, and this loop is free to wait for
+ * the next client connect request. It is an infinite loop.
  */
 void overlay_main_loop();
 
