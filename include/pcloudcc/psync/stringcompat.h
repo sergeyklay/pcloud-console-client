@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#if !HAVE_STRLCPY
+#ifndef HAVE_STRLCPY
 /*! \brief Size-bounded string copying.
  *
  * Is designed to be safer, more consistent, and less error prone replacements
@@ -41,7 +41,7 @@ extern "C" {
  *       \a src must be NUL-terminated.
  */
 size_t strlcpy(char *dst, const char *src, size_t size);
-#endif /* !HAVE_STRLCPY */
+#endif /* HAVE_STRLCPY */
 
 #ifdef __cplusplus
 } /* extern "C" */
