@@ -57,7 +57,7 @@ OSStatus SecKeyDecrypt(
         uint8_t             *plainText,
         size_t              *plainTextLen);
 
-PSYNC_THREAD int psync_ssl_errno;
+__thread int psync_ssl_errno;
 
 int psync_ssl_init(){
   return 0;

@@ -103,7 +103,7 @@ sqlite3 *psync_db;
 pstatus_t psync_status;
 int psync_do_run=1;
 int psync_recache_contacts=1;
-PSYNC_THREAD uint32_t psync_error=0;
+__thread uint32_t psync_error=0;
 
 static pthread_mutex_t psync_db_checkpoint_mutex;
 
@@ -526,9 +526,9 @@ typedef struct {
   unsigned line;
 } rd_lock_data;
 
-static PSYNC_THREAD rd_lock_data *rdlock=NULL;
-static PSYNC_THREAD unsigned long sqlrdlockcnt=0;
-static PSYNC_THREAD struct timespec sqlrdlockstart;
+static __thread rd_lock_data *rdlock=NULL;
+static __thread unsigned long sqlrdlockcnt=0;
+static __thread struct timespec sqlrdlockstart;
 unsigned long sqllockcnt=0;
 static struct timespec sqllockstart;
 static const char *wrlockfile="none";

@@ -18,6 +18,7 @@ releases, in reverse chronological order.
   support costs. Given the fact that this console project is intended for
   UNIX/Linux users, Windows support becomes an unaffordable luxury. Anyway, in the
   WSL/Docker era, things get a little easier, even for Windows users.
+* Removed `PSYNC_THREAD` macro in favor of `__thread`.
 
 ### Features
 

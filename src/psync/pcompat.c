@@ -106,7 +106,7 @@ static char proxy_port[8];
 
 static int psync_page_size;
 
-PSYNC_THREAD const char *psync_thread_name="no name";
+__thread const char *psync_thread_name="no name";
 static pthread_mutex_t socket_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 const unsigned char psync_invalid_filename_chars[256]={

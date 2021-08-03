@@ -63,7 +63,7 @@ static pthread_mutex_t *olocks;
 int psync_ssl_hw_aes;
 #endif
 
-PSYNC_THREAD int psync_ssl_errno;
+__thread int psync_ssl_errno;
 
 static void openssl_locking_callback(int mode, int type, const char *file, int line){
   if (mode&CRYPTO_LOCK)

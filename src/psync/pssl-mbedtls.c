@@ -68,7 +68,7 @@ static ctr_drbg_context_locked psync_mbed_rng;
 static mbedtls_entropy_context psync_mbed_entropy;
 static mbedtls_x509_crt psync_mbed_trusted_certs_x509;
 
-PSYNC_THREAD int psync_ssl_errno;
+__thread int psync_ssl_errno;
 
 #if defined(PSYNC_AES_HW)
 uint32_t psync_ssl_hw_aes;

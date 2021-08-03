@@ -285,7 +285,7 @@ typedef void (*psync_list_dir_callback_fast)(void *, psync_pstat_fast *);
 typedef void (*psync_thread_start0)();
 typedef void (*psync_thread_start1)(void *);
 
-extern PSYNC_THREAD const char *psync_thread_name;
+extern __thread const char *psync_thread_name;
 
 extern const unsigned char psync_invalid_filename_chars[];
 
