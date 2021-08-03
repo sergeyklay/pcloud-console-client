@@ -85,16 +85,8 @@ static int openssl_locking_default(int *num, int cnt, int type, const char *file
 }
 
 static int openssl_locking_add(int *num, int cnt, int type, const char *file, int line){
-#if defined(P_OS_WINDOWS)
-  if (sizeof(LONG)==sizeof(int))
-    return _InterlockedAdd(num, cnt);
-  else
-    return openssl_locking_default(num, cnt, type, file, line);
-#elif defined(__GNUC__)
-  if (1)
-    return __sync_add_and_fetch(num, cnt);
-  else
-    return openssl_locking_default(num, cnt, type, file, line);
+#if defined(__GNUC__)
+  return __sync_add_and_fetch(num, cnt);
 #else
   return openssl_locking_default(num, cnt, type, file, line);
 #endif
