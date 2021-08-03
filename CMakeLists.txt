@@ -27,15 +27,11 @@ endif()
 include(Bootstrap)
 include(CompilerFlags)
 include(LanguageStandard)
-include(Utils)
 include(ConanHelper)
 include(ProjectInfo)
 include(ProjectConfig)
 
 generate_project_config("${PROJECT_SOURCE_DIR}/src")
-
-get_target_architecture(PCLOUD_TARGET_ARCH)
-message(STATUS "Target architecture: ${PCLOUD_TARGET_ARCH}")
 
 # Use a standard directory layout
 include(GNUInstallDirs)
