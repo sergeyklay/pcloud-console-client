@@ -115,7 +115,8 @@
 #define PSYNC_WEAK
 #endif
 
-#if __GNUC__ >= 3
+/* TODO: Do we still need this? */
+#if defined(__GNUC__) && (__GNUC__ >= 3)
 #define inline __inline
 #define restrict __restrict
 #elif __STDC_VERSION__ != 199901L
