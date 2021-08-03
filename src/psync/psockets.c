@@ -7,8 +7,6 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#include "pcloudcc/psync/compat.h"
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
