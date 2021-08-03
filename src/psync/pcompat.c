@@ -58,17 +58,6 @@ extern char **environ;
 # elif defined(MAP_ANON)
 # define PSYNC_MAP_ANONYMOUS MAP_ANON
 #endif  /* MAP_ANONYMOUS */
-
-#elif defined(P_OS_WINDOWS)
-#include <process.h>
-#include <windows.h>
-#include <winhttp.h>
-#include <ws2tcpip.h>
-#include <wincrypt.h>
-#include <tlhelp32.h>
-#include <iphlpapi.h>
-#include <shlobj.h>
-# pragma comment(lib, "winhttp.lib")
 #endif  /* P_OS_POSIX */
 
 #include "psynclib.h"
@@ -110,24 +99,7 @@ __thread const char *psync_thread_name="no name";
 static pthread_mutex_t socket_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 const unsigned char psync_invalid_filename_chars[256]={
-#if defined(P_OS_WINDOWS)
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-#elif defined(P_OS_LINUX)
+#if defined(P_OS_LINUX)
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -201,79 +173,6 @@ int psync_user_is_admin() {
 #endif
 }
 
-#if defined(P_OS_WINDOWS)
-#if !defined(gmtime_r)
-struct tm *gmtime_r(const time_t *timep, struct tm *result) {
-  struct tm *res=gmtime(timep);
-  *result=*res;
-  return result;
-}
-#endif
-
-static wchar_t *utf8_to_wchar_path(const char *str) {
-  int len;
-  wchar_t *ret;
-  len=MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-  /* MAX_PATH seems not to be apporopriate here as it is defined as 260, and CreateDirectory() description says:
-   * There is a default string size limit for paths of 248 characters. This limit is related to how the CreateDirectory function parses paths.
-   */
-//  if (len>=248) {
-    ret=psync_new_cnt(wchar_t, len+4);
-    memcpy(ret, L"\\\\?\\", 4*sizeof(wchar_t));
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, ret+4, len);
-//  }
-//  else {
-//    ret=psync_new_cnt(wchar_t, len);
-//    MultiByteToWideChar(CP_UTF8, 0, str, -1, ret, len);
-//  }
-  return ret;
-}
-
-static char *wchar_to_utf8(const wchar_t *str) {
-  int len;
-  char *ret;
-  len=WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
-  ret=psync_new_cnt(char, len);
-  WideCharToMultiByte(CP_UTF8, 0, str, -1, ret, len, NULL, NULL);
-  return ret;
-}
-
-int psync_stat(const char *path, psync_stat_t *st) {
-  wchar_t *wpath;
-  HANDLE fd;
-  BOOL ret;
-  DWORD flag, attr;
-  wpath=utf8_to_wchar_path(path);
-retry:
-  attr=GetFileAttributesW(wpath);
-  if (attr==INVALID_FILE_ATTRIBUTES) {
-    psync_free(wpath);
-    return -1;
-  }
-  if (attr&FILE_ATTRIBUTE_DIRECTORY)
-    flag=FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS;
-  else
-    flag=FILE_ATTRIBUTE_NORMAL|FILE_FLAG_POSIX_SEMANTICS;
-
-  fd=CreateFileW(wpath, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, NULL, OPEN_EXISTING, flag, NULL);
-  if (unlikely_log(fd==INVALID_HANDLE_VALUE)) {
-    if (GetLastError()==ERROR_SHARING_VIOLATION) {
-      log_warn("file %s is locked by another process, will retry after sleep", path);
-      psync_milisleep(PSYNC_SLEEP_ON_OS_LOCK);
-      goto retry;
-    }
-    else
-      log_info("could not open file %s, error %d", path, (int)GetLastError());
-    psync_free(wpath);
-    return -1;
-  }
-  psync_free(wpath);
-  ret=GetFileInformationByHandle(fd, st);
-  CloseHandle(fd);
-  return psync_bool_to_zero(ret);
-}
-#endif
-
 void psync_compat_init() {
 #if defined(P_OS_POSIX)
   struct rlimit limit;
@@ -288,7 +187,7 @@ void psync_compat_init() {
     if (setrlimit(RLIMIT_CORE, &limit))
       log_error("setrlimit failed errno=%d", errno);
   }
-#endif
+#endif /* IS_DEBUG */
   signal(SIGPIPE, SIG_IGN);
   psync_uid=getuid();
   psync_gid=getgid();
@@ -296,17 +195,7 @@ void psync_compat_init() {
   psync_gids=psync_new_cnt(gid_t, psync_gids_cnt);
   if (unlikely_log(getgroups(psync_gids_cnt, psync_gids)!=psync_gids_cnt))
     psync_gids_cnt=0;
-#if defined(PAGESIZE)
-  psync_page_size=PAGESIZE;
-#else
   psync_page_size=sysconf(_SC_PAGESIZE);
-#endif
-#elif defined(P_OS_WINDOWS)
-  SYSTEM_INFO si;
-  GetSystemInfo(&si);
-  psync_page_size=si.dwPageSize;
-#else
-  psync_page_size=-1;
 #endif
   log_info("detected page size %d", psync_page_size);
 }
@@ -350,12 +239,6 @@ char *psync_get_default_database_path_old() {
     dir=result->pw_dir;
   }
   return psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_POSIX_DBNAME, NULL);
-#elif defined(P_OS_WINDOWS)
-  const char *dir;
-  dir=getenv("UserProfile");
-  if (unlikely_log(!dir))
-    return NULL;
-  return psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_WINDOWS_DBNAME, NULL);
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -376,23 +259,6 @@ static char *psync_get_pcloud_path_nc() {
     dir=result->pw_dir;
   }
   return psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_POSIX_DIR, NULL);
-#elif defined(P_OS_WINDOWS)
-  wchar_t path[MAX_PATH], *wdir;
-  char *dir, *ret;
-  if (SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, path)==S_OK)
-    wdir=path;
-  else {
-    wdir=_wgetenv(L"LOCALAPPDATA");
-    if (!wdir) {
-      wdir=_wgetenv(L"APPDATA");
-      if (unlikely_log(!wdir))
-        return NULL;
-    }
-  }
-  dir=wchar_to_utf8(wdir);
-  ret=psync_strcat(dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_WINDOWS_DIR, NULL);
-  psync_free(dir);
-  return ret;
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -470,12 +336,6 @@ char *psync_get_home_dir() {
     dir=result->pw_dir;
   }
   return psync_strdup(dir);
-#elif defined(P_OS_WINDOWS)
-  const char *dir;
-  dir=getenv("UserProfile");
-  if (unlikely_log(!dir))
-    return NULL;
-  return psync_strdup(dir);
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -484,8 +344,6 @@ char *psync_get_home_dir() {
 void psync_yield_cpu() {
 #if defined(_POSIX_PRIORITY_SCHEDULING)
   sched_yield();
-#elif defined(P_OS_WINDOWS)
-  SwitchToThread();
 #else
   psync_milisleep(1);
 #endif
@@ -568,8 +426,6 @@ void psync_milisleep_nosqlcheck(uint64_t millisec) {
   tm.tv_sec=millisec/1000;
   tm.tv_nsec=(millisec%1000)*1000000;
   nanosleep(&tm, NULL);
-#elif defined(P_OS_WINDOWS)
-  Sleep(millisec);
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -599,13 +455,6 @@ time_t psync_time() {
 void psync_nanotime(struct timespec *tm) {
 #if defined(_POSIX_TIMERS) && _POSIX_TIMERS>0
   clock_gettime(CLOCK_REALTIME, tm);
-#elif defined(P_OS_WINDOWS)
-  FILETIME ft;
-  uint64_t t;
-  GetSystemTimeAsFileTime(&ft);
-  t=psync_32to64(ft.dwHighDateTime, ft.dwLowDateTime)-116444736000000000ULL;
-  tm->tv_sec=t/10000000UL;
-  tm->tv_nsec=(t%10000000UL)*100;
 #elif defined(P_OS_POSIX)
   struct timeval tv;
   gettimeofday(&tv, NULL);
@@ -785,70 +634,6 @@ void psync_get_random_seed(unsigned char *seed, const void *addent, size_t aelen
 #else
   psync_add_file_to_seed("/dev/random", &hctx, PSYNC_HASH_DIGEST_LEN);
 #endif
-#elif defined(P_OS_WINDOWS)
-  SYSTEM_INFO si;
-  OSVERSIONINFO osvi;
-  CURSORINFO ci;
-  PROCESSENTRY32 pe;
-  THREADENTRY32 te;
-  MODULEENTRY32 me;
-  MEMORYSTATUSEX ms;
-  LARGE_INTEGER li;
-  TCHAR ib[1024];
-  DWORD ibc;
-  HCRYPTPROV cprov;
-  HANDLE pr;
-  log_info("in");
-  psync_nanotime(&tm);
-  psync_lhash_init(&hctx);
-  psync_lhash_update(&hctx, &tm, sizeof(tm));
-  if (CryptAcquireContext(&cprov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-    if (CryptGenRandom(cprov, PSYNC_HASH_DIGEST_LEN, lsc[0]))
-      psync_lhash_update(&hctx, lsc[0], PSYNC_HASH_DIGEST_LEN);
-    CryptReleaseContext(cprov, 0);
-  }
-  if ((pr=CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0))!=INVALID_HANDLE_VALUE) {
-    pe.dwSize=sizeof(pe);
-    if (Process32First(pr, &pe))
-      do {
-        psync_lhash_update(&hctx, &pe, sizeof(pe));
-      } while(Process32Next(pr, &pe));
-    te.dwSize=sizeof(te);
-    if (Thread32First(pr, &te))
-      do {
-        psync_lhash_update(&hctx, &te, sizeof(te));
-      } while(Thread32Next(pr, &te));
-    me.dwSize=sizeof(me);
-    if (Module32First(pr, &me))
-      do {
-        psync_lhash_update(&hctx, &me, sizeof(me));
-      } while(Module32Next(pr, &me));
-    CloseHandle(pr);
-  }
-  ms.dwLength=sizeof(ms);
-  if (GlobalMemoryStatusEx(&ms))
-    psync_lhash_update(&hctx, &ms, sizeof(ms));
-  ci.cbSize=sizeof(ci);
-  if (GetCursorInfo(&ci))
-    psync_lhash_update(&hctx, &ci, sizeof(ci));
-  GetSystemInfo(&si);
-  psync_lhash_update(&hctx, &si, sizeof(si));
-  ibc=ARRAY_SIZE(ib);
-  if (GetComputerName(ib, &ibc))
-    psync_lhash_update(&hctx, ib, sizeof(TCHAR)*ibc);
-  ibc=ARRAY_SIZE(ib);
-  if (GetUserName(ib, &ibc))
-    psync_lhash_update(&hctx, ib, sizeof(TCHAR)*ibc);
-  memset(&osvi, 0, sizeof(OSVERSIONINFO));
-  osvi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
-  if (GetVersionEx(&osvi))
-    psync_lhash_update(&hctx, &osvi, sizeof(osvi));
-  ibc=GetCurrentProcessId();
-  psync_lhash_update(&hctx, &ibc, sizeof(ibc));
-  ibc=GetTickCount();
-  psync_lhash_update(&hctx, &ibc, sizeof(ibc));
-  if (QueryPerformanceCounter(&li))
-    psync_lhash_update(&hctx, &li, sizeof(li));
 #endif
 #if defined(P_OS_LINUX)
   psync_get_random_seed_linux(&hctx);
@@ -980,36 +765,9 @@ static psync_socket_t connect_res(struct addrinfo *res) {
 #endif
   while (res) {
     sock=socket(res->ai_family, res->ai_socktype|PSOCK_TYPE_OR, res->ai_protocol);
-#if defined(P_OS_WINDOWS)
-    if (unlikely(sock==INVALID_SOCKET && WSAGetLastError()==WSANOTINITIALISED)) {
-      WSADATA wsaData;
-      if (!WSAStartup(MAKEWORD(2, 2), &wsaData))
-        sock=socket(res->ai_family, res->ai_socktype|PSOCK_TYPE_OR, res->ai_protocol);
-    }
-#endif
     if (likely_log(sock!=INVALID_SOCKET)) {
 #if defined(PSOCK_NEED_NOBLOCK)
-#if defined(P_OS_WINDOWS)
-      static const unsigned long mode=1;
-      static int need_snd_buf=0;
-      ioctlsocket(sock, FIONBIO, &mode);
-      if (need_snd_buf==0) {
-        unsigned ver=GetVersion();
-        ver=LOBYTE(LOWORD(ver))*10+HIBYTE(LOWORD(ver));
-        if (ver<=61) {
-          need_snd_buf=1;
-          log_info("detected windows %u, setting socket buffers", ver);
-        }
-        else {
-          need_snd_buf=-1;
-          log_info("detected windows %u, not setting socket buffers", ver);
-        }
-      }
-      if (need_snd_buf==1) {
-        int bufsize=PSYNC_SOCK_WIN_SNDBUF;
-        setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char *)&bufsize, sizeof(bufsize));
-      }
-#elif defined(P_OS_POSIX)
+#if defined(P_OS_POSIX)
       fcntl(sock, F_SETFD, FD_CLOEXEC);
       fcntl(sock, F_SETFL, fcntl(sock, F_GETFL)|O_NONBLOCK);
 #else
@@ -1029,14 +787,6 @@ static psync_socket_t connect_res(struct addrinfo *res) {
 psync_socket_t psync_create_socket(int domain, int type, int protocol) {
   psync_socket_t ret;
   ret=socket(domain, type, protocol);
-#if defined(P_OS_WINDOWS)
-  if (unlikely(ret==INVALID_SOCKET && WSAGetLastError()==WSANOTINITIALISED)) {
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData))
-      return INVALID_SOCKET;
-    ret=socket(domain, type, protocol);
-  }
-#endif
   return ret;
 }
 
@@ -1160,57 +910,10 @@ static void resolve_callback(void *h, void *ptr) {
   hints.ai_socktype=SOCK_STREAM;
   res=NULL;
   rc=getaddrinfo(hp->host, hp->port, &hints, &res);
-#if defined(P_OS_WINDOWS)
-  if (unlikely(rc==WSANOTINITIALISED)) {
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData)) {
-      psync_task_complete(h, NULL);
-      return;
-    }
-    rc=getaddrinfo(hp->host, hp->port, &hints, &res);
-  }
-#endif
   if (unlikely(rc!=0))
     res=NULL;
   psync_task_complete(h, res);
 }
-
-#if defined(P_OS_WINDOWS)
-static void gfree_ptr(HGLOBAL ptr) {
-  if (ptr!=NULL)
-    GlobalFree(ptr);
-}
-
-static int try_set_proxy(LPWSTR pstr) {
-  char *str, *c;
-  size_t hl, pl;
-  if (!pstr)
-    return 0;
-  str=wchar_to_utf8(pstr);
-  c=strchr(str, ':');
-  if (!c)
-    goto err;
-  hl=c-str;
-  c++;
-  pl=strlen(c);
-  if (pl && hl && hl<sizeof(proxy_host) && pl<sizeof(proxy_port)) {
-    proxy_host[hl]=0;
-    memcpy(proxy_host, str, hl);
-    proxy_port[pl]=0;
-    memcpy(proxy_port, c, pl);
-    psync_free(str);
-    proxy_type=PROXY_CONNECT;
-    log_info("auto detected proxy %s:%s", proxy_host, proxy_port);
-    return 1;
-  }
-err:
-  psync_free(str);
-  return 0;
-}
-
-#define PSYNC_HAS_PROXY_CODE
-
-#endif
 
 #if defined(P_OS_MACOSX) && 0
 
@@ -1240,48 +943,7 @@ static int recent_detect() {
 #endif
 
 static void detect_proxy() {
-#if defined(P_OS_WINDOWS)
-  WINHTTP_CURRENT_USER_IE_PROXY_CONFIG ieconf;
-  WINHTTP_AUTOPROXY_OPTIONS aopt;
-  WINHTTP_PROXY_INFO pinfo;
-  HINTERNET hi;
-  if (recent_detect())
-    return;
-  proxy_type=PROXY_NONE;
-  hi=NULL;
-  pinfo.lpszProxy=NULL;
-  pinfo.lpszProxyBypass=NULL;
-  if (!WinHttpGetIEProxyConfigForCurrentUser(&ieconf))
-    return;
-  if (ieconf.fAutoDetect) {
-    hi=WinHttpOpen(L"pCloud", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-    if (!hi) {
-      log_info("WinHttpOpen failed");
-      goto manual;
-    }
-    memset(&aopt, 0, sizeof(aopt));
-    aopt.dwFlags=WINHTTP_AUTOPROXY_AUTO_DETECT;
-    aopt.dwAutoDetectFlags=WINHTTP_AUTO_DETECT_TYPE_DHCP|WINHTTP_AUTO_DETECT_TYPE_DNS_A;
-    if (ieconf.lpszAutoConfigUrl) {
-      aopt.dwFlags|=WINHTTP_AUTOPROXY_CONFIG_URL;
-      aopt.lpszAutoConfigUrl=ieconf.lpszAutoConfigUrl;
-    }
-    aopt.fAutoLogonIfChallenged=TRUE;
-    if (WinHttpGetProxyForUrl(hi, L"https://api.pcloud.com/", &aopt, &pinfo)  && pinfo.dwAccessType==WINHTTP_ACCESS_TYPE_NAMED_PROXY &&
-        try_set_proxy(pinfo.lpszProxy))
-      goto ex;
-  }
-manual:
-  try_set_proxy(pinfo.lpszProxy);
-ex:
-  if (hi)
-    WinHttpCloseHandle(hi);
-  gfree_ptr(pinfo.lpszProxy);
-  gfree_ptr(pinfo.lpszProxyBypass);
-  gfree_ptr(ieconf.lpszProxy);
-  gfree_ptr(ieconf.lpszProxyBypass);
-  gfree_ptr(ieconf.lpszAutoConfigUrl);
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
 /*  CFDictionaryRef proxies;
   CFStringRef hostr, portr;
   CFNumberRef enabledr;
@@ -1347,14 +1009,6 @@ static psync_socket_t connect_socket_direct(const char *host, const char *port) 
     hints.ai_socktype=SOCK_STREAM;
     res=NULL;
     rc=getaddrinfo(host, port, &hints, &res);
-#if defined(P_OS_WINDOWS)
-    if (unlikely(rc==WSANOTINITIALISED)) {
-      WSADATA wsaData;
-      if (WSAStartup(MAKEWORD(2, 2), &wsaData))
-        return INVALID_SOCKET;
-      rc=getaddrinfo(host, port, &hints, &res);
-    }
-#endif
     if (unlikely(rc!=0)) {
       log_warn("failed to resolve %s", host);
       detect_proxy();
@@ -1368,9 +1022,6 @@ static psync_socket_t connect_socket_direct(const char *host, const char *port) 
     int sock_opt=1;
 #if defined(P_OS_LINUX)
     setsockopt(sock, SOL_TCP, TCP_NODELAY, (char *)&sock_opt, sizeof(sock_opt));
-    setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (char *)&sock_opt, sizeof(sock_opt));
-#elif defined(P_OS_WINDOWS)
-    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&sock_opt, sizeof(sock_opt));
     setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (char *)&sock_opt, sizeof(sock_opt));
 #elif defined(P_OS_MACOSX) || defined(P_OS_BSD)
     setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char  *)&sock_opt, sizeof(sock_opt));
@@ -1666,14 +1317,6 @@ int psync_socket_pendingdata_buf(psync_socket *sock) {
 #if defined(P_OS_POSIX) && defined(FIONREAD)
   if (ioctl(sock->sock, FIONREAD, &ret))
     return -1;
-#elif defined(P_OS_WINDOWS)
-  u_long l;
-  if (ioctlsocket(sock->sock, FIONREAD, &l))
-    return -1;
-  else
-    ret=l;
-#else
-  return -1;
 #endif
   if (sock->ssl)
     ret+=psync_ssl_pendingdata(sock->ssl);
@@ -2306,75 +1949,6 @@ psync_interface_list_t *psync_list_ip_adapters() {
   }
   freeifaddrs(addrs);
   return ret;
-#elif defined(P_OS_WINDOWS)
-  {
-    IP_ADAPTER_ADDRESSES *adapters, *adapter;
-    IP_ADAPTER_UNICAST_ADDRESS *addr;
-    ULONG sz, rt, fl;
-    int isz;
-    sz = 16 * 1024;
-    adapters = (IP_ADAPTER_ADDRESSES *)psync_malloc(sz);
-    fl = GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_FRIENDLY_NAME |
-         GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST;
-    rt = GetAdaptersAddresses(AF_UNSPEC, fl, NULL, adapters, &sz);
-    if (rt == ERROR_BUFFER_OVERFLOW) {
-      adapters = (IP_ADAPTER_ADDRESSES *)psync_realloc(adapters, sz);
-      rt = GetAdaptersAddresses(AF_UNSPEC, fl, NULL, adapters, &sz);
-    }
-    if (rt != ERROR_SUCCESS) {
-      psync_free(adapters);
-      goto empty;
-    }
-    adapter = adapters;
-    cnt = 0;
-    while (adapter) {
-      addr = adapter->FirstUnicastAddress;
-      while (addr) {
-        if (!(addr->Flags & IP_ADAPTER_ADDRESS_TRANSIENT) &&
-            (addr->Address.lpSockaddr->sa_family == AF_INET ||
-             addr->Address.lpSockaddr->sa_family == AF_INET6))
-          cnt++;
-        addr = addr->Next;
-      }
-      adapter = adapter->Next;
-    }
-    ret = psync_malloc(offsetof(psync_interface_list_t, interfaces) +
-                       sizeof(psync_interface_t) * cnt);
-    memset(ret, 0,
-           offsetof(psync_interface_list_t, interfaces) +
-               sizeof(psync_interface_t) * cnt);
-    ret->interfacecnt = cnt;
-    adapter = adapters;
-    cnt = 0;
-    while (adapter) {
-      addr = adapter->FirstUnicastAddress;
-      while (addr) {
-        if (!(addr->Flags & IP_ADAPTER_ADDRESS_TRANSIENT) &&
-            (addr->Address.lpSockaddr->sa_family == AF_INET ||
-             addr->Address.lpSockaddr->sa_family == AF_INET6)) {
-          isz = addr->Address.iSockaddrLength;
-          memcpy(&ret->interfaces[cnt].address, addr->Address.lpSockaddr, isz);
-          if (addr->Address.lpSockaddr->sa_family == AF_INET) {
-            ret->interfaces[cnt].broadcast.ss_family = AF_INET;
-            memset(&(((struct sockaddr_in *)(&ret->interfaces[cnt].broadcast))
-                         ->sin_addr),
-                   0xff, sizeof(((struct sockaddr_in *)NULL)->sin_addr));
-          } else {
-            ret->interfaces[cnt].broadcast.ss_family = AF_INET6;
-            memset(&(((struct sockaddr_in6 *)(&ret->interfaces[cnt].broadcast))
-                         ->sin6_addr),
-                   0xff, sizeof(((struct sockaddr_in6 *)NULL)->sin6_addr));
-          }
-          ret->interfaces[cnt].addrsize = isz;
-          cnt++;
-        }
-        addr = addr->Next;
-      }
-      adapter = adapter->Next;
-    }
-    psync_free(adapters);
-    return ret;
-  }
 #endif
   empty:
   ret = psync_malloc(offsetof(psync_interface_list_t, interfaces));
@@ -2389,14 +1963,6 @@ static int psync_compat_socketpair(psync_socket_t sockfd[2]) {
   socklen_t addrlen;
   sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (sock==INVALID_SOCKET) {
-#if defined(P_OS_WINDOWS)
-    if (psync_sock_err()==WSANOTINITIALISED) {
-      WSADATA wsaData;
-      if (WSAStartup(MAKEWORD(2, 2), &wsaData) || (sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))==INVALID_SOCKET)
-        goto err0;
-    }
-    else
-#endif
       goto err0;
   }
   memset(&addr, 0, sizeof(addr));
@@ -2437,20 +2003,12 @@ int psync_pipe_close(psync_socket_t pfd) {
 int psync_pipe_read(psync_socket_t pfd, void *buff, int num) {
 #if defined(P_OS_POSIX)
   return read(pfd, buff, num);
-#elif defined(P_OS_WINDOWS)
-  return recv(pfd, (char *)buff, num, 0);
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int psync_pipe_write(psync_socket_t pfd, const void *buff, int num) {
 #if defined(P_OS_POSIX)
   return write(pfd, buff, num);
-#elif defined(P_OS_WINDOWS)
-  return send(pfd, (const char *)buff, num, 0);
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2559,58 +2117,6 @@ int psync_list_dir(const char *path, psync_list_dir_callback cb, void *ptr) {
   psync_free(cpath);
   closedir(dh);
   return 0;
-#elif defined(P_OS_WINDOWS)
-  psync_pstat pst;
-  char *spath, *name;
-  wchar_t *wpath;
-  WIN32_FIND_DATAW st;
-  HANDLE dh;
-  spath = psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR "*", NULL);
-  wpath = utf8_to_wchar_path(spath);
-  psync_free(spath);
-  dh = FindFirstFileW(wpath, &st);
-  psync_free(wpath);
-
-  if (dh == INVALID_HANDLE_VALUE) {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
-      return 0;
-
-    psync_error=PERROR_LOCAL_FOLDER_NOT_FOUND;
-    return -1;
-  }
-
-  do {
-    if (st.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && (!wcscmp(st.cFileName, L".") || !wcscmp(st.cFileName, L"..")))
-      continue;
-    if (st.dwFileAttributes&(FILE_ATTRIBUTE_SYSTEM|/*FILE_ATTRIBUTE_TEMPORARY|*/FILE_ATTRIBUTE_DEVICE|FILE_ATTRIBUTE_HIDDEN)) {
-      if (st.dwFileAttributes&FILE_ATTRIBUTE_SYSTEM)
-        log_info("Ignoring file %ls with FILE_ATTRIBUTE_SYSTEM attribute", st.cFileName);
-      if (st.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
-        log_info("Ignoring file %ls with FILE_ATTRIBUTE_TEMPORARY attribute", st.cFileName);
-      if (st.dwFileAttributes&FILE_ATTRIBUTE_DEVICE)
-        log_info("Ignoring file %ls with FILE_ATTRIBUTE_DEVICE attribute", st.cFileName);
-      if (st.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
-        log_info("Ignoring file %ls with FILE_ATTRIBUTE_HIDDEN attribute", st.cFileName);
-      continue;
-    }
-
-    name = wchar_to_utf8(st.cFileName);
-    spath = psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR, name, NULL);
-    pst.name = name;
-    pst.path = spath;
-    if (likely(!psync_stat(spath, &pst.stat)))
-      cb(ptr, &pst);
-    else
-      log_error("filed to get status for %s", spath);
-
-    psync_free(name);
-    psync_free(spath);
-  } while (FindNextFileW(dh, &st));
-
-  FindClose(dh);
-  return 0;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2693,38 +2199,6 @@ int psync_list_dir_fast(const char *path, psync_list_dir_callback_fast cb, void 
   psync_free(cpath);
   closedir(dh);
   return 0;
-#elif defined(P_OS_WINDOWS)
-  psync_pstat_fast pst;
-  char *spath, *name;
-  wchar_t *wpath;
-  WIN32_FIND_DATAW st;
-  HANDLE dh;
-  spath = psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR "*", NULL);
-  wpath = utf8_to_wchar_path(spath);
-  psync_free(spath);
-  dh = FindFirstFileW(wpath, &st);
-  psync_free(wpath);
-
-  if (dh == INVALID_HANDLE_VALUE) {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
-      return 0;
-
-      psync_error = PERROR_LOCAL_FOLDER_NOT_FOUND;
-      return -1;
-  }
-
-  do {
-    name = wchar_to_utf8(st.cFileName);
-    pst.name = name;
-    pst.isfolder = (st.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)>0;
-    cb(ptr, &pst);
-    psync_free(name);
-  } while (FindNextFileW(dh, &st));
-
-  FindClose(dh);
-  return 0;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2738,49 +2212,18 @@ int64_t psync_get_free_space_by_path(const char *path) {
   }
 
   return (int64_t)buf.f_bavail * (int64_t)buf.f_frsize;
-#elif defined(P_OS_WINDOWS)
-  ULARGE_INTEGER free;
-  wchar_t *wpath;
-  BOOL ret;
-  wpath=utf8_to_wchar_path(path);
-  ret=GetDiskFreeSpaceExW(wpath, &free, NULL, NULL);
-  psync_free(wpath);
-  if (likely_log(ret))
-    return free.QuadPart;
-  else
-    return -1;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int psync_mkdir(const char *path) {
 #if defined(P_OS_POSIX)
   return mkdir(path, PSYNC_DEFAULT_POSIX_FOLDER_MODE);
-#elif defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  int ret;
-  wpath=utf8_to_wchar_path(path);
-  ret=psync_bool_to_zero(CreateDirectoryW(wpath, NULL));
-  psync_free(wpath);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int psync_rmdir(const char *path) {
 #if defined(P_OS_POSIX)
   return rmdir(path);
-#elif defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  int ret;
-  wpath=utf8_to_wchar_path(path);
-  ret=psync_bool_to_zero(RemoveDirectoryW(wpath));
-  psync_free(wpath);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2793,15 +2236,6 @@ int psync_file_rename_overwrite(const char *oldpath, const char *newpath) {
 int psync_file_delete(const char *path) {
 #if defined(P_OS_POSIX)
   return unlink(path);
-#elif defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  int ret;
-  wpath=utf8_to_wchar_path(path);
-  ret=psync_bool_to_zero(DeleteFileW(wpath));
-  psync_free(wpath);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2824,38 +2258,12 @@ psync_file_t psync_file_open(const char *path, int access, int flags) {
     }
   }
   return fd;
-#elif defined(P_OS_WINDOWS)
-  DWORD cdis;
-  wchar_t *wpath;
-  HANDLE ret;
-  if (flags&P_O_EXCL)
-    cdis=CREATE_NEW;
-  else if ((flags&(P_O_CREAT|P_O_TRUNC))==(P_O_CREAT|P_O_TRUNC))
-    cdis=CREATE_ALWAYS;
-  else if (flags&P_O_CREAT)
-    cdis=OPEN_ALWAYS;
-  else if (flags&P_O_TRUNC)
-    cdis=TRUNCATE_EXISTING;
-  else
-    cdis=OPEN_EXISTING;
-  wpath=utf8_to_wchar_path(path);
-  ret=CreateFileW(wpath, access, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, NULL, cdis, FILE_FLAG_POSIX_SEMANTICS|FILE_ATTRIBUTE_NORMAL, NULL);
-  if (IS_DEBUG && ret==INVALID_HANDLE_VALUE && GetLastError()!=ERROR_FILE_NOT_FOUND)
-    log_warn("could not open file %s, error %d", path, (int)GetLastError());
-  psync_free(wpath);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int psync_file_close(psync_file_t fd) {
 #if defined(P_OS_POSIX)
   return close(fd);
-#elif defined(P_OS_WINDOWS)
-  return psync_bool_to_zero(CloseHandle(fd));
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -2895,8 +2303,6 @@ int psync_file_sync(psync_file_t fd) {
   }
   else
     return 0;
-#elif defined(P_OS_WINDOWS)
-  return psync_bool_to_zero(FlushFileBuffers(fd));
 #else
 #error "Function not implemented for your operating system"
 #endif
@@ -2923,28 +2329,6 @@ int psync_file_schedulesync(psync_file_t fd) {
     log_info("msync failed, errno=%d", (int)errno);
   munmap(fmap, st.st_size);
   return ret;
-#elif defined(P_OS_WINDOWS)
-  HANDLE mapping;
-  void *fmap;
-  int ret;
-  ret=-1;
-  mapping=CreateFileMapping(fd, NULL, PAGE_READWRITE, 0, 0, NULL);
-  if (mapping!=NULL) {
-    fmap=MapViewOfFile(mapping, FILE_MAP_WRITE, 0, 0, 0);
-    if (fmap!=NULL) {
-      if (FlushViewOfFile(fmap, 0))
-        ret=0;
-      else
-        log_info("FlushViewOfFile failed, error %u", (unsigned)GetLastError());
-      UnmapViewOfFile(fmap);
-    }
-    else
-      log_info("MapViewOfFile failed, error %u", (unsigned)GetLastError());
-    CloseHandle(mapping);
-  }
-  else
-    log_info("CreateFileMapping failed, error %u", (unsigned)GetLastError());
-  return ret;
 #else
   return 0;
 #endif
@@ -2966,54 +2350,17 @@ int psync_folder_sync(const char *path) {
     ret=0;
   close(fd);
   return ret;
-#elif defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  HANDLE fd;
-  int ret;
-  wpath=utf8_to_wchar_path(path);
-  fd=CreateFileW(wpath, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS, NULL);
-  psync_free(wpath);
-  if (fd==INVALID_HANDLE_VALUE) {
-    log_info("could not open folder %s", path);
-    return -1;
-  }
-  if (FlushFileBuffers(fd))
-    ret=0;
-  else {
-    log_info("could not flush folder %s err=%u", path, GetLastError());
-    ret=-1;
-  }
-  CloseHandle(fd);
-  return ret;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 psync_file_t psync_file_dup(psync_file_t fd) {
 #if defined(P_OS_POSIX)
   return dup(fd);
-#elif defined(P_OS_WINDOWS)
-  HANDLE process, fddup;
-  process=GetCurrentProcess();
-  if (!DuplicateHandle(process, fd, process, &fddup, 0, FALSE, DUPLICATE_SAME_ACCESS))
-    return INVALID_HANDLE_VALUE;
-  else
-    return fddup;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int psync_file_set_creation(psync_file_t fd, time_t ctime) {
-#if defined(P_OS_WINDOWS)
-  FILETIME fctime;
-  uint64_t lctime;
-  lctime=Int32x32To64(ctime, 10000000)+116444736000000000;
-  fctime.dwLowDateTime=(DWORD)lctime;
-  fctime.dwHighDateTime=lctime>>32;
-  return psync_bool_to_zero(SetFileTime(fd, &fctime, NULL, NULL));
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
   struct attrlist attr;
   struct timespec crtime;
   memset(&attr, 0, sizeof(attr));
@@ -3028,40 +2375,7 @@ int psync_file_set_creation(psync_file_t fd, time_t ctime) {
 }
 
 int psync_set_crtime_mtime(const char *path, time_t crtime, time_t mtime) {
-#if defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  FILETIME fctime, fmtime, *pfctime, *pfmtime;
-  uint64_t tm64;
-  HANDLE fd;
-  int ret;
-  wpath=utf8_to_wchar_path(path);
-  fd=CreateFileW(wpath, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
-                 FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS, NULL);
-  psync_free(wpath);
-  if (fd==INVALID_HANDLE_VALUE) {
-    log_info("could not open file/folder %s", path);
-    return -1;
-  }
-  if (crtime) {
-    tm64=Int32x32To64(crtime, 10000000)+116444736000000000;
-    fctime.dwLowDateTime=(DWORD)tm64;
-    fctime.dwHighDateTime=tm64>>32;
-    pfctime=&fctime;
-  }
-  else
-    pfctime=NULL;
-  if (mtime) {
-    tm64=Int32x32To64(mtime, 10000000)+116444736000000000;
-    fmtime.dwLowDateTime=(DWORD)tm64;
-    fmtime.dwHighDateTime=tm64>>32;
-    pfmtime=&fmtime;
-  }
-  else
-    pfmtime=NULL;
-  ret=psync_bool_to_zero(SetFileTime(fd, pfctime, NULL, pfmtime));
-  CloseHandle(fd);
-  return ret;
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
   if (crtime) {
     struct attrlist attr;
     struct timespec crtimes;
@@ -3104,29 +2418,7 @@ int psync_set_crtime_mtime(const char *path, time_t crtime, time_t mtime) {
 }
 
 int psync_set_crtime_mtime_by_fd(psync_file_t fd, const char *path, time_t crtime, time_t mtime) {
-#if defined(P_OS_WINDOWS)
-  FILETIME fctime, fmtime, *pfctime, *pfmtime;
-  uint64_t tm64;
-  int ret;
-  if (crtime) {
-    tm64=Int32x32To64(crtime, 10000000)+116444736000000000;
-    fctime.dwLowDateTime=(DWORD)tm64;
-    fctime.dwHighDateTime=tm64>>32;
-    pfctime=&fctime;
-  }
-  else
-    pfctime=NULL;
-  if (mtime) {
-    tm64=Int32x32To64(mtime, 10000000)+116444736000000000;
-    fmtime.dwLowDateTime=(DWORD)tm64;
-    fmtime.dwHighDateTime=tm64>>32;
-    pfmtime=&fmtime;
-  }
-  else
-    pfmtime=NULL;
-  ret=psync_bool_to_zero(SetFileTime(fd, pfctime, NULL, pfmtime));
-  return ret;
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
   if (crtime) {
     struct attrlist attr;
     struct timespec crtimes;
@@ -3231,14 +2523,6 @@ ssize_t psync_file_read(psync_file_t fd, void *buf, size_t count) {
     log_info("got error %d", (int)errno);
   }
   return ret;
-#elif defined(P_OS_WINDOWS)
-  DWORD ret;
-  if (ReadFile(fd, buf, count, &ret, NULL))
-    return ret;
-  else
-    return -1;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3256,24 +2540,6 @@ ssize_t psync_file_pread(psync_file_t fd, void *buf, size_t count, uint64_t offs
     log_info("got error %d", (int)errno);
   }
   return ret;
-#elif defined(P_OS_WINDOWS)
-  OVERLAPPED ov;
-  LARGE_INTEGER li;
-  DWORD ret;
-  li.QuadPart=offset;
-  memset(&ov, 0, sizeof(ov));
-  ov.Offset=li.LowPart;
-  ov.OffsetHigh=li.HighPart;
-  if (ReadFile(fd, buf, count, &ret, &ov))
-    return ret;
-  else {
-    if (GetLastError()==ERROR_HANDLE_EOF)
-      return 0;
-    else
-      return -1;
-  }
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3292,14 +2558,6 @@ ssize_t psync_file_write(psync_file_t fd, const void *buf, size_t count) {
     log_info("got error %d", (int)errno);
   }
   return ret;
-#elif defined(P_OS_WINDOWS)
-  DWORD ret;
-  if (WriteFile(fd, buf, count, &ret, NULL))
-    return ret;
-  else
-    return -1;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3317,38 +2575,12 @@ ssize_t psync_file_pwrite(psync_file_t fd, const void *buf, size_t count, uint64
     log_info("got error %d", (int)errno);
   }
   return ret;
-#elif defined(P_OS_WINDOWS)
-  OVERLAPPED ov;
-  LARGE_INTEGER li;
-  DWORD ret;
-  li.QuadPart=offset;
-  memset(&ov, 0, sizeof(ov));
-  ov.Offset=li.LowPart;
-  ov.OffsetHigh=li.HighPart;
-  if (WriteFile(fd, buf, count, &ret, &ov))
-    return ret;
-  else
-    return -1;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
 int64_t psync_file_seek(psync_file_t fd, uint64_t offset, int whence) {
 #if defined(P_OS_POSIX)
   return lseek(fd, offset, whence);
-#elif defined(P_OS_WINDOWS)
-   LARGE_INTEGER li;
-   li.QuadPart=offset;
-   li.LowPart=SetFilePointer(fd, li.LowPart, &li.HighPart, whence);
-   if (li.LowPart==INVALID_SET_FILE_POINTER && GetLastError()!=NO_ERROR) {
-     log_warn("got error %d from SetFilePointer", (int)GetLastError());
-     return -1;
-   }
-   else
-     return li.QuadPart;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3371,19 +2603,6 @@ int psync_file_truncate(psync_file_t fd) {
   }
   else
     return -1;
-#elif defined(P_OS_WINDOWS)
-#if IS_DEBUG
-  if (SetEndOfFile(fd))
-    return 0;
-  else {
-    log_warn("got error %d from SetEndOfFile", (int)GetLastError());
-    return -1;
-  }
-#else
-  return psync_bool_to_zero(SetEndOfFile(fd));
-#endif
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3394,15 +2613,6 @@ int64_t psync_file_size(psync_file_t fd) {
     return -1;
   else
     return st.st_size;
-#elif defined(P_OS_WINDOWS)
-   ULARGE_INTEGER li;
-   li.LowPart=GetFileSize(fd, &li.HighPart);
-   if (unlikely_log(li.LowPart==INVALID_FILE_SIZE && GetLastError()!=NO_ERROR))
-     return -1;
-   else
-     return li.QuadPart;
-#else
-#error "Function not implemented for your operating system"
 #endif
 }
 
@@ -3448,105 +2658,20 @@ int psync_run_update_file(const char *path) {
     psync_free(ex);
     exit(1);
   }
-#elif defined(P_OS_WINDOWS)
-  if ((int)ShellExecuteA(NULL, "open", path, NULL, NULL, SW_SHOWDEFAULT)>32)
-    return 0;
-  else
-    return -1;
-#else
-  return -1;
 #endif
 }
 
 int psync_invalidate_os_cache_needed() {
-#if defined(P_OS_WINDOWS)
-  return 1;
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
   return 0;
 #else
   return 0;
 #endif
 }
 
-#define REBUILD_ICON_BUFFER_SIZE 1024
-
 extern int overlays_running;
 
-#if defined(P_OS_WINDOWS)
-void psync_rebuild_icons() {
-  TCHAR buf[REBUILD_ICON_BUFFER_SIZE] = { 0 };
-  HKEY hRegKey = 0;
-  DWORD dwRegValue;
-  DWORD dwRegValueTemp;
-  DWORD dwSize;
-  DWORD_PTR dwResult;
-  LONG lRegResult;
-  int result = 0;
-
-  // we're going to change the Shell Icon Size value
-  const TCHAR* sRegValueName = L"Shell Icon Size";
-
-  if (!overlays_running)
-	  return;
-
-  lRegResult = RegOpenKeyEx(HKEY_CURRENT_USER, L"Control Panel\\Desktop\\WindowMetrics",
-    0, KEY_READ | KEY_WRITE, &hRegKey);
-  if (lRegResult != ERROR_SUCCESS)
-    goto Cleanup;
-
-  // Read registry value
-  dwSize = REBUILD_ICON_BUFFER_SIZE;
-  lRegResult = RegQueryValueEx(hRegKey, sRegValueName, NULL, NULL,
-    (LPBYTE)buf, &dwSize);
-  if (lRegResult != ERROR_FILE_NOT_FOUND)
-  {
-    // If registry key doesn't exist create it using system current setting
-    int iDefaultIconSize = GetSystemMetrics(SM_CXICON);
-    if (0 == iDefaultIconSize)
-      iDefaultIconSize = 32;
-    _snprintf(buf, REBUILD_ICON_BUFFER_SIZE, L"%d", iDefaultIconSize);
-  }
-  else if (lRegResult != ERROR_SUCCESS)
-    goto Cleanup;
-
-  // Change registry value
-  dwRegValue = _wtoi(buf);
-  dwRegValueTemp = dwRegValue - 1;
-
-  dwSize = _snprintf(buf, REBUILD_ICON_BUFFER_SIZE, L"%lu", dwRegValueTemp) + sizeof(TCHAR);
-  lRegResult = RegSetValueEx(hRegKey, sRegValueName, 0, REG_SZ,
-    (LPBYTE)buf, dwSize);
-  if (lRegResult != ERROR_SUCCESS)
-    goto Cleanup;
-
-
-  // Update all windows
-  SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETNONCLIENTMETRICS,
-    0, SMTO_ABORTIFHUNG, 5000, &dwResult);
-
-  // Reset registry value
-  dwSize = _snprintf(buf, REBUILD_ICON_BUFFER_SIZE, L"%lu", dwRegValue) + sizeof(TCHAR);
-  lRegResult = RegSetValueEx(hRegKey, sRegValueName, 0, REG_SZ,
-    (LPBYTE)buf, dwSize);
-  if (lRegResult != ERROR_SUCCESS)
-    goto Cleanup;
-
-  // Update all windows
-  SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETNONCLIENTMETRICS,
-    0, SMTO_ABORTIFHUNG, 5000, &dwResult);
-
-  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
-
-  result = 1;
-
-Cleanup:
-  if (hRegKey != 0)
-  {
-    RegCloseKey(hRegKey);
-  }
-  return;
-}
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
 void psync_rebuild_icons() {
   int ret = 0;
 
@@ -3566,14 +2691,7 @@ void psync_rebuild_icons() {
 #endif
 
 int psync_invalidate_os_cache(const char *path) {
-#if defined(P_OS_WINDOWS)
-  wchar_t *wpath;
-  log_info("got invalidate for path %s", path);
-  wpath=utf8_to_wchar_path(path);
-  SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH, wpath, NULL);
-  psync_free(wpath);
-  return 0;
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
   int pfds[2];
   pid_t pid;
   log_info("running osascript to refresh finder");
@@ -3637,10 +2755,6 @@ end tell\n";
 void *psync_mmap_anon(size_t size) {
 #if defined(PSYNC_MAP_ANONYMOUS)
   return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|PSYNC_MAP_ANONYMOUS, -1, 0);
-#elif defined(P_OS_WINDOWS)
-  return VirtualAlloc(NULL, size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-#else
-  return malloc(size);
 #endif
 }
 
@@ -3670,39 +2784,24 @@ void *psync_mmap_anon_safe(size_t size) {
 int psync_munmap_anon(void *ptr, size_t size) {
 #if defined(PSYNC_MAP_ANONYMOUS)
   return munmap(ptr, size);
-#elif defined(P_OS_WINDOWS)
-  return psync_bool_to_zero(VirtualFree(ptr, 0, MEM_RELEASE));
-#else
-  free(ptr);
-  return 0;
 #endif
 }
 
 void psync_anon_reset(void *ptr, size_t size) {
 #if defined(PSYNC_MAP_ANONYMOUS) && defined(MADV_DONTNEED)
   madvise(ptr, size, MADV_DONTNEED);
-#elif defined(P_OS_WINDOWS)
-  VirtualAlloc(ptr, size, MEM_RESET, PAGE_READWRITE);
 #endif
 }
 
 int psync_mlock(void *ptr, size_t size) {
 #if defined(_POSIX_MEMLOCK_RANGE)
   return mlock(ptr, size);
-#elif defined(P_OS_WINDOWS)
-  return psync_bool_to_zero(VirtualLock(ptr, size));
-#else
-  return -1;
 #endif
 }
 
 int psync_munlock(void *ptr, size_t size) {
 #if defined(_POSIX_MEMLOCK_RANGE)
   return munlock(ptr, size);
-#elif defined(P_OS_WINDOWS)
-  return psync_bool_to_zero(VirtualUnlock(ptr, size));
-#else
-  return -1;
 #endif
 }
 
