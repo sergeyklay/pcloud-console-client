@@ -19,11 +19,6 @@
 #if defined(__GNUC__) && (defined(__amd64__) || defined(__x86_64__) || defined(__i386__))
 #define CRC32_HW
 #define CRC32_GNUC
-#elif defined(_MSC_VER)
-#include <intrin.h>
-#include <nmmintrin.h>
-#define CRC32_HW
-#define CRC32_MSC
 #endif
 
 #ifdef CRC32_HW

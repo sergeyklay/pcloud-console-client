@@ -73,9 +73,6 @@ typedef AES_KEY *psync_aes256_decoder;
 #if defined(__GNUC__) && (defined(__amd64__) || defined(__x86_64__) || defined(__i386__))
 #define PSYNC_AES_HW
 #define PSYNC_AES_HW_GCC
-#elif defined(_MSC_VER)
-#define PSYNC_AES_HW
-#define PSYNC_AES_HW_MSC
 #endif
 
 #if defined(PSYNC_AES_HW)

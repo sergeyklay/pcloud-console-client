@@ -20,7 +20,7 @@ releases, in reverse chronological order.
   WSL/Docker era, things get a little easier, even for Windows users.
 * Removed no longer used `PSYNC_THREAD` macro in favor of `__thread`.
 * Removed no longer used `PSYNC_DEFAULT_WINDOWS_DBNAME` macro.
-* Removed no longer used  `PSYNC_DEFAULT_WINDOWS_DIR` macro.
+* Removed no longer used `PSYNC_DEFAULT_WINDOWS_DIR` macro.
 * Removed no longer used `psync_32to64` macro.
 * Removed no longer used `psync_bool_to_zero` macro.
 * Removed no longer used `P_PRI_D64` macro.
