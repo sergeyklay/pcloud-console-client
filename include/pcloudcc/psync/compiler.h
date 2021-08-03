@@ -12,10 +12,6 @@
 #ifndef PCLOUDCC_PSYNC_COMPILER_H_
 #define PCLOUDCC_PSYNC_COMPILER_H_
 
-#if defined(_MSC_VER)
-#include <mmintrin.h>
-#endif
-
 #if !defined(__has_attribute)
 #if defined(__GNUC__)
 #define __has_attribute(x) 1
@@ -47,32 +43,20 @@
 
 #if __has_builtin(__builtin_prefetch)
 #define psync_prefetch(expr) __builtin_prefetch(expr)
-#elif defined(_MSC_VER)
-#define psync_prefetch(expr) _mm_prefetch((char *)(expr), _MM_HINT_T0)
 #else
 #define psync_prefetch(expr) ((void)0)
 #endif
 
-#if defined(_MSC_VER)
-#define PSYNC_NO_RETURN __declspec(noreturn)
-#else
 #if __has_attribute(noreturn)
 #define PSYNC_NO_RETURN __attribute__((noreturn))
 #else
 #define PSYNC_NO_RETURN
 #endif
-#endif
 
-#if defined(_MSC_VER)
-#define PSYNC_THREAD __declspec(thread)
-#define PSYNC_NOINLINE __declspec(noinline)
-#else
 #if __has_attribute(noinline)
 #define PSYNC_NOINLINE __attribute__((noinline))
 #else
 #define PSYNC_NOINLINE
-#endif
-#define PSYNC_THREAD __thread
 #endif
 
 #if __has_attribute(malloc)
@@ -119,8 +103,6 @@
 
 #if __has_attribute(packed)
 #define PSYNC_PACKED_STRUCT struct __attribute__((packed))
-#elif defined(_MSC_VER)
-#define PSYNC_PACKED_STRUCT __declspec(align(1)) struct
 #else
 #define PSYNC_PACKED_STRUCT struct
 #endif
@@ -133,10 +115,8 @@
 #define PSYNC_WEAK
 #endif
 
-#if _MSC_VER >= 1500 && _MSC_VER < 1600
-#define inline __inline
-#define restrict __restrict
-#elif __GNUC__ >= 3
+/* TODO: Do we still need this? */
+#if defined(__GNUC__) && (__GNUC__ >= 3)
 #define inline __inline
 #define restrict __restrict
 #elif __STDC_VERSION__ != 199901L
@@ -144,7 +124,7 @@
 #define restrict
 #endif
 
-#if defined(__clang__) || defined(_MSC_VER)
+#if defined(__clang__)
 #define psync_alignof __alignof
 #elif defined(__GNUC__)
 #define psync_alignof __alignof__

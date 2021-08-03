@@ -39,18 +39,6 @@ if(APPLE)
   set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
 
-# When we create a shared library or DLL with the MSVC compiler, we
-# have to tell it what symbols we want exported from the library.
-# UNIX compilers default to exporting all symbols.  Windows defaults
-# to NONE.  The following config will enable UNIX-like behavior in
-# Windows and forces to export all symbols.
-#
-# For more see:
-# https://cmake.org/cmake/help/latest/prop_tgt/WINDOWS_EXPORT_ALL_SYMBOLS.html
-if(WIN32 AND MSVC AND NOT CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS)
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-
 # Generate a "compile_commands.json" file containing the exact compiler
 # calls for all translation units of the project in machine-readable form.
 # This is useful  for all sorts of tools ("clang-tidy", "cppcheck", "oclint",

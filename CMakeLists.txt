@@ -25,7 +25,6 @@ endif()
 # Common CMake scripts
 include(Bootstrap)
 include(CompilerFlags)
-include(CommonDefinitions)
 include(LanguageStandard)
 include(Utils)
 include(ConanHelper)

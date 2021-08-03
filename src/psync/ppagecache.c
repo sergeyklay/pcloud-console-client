@@ -2879,7 +2879,7 @@ static void psync_pagecache_new_upload_to_cache(uint64_t taskid, uint64_t hash, 
   fileidhex[sizeof(psync_fsfileid_t)]='d';
   fileidhex[sizeof(psync_fsfileid_t)+1]=0;
   tm=psync_timer_time();
-  filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), "/", fileidhex, NULL);
   fd=psync_file_open(filename, P_O_RDONLY, 0);
   if (fd==INVALID_HANDLE_VALUE) {
     log_error("could not open cache file %s for taskid %lu, skipping", filename, (unsigned long)taskid);
@@ -2956,9 +2956,9 @@ static void psync_pagecache_modify_to_cache(uint64_t taskid, uint64_t hash, uint
   fileidhex[sizeof(psync_fsfileid_t)+1]=0;
   tm=psync_timer_time();
   cachepath=psync_setting_get_string(_PS(fscachepath));
-  filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  filename=psync_strcat(cachepath, "/", fileidhex, NULL);
   fileidhex[sizeof(psync_fsfileid_t)]='i';
-  indexname=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  indexname=psync_strcat(cachepath, "/", fileidhex, NULL);
   fd=psync_file_open(indexname, P_O_RDONLY, 0);
   if (unlikely(fd==INVALID_HANDLE_VALUE)) {
     log_error("could not open index of cache file %s for taskid %lu, skipping", indexname, (unsigned long)taskid);
@@ -3405,7 +3405,7 @@ void psync_pagecache_init() {
   cache_dir=psync_setting_get_string(_PS(fscachepath));
   if (psync_stat(cache_dir, &st))
     psync_mkdir(cache_dir);
-  cache_file=psync_strcat(cache_dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
+  cache_file=psync_strcat(cache_dir, "/", PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
   if (psync_stat(cache_file, &st))
     psync_sql_statement("DELETE FROM pagecache");
   else{
@@ -3474,7 +3474,7 @@ void psync_pagecache_reopen_read_cache() {
   cache_dir=psync_setting_get_string(_PS(fscachepath));
   if (psync_stat(cache_dir, &st))
     psync_mkdir(cache_dir);
-  cache_file=psync_strcat(cache_dir, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
+  cache_file=psync_strcat(cache_dir, "/", PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
   readcache=psync_file_open(cache_file, P_O_RDWR, P_O_CREAT);
   psync_free(cache_file);
 }
@@ -3518,7 +3518,7 @@ int psync_pagecache_move_cache(const char *path) {
   psync_file_t newrdcache, ordcache;
   uint32_t i, cnt;
   log_info("start");
-  rdpath=psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR, PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
+  rdpath=psync_strcat(path, "/", PSYNC_DEFAULT_READ_CACHE_FILE, NULL);
   if (!psync_stat(rdpath, &st)) {
     psync_free(rdpath);
     return PERROR_CACHE_MOVE_NOT_EMPTY;

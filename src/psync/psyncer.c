@@ -321,12 +321,12 @@ int psync_str_is_prefix(const char *str1, const char *str2) {
   len1=strlen(str1);
   len2=strlen(str2);
   if (len2<len1) {
-    if (str1[len2]!='/' && str1[len2]!=PSYNC_DIRECTORY_SEPARATORC)
+    if (str1[len2]!='/')
       return 0;
     len1=len2;
   }
   else {
-    if (str2[len1]!='/' && str2[len1]!=PSYNC_DIRECTORY_SEPARATORC)
+    if (str2[len1]!='/')
       return 0;
   }
   return !psync_filename_cmpn(str1, str2, len1);

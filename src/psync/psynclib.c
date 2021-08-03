@@ -1331,7 +1331,7 @@ static void psync_del_all_except(void *ptr, psync_pstat_fast *st) {
   nmarr=(const char **)ptr;
   if (!psync_filename_cmp(st->name, nmarr[1]) || st->isfolder)
     return;
-  fp=psync_strcat(nmarr[0], PSYNC_DIRECTORY_SEPARATOR, st->name, NULL);
+  fp=psync_strcat(nmarr[0], "/", st->name, NULL);
   log_info("deleting old update file %s", fp);
   if (psync_file_delete(fp))
     log_warn("could not delete %s", fp);
@@ -1353,7 +1353,7 @@ static char *psync_filename_from_res(const binresult *res) {
   nmarr[0]=path;
   nmarr[1]=nmd;
   psync_list_dir_fast(path, psync_del_all_except, (void *)nmarr);
-  ret=psync_strcat(path, PSYNC_DIRECTORY_SEPARATOR, nmd, NULL);
+  ret=psync_strcat(path, "/", nmd, NULL);
   psync_free(nmd);
   psync_free(path);
   return ret;

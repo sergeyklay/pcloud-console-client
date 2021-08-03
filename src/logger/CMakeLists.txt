@@ -16,13 +16,15 @@ target_include_directories(
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
-  target_include_directories(logger PRIVATE ${PTHREADS_INCLUDE_DIR})
-endif()
+target_link_libraries(logger PRIVATE Threads::Threads)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(logger PRIVATE ${PTHREADS_LIBRARY})
-endif()
+# The additional / is important to remove the last character from the path.
+# Note that it does not matter if the OS uses / or \, because we are only
+# saving the path size.
+string(LENGTH "${PROJECT_SOURCE_DIR}/" PCLOUD_SOURCE_PATH_SIZE)
+target_compile_definitions(logger
+  PRIVATE "-DPCLOUD_SOURCE_PATH_SIZE=${PCLOUD_SOURCE_PATH_SIZE}"
+          "-DPCLOUD_SOURCE_PATH=\"${PROJECT_SOURCE_DIR}\"")
 
 set(log_levels 0 1 2 3 4 5)
 set(PCLOUD_MAINTAINER_LOGS_LEVEL "1" CACHE STRING "Maintainer logs level")

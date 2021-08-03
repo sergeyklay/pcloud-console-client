@@ -77,9 +77,6 @@ typedef off_t fuse_off_t;
 #if defined(P_OS_LINUX)
 #define PSYNC_FS_ERR_CRYPTO_EXPIRED EROFS
 #define PSYNC_FS_ERR_MOVE_ACROSS_CRYPTO EXDEV
-#elif defined(P_OS_WINDOWS)
-#define PSYNC_FS_ERR_CRYPTO_EXPIRED EACCES
-#define PSYNC_FS_ERR_MOVE_ACROSS_CRYPTO EACCES
 #else
 #define PSYNC_FS_ERR_CRYPTO_EXPIRED EIO
 #define PSYNC_FS_ERR_MOVE_ACROSS_CRYPTO EXDEV
@@ -116,11 +113,11 @@ static void delete_log_files(psync_openfile_t *of) {
   psync_binhex(fileidhex, &fileid, sizeof(psync_fsfileid_t));
   fileidhex[sizeof(psync_fsfileid_t)]='l';
   fileidhex[sizeof(psync_fsfileid_t)+1]=0;
-  filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  filename=psync_strcat(cachepath, "/", fileidhex, NULL);
   psync_file_delete(filename);
   psync_free(filename);
   fileidhex[sizeof(psync_fsfileid_t)]='f';
-  filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  filename=psync_strcat(cachepath, "/", fileidhex, NULL);
   psync_file_delete(filename);
   psync_free(filename);
 }
@@ -580,7 +577,7 @@ static int psync_creat_local_to_file_stat(psync_fstask_creat_t *cr, struct FUSE_
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
     cachepath=psync_setting_get_string(_PS(fscachepath));
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     stret=psync_stat(filename, &st);
     if (stret)
       log_info("could not stat file %s", filename);
@@ -592,7 +589,7 @@ static int psync_creat_local_to_file_stat(psync_fstask_creat_t *cr, struct FUSE_
     osize=0;
   else{
     fileidhex[sizeof(psync_fsfileid_t)]='i';
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     fd=psync_file_open(filename, P_O_RDONLY, 0);
     psync_free(filename);
     if (fd==INVALID_HANDLE_VALUE)
@@ -1059,7 +1056,7 @@ static int open_write_files(psync_openfile_t *of, int trunc) {
   fileidhex[sizeof(psync_fsfileid_t)+1]=0;
   cachepath=psync_setting_get_string(_PS(fscachepath));
   if (of->datafile==INVALID_HANDLE_VALUE) {
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     of->datafile=psync_file_open(filename, P_O_RDWR, P_O_CREAT|(trunc?P_O_TRUNC:0));
     psync_free(filename);
     if (of->datafile==INVALID_HANDLE_VALUE) {
@@ -1083,7 +1080,7 @@ static int open_write_files(psync_openfile_t *of, int trunc) {
   }
   if (!of->newfile && of->indexfile==INVALID_HANDLE_VALUE) {
     fileidhex[sizeof(psync_fsfileid_t)]='i';
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     of->indexfile=psync_file_open(filename, P_O_RDWR, P_O_CREAT|(trunc?P_O_TRUNC:0));
     psync_free(filename);
     if (of->indexfile==INVALID_HANDLE_VALUE) {
@@ -1098,7 +1095,7 @@ static int open_write_files(psync_openfile_t *of, int trunc) {
   if (of->encrypted) {
     if (of->logfile==INVALID_HANDLE_VALUE) {
       fileidhex[sizeof(psync_fsfileid_t)]='l';
-      filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+      filename=psync_strcat(cachepath, "/", fileidhex, NULL);
       of->logfile=psync_file_open(filename, P_O_RDWR, P_O_CREAT|P_O_TRUNC);
       psync_free(filename);
       if (of->logfile==INVALID_HANDLE_VALUE) {
@@ -2772,7 +2769,7 @@ static int psync_fs_set_filetime_locked(psync_fsfileid_t fileid, const struct ti
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
     cachepath=psync_setting_get_string(_PS(fscachepath));
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     if (fl && fl->datafile!=INVALID_HANDLE_VALUE) {
       log_info("found open file for file id %ld", (long)fl->fileid);
       if (crtime)
@@ -3052,7 +3049,7 @@ void psync_fs_refresh_folder(psync_folderid_t folderid) {
   char rndhex[42];
   psync_file_t fd;
 
-  path = psync_get_path_by_folderid_sep(folderid, PSYNC_DIRECTORY_SEPARATOR, NULL);
+  path = psync_get_path_by_folderid_sep(folderid, "/", NULL);
   if (path==PSYNC_INVALID_PATH)
     return;
   psync_ssl_rand_weak(rndbuff, sizeof(rndbuff));
@@ -3084,43 +3081,6 @@ void psync_fs_refresh_folder(psync_folderid_t folderid) {
   psync_free(fpath);
 }
 
-#if defined(P_OS_WINDOWS)
-
-static int is_mountable(char where) {
-    DWORD drives = GetLogicalDrives();
-    where = tolower(where) - 'a';
-    return !(drives & (1<<where));
-}
-
-static int get_first_free_drive() {
-    DWORD drives = GetLogicalDrives();
-    int pos = 3;
-    while (pos < 26 && (drives & (1<<pos)))
-        pos++;
-    return pos < 26 ? pos : 0;
-}
-
-static char *psync_fuse_get_mountpoint() {
-  const char *stored;
-  char *mp = (char*)psync_malloc(3);
-  mp[0] = 'P';
-  mp[1] = ':';
-  mp[2] = '\0';
-  stored = psync_setting_get_string(_PS(fsroot));
-  if (stored[0] && stored[1] && is_mountable(stored[0])) {
-      mp[0] = stored[0];
-      goto ready;
-  }
-  if (is_mountable('P')) {
-      goto ready;
-  }
-  mp[0] = 'A' + get_first_free_drive();
-ready:
-  return mp;
-}
-
-#else
-
 static char *psync_fuse_get_mountpoint() {
   psync_stat_t st;
   char *mp;
@@ -3131,8 +3091,6 @@ static char *psync_fuse_get_mountpoint() {
   }
   return mp;
 }
-
-#endif
 
 char *psync_fs_getmountpoint() {
   char *ret;
@@ -3159,7 +3117,7 @@ char *psync_fs_get_path_by_folderid(psync_folderid_t folderid) {
   pthread_mutex_unlock(&start_mutex);
   if (!mp || folderid==0)
     return mp;
-  path=psync_get_path_by_folderid_sep(folderid, PSYNC_DIRECTORY_SEPARATOR, NULL);
+  path=psync_get_path_by_folderid_sep(folderid, "/", NULL);
   if (path==PSYNC_INVALID_PATH) {
     psync_free(mp);
     return NULL;

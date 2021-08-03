@@ -1021,9 +1021,9 @@ static void large_upload() {
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
     cname=psync_setting_get_string(_PS(fscachepath));
-    filename=psync_strcat(cname, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cname, "/", fileidhex, NULL);
     fileidhex[sizeof(psync_fsfileid_t)]='i';
-    indexname=psync_strcat(cname, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    indexname=psync_strcat(cname, "/", fileidhex, NULL);
     res=psync_sql_query_rdlock("SELECT uploadid FROM fstaskupload WHERE fstaskid=? ORDER BY uploadid DESC LIMIT 1");
     psync_sql_bind_uint(res, 1, taskid);
     if ((urow=psync_sql_fetch_rowint(res)))
@@ -1105,7 +1105,7 @@ int psync_fsupload_in_current_small_uploads_batch_locked(uint64_t taskid) {
       psync_binhex(fileidhex, &task->id, sizeof(psync_fsfileid_t));
       fileidhex[sizeof(psync_fsfileid_t)]='d';
       fileidhex[sizeof(psync_fsfileid_t)+1]=0;
-      filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+      filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), "/", fileidhex, NULL);
       stret=psync_stat(filename, &st);
       if (stret)
         log_warn("can not stat %s", filename);
@@ -1131,7 +1131,7 @@ static int psync_send_task_creat(psync_socket *api, fsupload_task_t *task) {
     psync_binhex(fileidhex, &task->id, sizeof(psync_fsfileid_t));
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
-    filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(psync_setting_get_string(_PS(fscachepath)), "/", fileidhex, NULL);
     fd=psync_file_open(filename, P_O_RDONLY, 0);
     psync_free(filename);
     if (unlikely_log(fd==INVALID_HANDLE_VALUE) || unlikely_log(psync_fstat(fd, &st))) {
@@ -1450,12 +1450,12 @@ static void psync_delete_write_cache_file(uint64_t taskid, int index) {
   fileidhex[sizeof(psync_fsfileid_t)]='d';
   fileidhex[sizeof(psync_fsfileid_t)+1]=0;
   cachepath=psync_setting_get_string(_PS(fscachepath));
-  filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+  filename=psync_strcat(cachepath, "/", fileidhex, NULL);
   assertw(psync_file_delete(filename)==0);
   psync_free(filename);
   if (index) {
     fileidhex[sizeof(psync_fsfileid_t)]='i';
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     assertw(psync_file_delete(filename)==0);
     psync_free(filename);
   }
@@ -1774,11 +1774,11 @@ static void clean_stuck_tasks() {
     psync_binhex(fileidhex, &taskid, sizeof(psync_fsfileid_t));
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     psync_file_delete(filename);
     psync_free(filename);
     fileidhex[sizeof(psync_fsfileid_t)]='i';
-    filename=psync_strcat(cachepath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(cachepath, "/", fileidhex, NULL);
     psync_file_delete(filename);
     psync_free(filename);
     psync_sql_start_transaction();

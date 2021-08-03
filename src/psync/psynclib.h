@@ -804,9 +804,7 @@ psync_share_list_t *psync_list_shares(int incoming);
  * error message if it is not NULL. This string should be freed if the return value is not 0 and err is not NULL.
  *
  * It is NOT guaranteed that upon successful return psync_list_sharerequests(0) will return the newly created
- * share request. Windows showing list of sharerequests/shares are supposed to requery shares/request upon receiving of
- * PEVENT_SHARE_* event. That is true for all share management functions.
- *
+ * share request.
  */
 
 int psync_share_folder(psync_folderid_t folderid, const char *name, const char *mail, const char *message, uint32_t permissions, char **err);
@@ -1117,9 +1115,7 @@ pcontacts_list_t *psync_list_myteams();
  * error message if it is not NULL. This string should be freed if the return value is not 0 and err is not NULL.
  *
  * It is NOT guaranteed that upon successful return psync_list_sharerequests(0) will return the newly created
- * share request. Windows showing list of sharerequests/shares are supposed to requery shares/request upon receiving of
- * PEVENT_SHARE_* event. That is true for all share management functions.
- *
+ * share request.
  */
 
 int psync_account_teamshare(psync_folderid_t folderid, const char *name, psync_teamid_t teamid, const char *message, uint32_t permissions, char **err);

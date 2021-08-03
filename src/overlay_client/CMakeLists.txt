@@ -9,10 +9,7 @@
 add_library(overlay_client STATIC overlay_client.c)
 add_library(pcloud::overlay_client ALIAS overlay_client)
 
-if (WIN32)
-  # TODO: Do we provide overlay_client support for Windows?
-  target_compile_definitions(overlay_client PRIVATE P_OS_WINDOWS)
-elseif(APPLE)
+if(APPLE)
   target_compile_definitions(overlay_client PRIVATE P_OS_MACOSX)
 elseif(UNIX)
   target_compile_definitions(overlay_client PRIVATE P_OS_LINUX)

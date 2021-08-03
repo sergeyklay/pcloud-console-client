@@ -115,7 +115,7 @@ static void dir_scan(void *ptr, psync_pstat_fast *st){
     psync_list_init(&nf->subfolders);
     path=(char *)(nf+1);
     memcpy(path, f->path, o);
-    path[o++]=PSYNC_DIRECTORY_SEPARATORC;
+    path[o++]='/';
     memcpy(path+o, st->name, l);
     o+=l;
     path[o]=0;
@@ -237,7 +237,7 @@ psuggested_folders_t *psync_scanner_scan_folder(const char *path){
     ret->entries[i].localpath=str;
     memcpy(str, sf[i]->folder->path, sf[i]->folder->pathlen+1);
     str+=sf[i]->folder->pathlen+1;
-    ret->entries[i].name=strrchr(ret->entries[i].localpath, PSYNC_DIRECTORY_SEPARATORC);
+    ret->entries[i].name=strrchr(ret->entries[i].localpath, '/');
     if (ret->entries[i].name)
       ret->entries[i].name++;
     else{

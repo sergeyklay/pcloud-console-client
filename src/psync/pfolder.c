@@ -478,7 +478,7 @@ char *psync_local_path_for_local_folder(psync_folderid_t localfolderid, psync_sy
     psync_free_string_list(&folderlist);
     return PSYNC_INVALID_PATH;
   }
-  ret=psync_join_string_list(PSYNC_DIRECTORY_SEPARATOR, &folderlist, retlen);
+  ret=psync_join_string_list("/", &folderlist, retlen);
   psync_free_string_list(&folderlist);
   return ret;
 }
@@ -516,7 +516,7 @@ char *psync_local_path_for_local_file(psync_fileid_t localfileid, size_t *retlen
     psync_free_string_list(&folderlist);
     return PSYNC_INVALID_PATH;
   }
-  ret=psync_join_string_list(PSYNC_DIRECTORY_SEPARATOR, &folderlist, retlen);
+  ret=psync_join_string_list("/", &folderlist, retlen);
   psync_free_string_list(&folderlist);
   return ret;
 }
@@ -579,7 +579,7 @@ char *psync_local_path_for_remote_folder(psync_folderid_t folderid, psync_syncid
     psync_free_string_list(&folderlist);
     return PSYNC_INVALID_PATH;
   }
-  ret=psync_join_string_list(PSYNC_DIRECTORY_SEPARATOR, &folderlist, retlen);
+  ret=psync_join_string_list("/", &folderlist, retlen);
   psync_free_string_list(&folderlist);
   return ret;
 }
@@ -617,7 +617,7 @@ char *psync_local_path_for_remote_file(psync_fileid_t fileid, psync_syncid_t syn
     return PSYNC_INVALID_PATH;
   }
   psync_sql_unlock();
-  ret=psync_join_string_list(PSYNC_DIRECTORY_SEPARATOR, &folderlist, retlen);
+  ret=psync_join_string_list("/", &folderlist, retlen);
   psync_free_string_list(&folderlist);
   return ret;
 }
@@ -641,7 +641,7 @@ char *psync_local_path_for_remote_file_or_folder_by_name(psync_folderid_t parent
     return PSYNC_INVALID_PATH;
   }
   psync_sql_unlock();
-  ret=psync_join_string_list(PSYNC_DIRECTORY_SEPARATOR, &folderlist, retlen);
+  ret=psync_join_string_list("/", &folderlist, retlen);
   psync_free_string_list(&folderlist);
   return ret;
 }*/
@@ -919,9 +919,9 @@ psync_folder_list_t *psync_list_get_list() {
     ret->folders[i].localpath = str;
     l--;
 
-    while (l && str[l] != PSYNC_DIRECTORY_SEPARATORC && str[l] != '/') l--;
+    while (l && str[l] != '/' && str[l] != '/') l--;
 
-    if ((str[l] == PSYNC_DIRECTORY_SEPARATORC || str[l] == '/') && str[l + 1])
+    if ((str[l] == '/' || str[l] == '/') && str[l + 1])
       l++;
 
     ret->folders[i].localname = str + l;

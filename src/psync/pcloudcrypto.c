@@ -27,8 +27,8 @@
 
 #define PSYNC_CRYPTO_API_ERR_INTERNAL -511
 
-static PSYNC_THREAD int crypto_api_errno;
-static PSYNC_THREAD char crypto_api_err[128];
+static __thread int crypto_api_errno;
+static __thread char crypto_api_err[128];
 
 
 static const char *crypto_errors[]={

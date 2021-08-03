@@ -11,14 +11,32 @@ releases, in reverse chronological order.
 * Removed `psync_file_rename` function.
 * Removed `requirements.txt` file from the project. It was only needed to
   install conan at CI phase.
+* Drop Windows support. In fact, this project never built natively on Windows.
+  All users could do is to build it using Cygwin or Msys. However, this project
+  depends on some components (for ex. FUSE, POSIX threads and UNIX sockets) that
+  either don't work under Windows, or have poor support, or require significant
+  support costs. Given the fact that this console project is intended for
+  UNIX/Linux users, Windows support becomes an unaffordable luxury. Anyway, in the
+  WSL/Docker era, things get a little easier, even for Windows users.
+* Removed no longer used `PSYNC_THREAD` macro in favor of `__thread`.
+* Removed no longer used `PSYNC_DEFAULT_WINDOWS_DBNAME` macro.
+* Removed no longer used  `PSYNC_DEFAULT_WINDOWS_DIR` macro.
+* Removed no longer used `psync_32to64` macro.
+* Removed no longer used `psync_bool_to_zero` macro.
+* Removed no longer used `P_PRI_D64` macro.
+* Removed no longer used `psync_stat_ctime` macro.
+* Removed no longer used `psync_inode_supported` macro.
+* Removed no longer used `psync_sock_err_t` typedef.
+* Removed no longer used `PSYNC_DIRECTORY_SEPARATOR` macro.
+* Removed no longer used `PSYNC_DIRECTORY_SEPARATORC` macro.
+* Removed no longer used `P_SEEK_CUR` macro.
+* Removed no longer used `P_SEEK_END` macro.
 
 ### Features
 
 * Added `-dumpversion` program option alias for `--dumpversion`.
 * Amended tests.
 * Provided launchd integration for macOS.
-* Provided ability to specify fuse implementation (Dokan) on Windows.
-* Provided ability to specify POSIX threads implementation on Windows.
   
 ### Changes
 

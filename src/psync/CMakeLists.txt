@@ -68,7 +68,8 @@ set(psync_sources
     pfscrypto.c
     pcrc32c.c
     pfsstatic.c
-    plocks.c)
+    plocks.c
+    psockets.c)
 
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   list(APPEND psync_sources pssl-openssl.c)
@@ -78,18 +79,12 @@ else()
   list(APPEND psync_sources pssl-mbedtls.c)
 endif()
 
-if(NOT WIN32)
-  list(APPEND psync_sources psockets.c)
-endif()
-
 # Add definition for psync library
 add_library(psync SHARED ${psync_sources})
 add_library(pcloud::psync ALIAS psync)
 unset(psync_sources)
 
-if (WIN32)
-  target_compile_definitions(psync PRIVATE P_OS_WINDOWS)
-elseif(APPLE)
+if(APPLE)
   target_compile_definitions(psync PRIVATE P_OS_MACOSX)
 elseif(UNIX)
   target_compile_definitions(psync PRIVATE P_OS_LINUX)
@@ -107,10 +102,6 @@ target_include_directories(psync
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
-  target_include_directories(psync PRIVATE ${PTHREADS_INCLUDE_DIR})
-endif()
-
 if(PCLOUD_TLS_IMPL STREQUAL "openssl")
   target_link_libraries(psync PUBLIC CONAN_PKG::openssl)
   target_compile_definitions(psync PUBLIC P_SSL_OPENSSL)
@@ -125,25 +116,22 @@ target_link_libraries(psync
     PRIVATE pcloud::logger
             CONAN_PKG::zlib
             CONAN_PKG::sqlite3
+            Threads::Threads
             ${FUSE_LIBRARY})
-
-if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(psync PRIVATE ${PTHREADS_LIBRARY})
-endif()
 
 if(APPLE)
   target_link_libraries(psync PRIVATE "-framework Cocoa")
-elseif(NOT WIN32)
-  # It seems device monitor is in experimental phase
-  # so disable it for now:
-  #
-  #  find_package(PkgConfig REQUIRED)
-  #  pkg_check_modules(UDEV REQUIRED libudev)
-  #  target_link_libraries(psync ${UDEV_LIBRARIES})
-  #
-  # Not:e After enable do not forget install 'libudev-dev' on Linux.
-  # Also amend documentation and CI workflow file.
 endif()
+
+# It seems device monitor is in experimental phase
+# so disable it for now:
+#
+#  find_package(PkgConfig REQUIRED)
+#  pkg_check_modules(UDEV REQUIRED libudev)
+#  target_link_libraries(psync ${UDEV_LIBRARIES})
+#
+# Not:e After enable do not forget install 'libudev-dev' on Linux.
+# Also amend documentation and CI workflow file.
 
 # Library version info
 set(PSYNC_VERSION_MAJOR 2)
@@ -166,8 +154,6 @@ set_target_properties(psync PROPERTIES
     VERSION   ${PSYNC_VERSION_STRING}
     SOVERSION ${PSYNC_VERSION_MAJOR})
 
-# CMake treats shared libraries as runtime objects on "DLL platforms"
-# like Windows. Thus RUNTIME DESTINATION is required here.
 install(TARGETS psync
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}

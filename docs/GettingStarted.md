@@ -9,11 +9,8 @@ local machine for development and testing purposes.
 
 To build pCloud Console Client you'll need the following requirements:
 - [Pthread](https://www.gnu.org/software/pth/): The GNU Portable Threads
-  ([POSIX Threads for Win32](https://www.sourceware.org/pthreads-win32)
-  on Windows)
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
-  Userspace on Linux/UNIX ([Dokany](https://github.com/dokan-dev/dokany)
-  on Windows or [macFUSE](https://osxfuse.github.io) on macOS)
+  Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
 
 #### Build tools
@@ -22,9 +19,8 @@ To build pCloud Console Client you'll need the following build tools:
 - A C99/C++14 compatible compiler such as
   [GCC](https://gcc.gnu.org),
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
-  [Clang](https://clang.llvm.org),
-  [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835) or
-  [Microsoft Visual Studio](https://visualstudio.microsoft.com)
+  [Clang](https://clang.llvm.org) or
+  [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
 - [CMake](https://cmake.org/) >= 3.12
 - Any build tool supported by CMake like
   [GNU Make](https://www.gnu.org/software/make/),
@@ -76,25 +72,7 @@ $ brew install \
     macfuse
 ```
 
-#### Windows
-
-On Windows, you'll need to download and install Visual Studio as well as
-Build Tools for Visual Studio from the
-[official home page](https://visualstudio.microsoft.com/downloads). During the
-installer dialog select MSVC, CMake, Developer Tools and Classic C/C++ support.
-
-The following dependencies can be installed using
-[Chocolatey](https://chocolatey.org):
-```powershell
-PS C:\> choco install conan
-```
-
-Finally, install [Dokany](https://github.com/dokan-dev/dokany) and
-[POSIX Threads for Win32](https://www.sourceware.org/pthreads-win32).
-
 ### Build steps
-
-#### Linux/macOS
 
 First you'll need clone the project:
 ```sh
@@ -146,7 +124,6 @@ recognized during the project configuration phase:
 | `PCLOUD_WITH_TESTS`                   | `ON`, `OFF`                                                         | Enable testing support (see bellow).                              |
 | `CMAKE_BUILD_TYPE`                    | `Release`, `Debug`, `RelWithDebInfo`, `MinSizeRel`, `Asan`, `Ubsan` | CMake build mode (see bellow).                                    |
 | `CMAKE_INSTALL_PREFIX`                | A path like `~/.local`, or `/opt`                                   | This directory is prepended onto all install directories.         |
-| `DOKAN_PATH`                          | A path like `C:\\Program Files\\Dokan\\DokanLibrary-1.5.0`          | Location of the Dokan library (Windows only).                     |
 
 ##### Switching build modes in CMake
 

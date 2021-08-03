@@ -169,7 +169,7 @@ void psync_status_recalc_to_upload() {
     psync_binhex(fileidhex, &row[0], sizeof(psync_fsfileid_t));
     fileidhex[sizeof(psync_fsfileid_t)]='d';
     fileidhex[sizeof(psync_fsfileid_t)+1]=0;
-    filename=psync_strcat(fscpath, PSYNC_DIRECTORY_SEPARATOR, fileidhex, NULL);
+    filename=psync_strcat(fscpath, "/", fileidhex, NULL);
     if (!psync_stat(filename, &st)) {
       filestou++;
       bytestou+=psync_stat_size(&st);

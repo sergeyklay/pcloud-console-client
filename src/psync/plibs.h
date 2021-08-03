@@ -177,7 +177,7 @@ extern pstatus_t psync_status;
 extern char psync_my_auth[64], *psync_my_user, *psync_my_pass;
 extern uint64_t psync_my_userid;
 extern pthread_mutex_t psync_my_auth_mutex;
-extern PSYNC_THREAD uint32_t psync_error;
+extern __thread uint32_t psync_error;
 extern uint16_t const *__hex_lookup;
 extern const char base64_table[];
 

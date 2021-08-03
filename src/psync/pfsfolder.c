@@ -20,7 +20,7 @@
 #include "pfs.h"
 #include "logger.h"
 
-static PSYNC_THREAD int cryptoerr=0;
+static __thread int cryptoerr=0;
 
 static char *get_encname_for_folder(psync_fsfolderid_t folderid, const char *path, size_t len) {
   char *name, *encname;

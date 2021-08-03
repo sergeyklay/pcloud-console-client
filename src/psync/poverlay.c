@@ -19,14 +19,8 @@
 int overlays_running = 1;
 int callbacks_running = 1;
 
-#ifdef P_OS_WINDOWS
-#include "poverlay-windows.c"
-#elif defined P_OS_POSIX
+/* TODO: Add poverlay-posix.c file contents here and remove this file */
 #include "poverlay-posix.c"
-#else
-void overlay_main_loop(void) {}
-void instance_thread(void* payload) {}
-#endif /* P_OS_WINDOWS */
 
 poverlay_callback *callbacks;
 static int callbacks_size = 15;

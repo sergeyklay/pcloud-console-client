@@ -16,10 +16,6 @@ target_include_directories(
   PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/psync
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/overlay_client)
 
-if (PTHREADS_FOUND AND NOT "${PTHREADS_INCLUDE_DIR}" STREQUAL "")
-  target_include_directories(cli PRIVATE ${PTHREADS_INCLUDE_DIR})
-endif()
-
 target_link_libraries(
   cli
   PUBLIC  CONAN_PKG::cli11
@@ -27,8 +23,4 @@ target_link_libraries(
           pcloud::psync
           pcloud::overlay_client
           CONAN_PKG::sqlite3
-          ${PTHREADS_LIBRARY})
-
-if (PTHREADS_FOUND AND NOT "${PTHREADS_LIBRARY}" STREQUAL "")
-  target_link_libraries(cli PRIVATE ${PTHREADS_LIBRARY})
-endif()
+          Threads::Threads)

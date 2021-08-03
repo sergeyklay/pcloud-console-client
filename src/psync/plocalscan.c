@@ -346,7 +346,7 @@ static void scanner_scan_folder(const char *localpath, psync_folderid_t folderid
   }
   psync_list_for_each_element(l, &disklist, sync_folderlist, list)
     if (l->isfolder && l->localid){
-      subpath=psync_strcat(localpath, PSYNC_DIRECTORY_SEPARATOR, l->name, NULL);
+      subpath=psync_strcat(localpath, "/", l->name, NULL);
       scanner_scan_folder(subpath, l->remoteid, l->localid, syncid, synctype, l->deviceid);
       psync_free(subpath);
     }

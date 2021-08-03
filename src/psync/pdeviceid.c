@@ -14,72 +14,22 @@
 #include "plibs.h"
 #include "logger.h"
 
-#ifdef P_OS_WINDOWS
-#include <winbase.h>
-#include <winuser.h>
-#include <windows.h>
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <sys/utsname.h>
 #include <sys/sysctl.h>
-#elif defined(P_OS_POSIX)
+#else
 #include <dirent.h>
-#endif  /* P_OS_WINDOWS */
+#endif  /* P_OS_MACOSX */
 
 static const char *psync_software_name = PSYNC_VERSION_FULL;
 static const char *psync_os_name = NULL;
 
 static char *psync_detect_os_name() {
   char *device;
-#ifdef P_OS_WINDOWS
-  SYSTEM_POWER_STATUS bat;
-  const char *hardware, *ver;
-  char versbuff[32];
-  DWORD vers, vmajor, vminor;
-  if (GetSystemMetrics(SM_TABLETPC))
-    hardware = "Tablet";
-  else if (GetSystemPowerStatus(&bat) || (bat.BatteryFlag & 128))
-    hardware = "Desktop";
-  else
-    hardware = "Laptop";
-  vers = GetVersion();
-  vmajor = (DWORD)(LOBYTE(LOWORD(vers)));
-  vminor = (DWORD)(HIBYTE(LOWORD(vers)));
-  if (vmajor == 6) {
-    switch (vminor) {
-      case 3: ver = "8.1"; break;
-      case 2: ver = "8.0"; break;
-      case 1: ver = "7.0"; break;
-      case 0: ver = "Vista"; break;
-      default:
-        psync_slprintf(versbuff, sizeof(versbuff), "6.%u", (unsigned int)vminor);
-        ver = versbuff;
-    }
-  } else if (vmajor == 5) {
-    switch (vminor) {
-      case 2: ver = "XP 64bit"; break;
-      case 1: ver = "XP"; break;
-      case 0: ver = "2000"; break;
-      default:
-        psync_slprintf(versbuff, sizeof(versbuff), "5.%u", (unsigned int)vminor);
-        ver = versbuff;
-    }
-  } else if (vmajor == 10) {
-    switch (vminor) {
-      case 0: ver = "10.0"; break;
-      default:
-        psync_slprintf(versbuff, sizeof(versbuff), "10.%u", (unsigned int)vminor);
-        ver = versbuff;
-    }
-  } else {
-    psync_slprintf(versbuff, sizeof(versbuff), "%u.%u", (unsigned int)vmajor, (unsigned int)vminor);
-    ver = versbuff;
-  }
-
-  device = psync_strcat(hardware, ", Windows ", ver, NULL);
-#elif defined(P_OS_MACOSX)
+#ifdef P_OS_MACOSX
   struct utsname un;
   const char *ver;
   char *endptr;

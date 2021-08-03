@@ -29,7 +29,7 @@
 #include "pssl-openssl.h"
 #endif
 
-extern PSYNC_THREAD int psync_ssl_errno;
+extern __thread int psync_ssl_errno;
 
 #define PSYNC_SSL_ERR_WANT_READ  1
 #define PSYNC_SSL_ERR_WANT_WRITE 2
