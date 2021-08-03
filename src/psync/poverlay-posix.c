@@ -8,7 +8,10 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #include "pcloudcc/psync/compat.h"
+#include "pcloudcc/psync/stringcompat.h"
 #include "pcloudcc/psync/overlay.h"
 
 #if defined P_OS_POSIX
@@ -16,8 +19,6 @@
 
 #ifdef P_OS_LINUX
 #include <sys/un.h>
-#include "config.h"
-#include "pcloudcc/psync/stringcompat.h"  /* strlcpy */
 #else
 #include <stdlib.h>
 #include <netinet/in.h>

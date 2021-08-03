@@ -7,10 +7,10 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #include <stddef.h>
 #include <string.h>
-
-#include "config.h"
 
 #include "pcloudcc/psync/stringcompat.h"
 
