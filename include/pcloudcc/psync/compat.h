@@ -14,8 +14,8 @@
 
 #include <pcloudcc/psync/compiler.h>
 
-#if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && \
-    !defined(P_OS_BSD) && !defined(P_OS_POSIX)
+#if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_BSD) && \
+    !defined(P_OS_POSIX)
 #if defined(__ANDROID__)
 #define P_OS_LINUX
 #define P_OS_POSIX
@@ -44,8 +44,6 @@
 #define P_OS_BSD
 #elif defined(__unix__)
 #define P_OS_POSIX
-#elif defined(_WIN32) || defined(WIN32) || defined(Q_OS_WIN)
-#define P_OS_WINDOWS
 #endif
 #endif
 
@@ -54,21 +52,12 @@
 #define P_OS_POSIX
 #endif
 
-#if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_WINDOWS) && \
-    !defined(P_OS_POSIX)
+#if !defined(P_OS_LINUX) && !defined(P_OS_MACOSX) && !defined(P_OS_POSIX)
 #warning "You OS may not be supported, trying to build POSIX compatible source"
 #define P_OS_POSIX
 #endif
 
-#if defined(P_OS_WINDOWS)
-
-#define P_OS_ID 5
-
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-#endif
-
-#elif defined(P_OS_MACOSX)
+#if defined(P_OS_MACOSX)
 
 #define P_OS_ID 6
 
@@ -223,117 +212,6 @@ typedef int psync_file_t;
 #define psync_read_socket read
 #define psync_write_socket write
 
-#elif defined(P_OS_WINDOWS)
-
-#include <BaseTsd.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-
-#define P_PRI_U64 "I64u"
-#define P_PRI_D64 "I64d"
-
-#if defined(__GNUC__)
-
-#define psync_def_var_arr(name, type, size) type name[size]
-
-#else
-
-#include <malloc.h>
-
-#define psync_def_var_arr(name, type, size) \
-  type *name = (type *)alloca(sizeof(type) * (size))
-#define atoll _atoi64
-#if _MSC_VER < 1900
-#define snprintf _snprintf
-#endif
-//#define snprintf _snprintf
-
-#endif
-
-#if !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED)
-typedef SSIZE_T ssize_t;
-#endif
-
-#define psync_filetime_to_timet(ft)                                   \
-  ((time_t)(psync_32to64((ft)->dwHighDateTime, (ft)->dwLowDateTime) / \
-                10000000ULL -                                         \
-            11644473600ULL))
-#define psync_filetime64_to_timet(ft) \
-  ((time_t)((ft) / 10000000ULL - 11644473600ULL))
-
-typedef BY_HANDLE_FILE_INFORMATION psync_stat_t;
-
-int psync_stat(const char *path, psync_stat_t *st);
-#define psync_fstat(fd, st) \
-  psync_bool_to_zero(GetFileInformationByHandle(fd, st))
-#define psync_stat_isfolder(s)                           \
-  (((s)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == \
-   FILE_ATTRIBUTE_DIRECTORY)
-#define psync_stat_size(s) psync_32to64((s)->nFileSizeHigh, (s)->nFileSizeLow)
-#define psync_stat_ctime(s) psync_filetime_to_timet(&(s)->ftCreationTime)
-#define psync_stat_mtime(s) psync_filetime_to_timet(&(s)->ftLastWriteTime)
-#define psync_stat_birthtime(s) psync_filetime_to_timet(&(s)->ftCreationTime)
-#define PSYNC_HAS_BIRTHTIME
-#define psync_stat_mtime_native(s)                  \
-  psync_32to64((s)->ftLastWriteTime.dwHighDateTime, \
-               (s)->ftLastWriteTime.dwLowDateTime)
-#define psync_mtime_native_to_mtime(n) psync_filetime64_to_timet(n)
-#define psync_stat_inode(s) \
-  psync_32to64((s)->nFileIndexHigh, (s)->nFileIndexLow)
-#define psync_stat_device(s) ((s)->dwVolumeSerialNumber)
-
-#define psync_sock_err() WSAGetLastError()
-#define psync_sock_set_err(e) WSASetLastError(e)
-
-#define psync_fs_err() GetLastError()
-
-typedef int psync_sock_err_t;
-typedef DWORD psync_fs_err_t;
-
-#define psync_inode_supported(path) 1
-
-#define PSYNC_DIRECTORY_SEPARATOR "\\"
-#define PSYNC_DIRECTORY_SEPARATORC '\\'
-
-#define P_WOULDBLOCK WSAEWOULDBLOCK
-#define P_AGAIN WSAEWOULDBLOCK
-#define P_INPROGRESS WSAEWOULDBLOCK
-#define P_TIMEDOUT WSAETIMEDOUT
-#define P_INVAL WSAEINVAL
-#define P_CONNRESET WSAECONNRESET
-#define P_INTR WSAEINTR
-
-#define P_NOENT ERROR_FILE_NOT_FOUND
-#define P_EXIST ERROR_ALREADY_EXISTS
-#define P_NOSPC ERROR_HANDLE_DISK_FULL
-#define P_DQUOT ERROR_HANDLE_DISK_FULL  // is there such error?
-#define P_NOTEMPTY ERROR_DIR_NOT_EMPTY
-#define P_NOTDIR ERROR_FILE_INVALID
-#define P_BUSY ERROR_PATH_BUSY
-#define P_ROFS -1
-
-#define P_O_RDONLY GENERIC_READ
-#define P_O_WRONLY GENERIC_WRITE
-#define P_O_RDWR (GENERIC_READ | GENERIC_WRITE)
-#define P_O_CREAT 1
-#define P_O_TRUNC 2
-#define P_O_EXCL 4
-
-#define P_SEEK_SET FILE_BEGIN
-#define P_SEEK_CUR FILE_CURRENT
-#define P_SEEK_END FILE_END
-
-typedef SOCKET psync_socket_t;
-typedef HANDLE psync_file_t;
-
-#define PSYNC_FILENAMES_CASESENSITIVE 0
-#define psync_filename_cmp _stricmp
-#define psync_filename_cmpn _memicmp
-
-#define psync_close_socket closesocket
-#define psync_read_socket(s, b, c) recv(s, (char *)(b), c, 0)
-#define psync_write_socket(s, b, c) send(s, (const char *)(b), c, 0)
-
 #else
 #error "Need to define types for your operating system"
 #endif
@@ -397,11 +275,7 @@ typedef struct {
 
 #if !defined(__socklen_t_defined) && !defined(HAVE_SOCKET_LEN_T) && \
     !defined(socklen_t)
-#if defined(P_OS_WINDOWS)
-typedef int socklen_t;
-#else
 typedef unsigned int socklen_t;
-#endif
 #define __socklen_t_defined
 #define HAVE_SOCKET_LEN_T
 #endif
@@ -511,10 +385,6 @@ ssize_t psync_file_pwrite(psync_file_t fd, const void *buf, size_t count,
 int64_t psync_file_seek(psync_file_t fd, uint64_t offset, int whence);
 int psync_file_truncate(psync_file_t fd);
 int64_t psync_file_size(psync_file_t fd);
-
-#if defined(P_OS_WINDOWS) && !defined(gmtime_r)
-struct tm *gmtime_r(const time_t *timep, struct tm *result);
-#endif
 
 int psync_run_update_file(const char *path);
 int psync_invalidate_os_cache_needed();
