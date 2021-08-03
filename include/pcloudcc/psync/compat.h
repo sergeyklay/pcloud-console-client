@@ -101,9 +101,6 @@ typedef unsigned long psync_uint_t;
 #define PRIu64 "I64u"
 #endif
 
-#define psync_32to64(hi, lo) ((((uint64_t)(hi)) << 32) + (lo))
-#define psync_bool_to_zero(x) (((int)(!!(x))) - 1)
-
 #define NTO_STR(s) TO_STR(s)
 #define TO_STR(s) #s
 
@@ -119,7 +116,6 @@ typedef unsigned long psync_uint_t;
 #include <unistd.h>
 
 #define P_PRI_U64 PRIu64
-#define P_PRI_D64 PRId64
 
 #define psync_stat stat
 #define psync_fstat fstat
@@ -131,7 +127,6 @@ typedef unsigned long psync_uint_t;
 #else
 #define psync_stat_birthtime(s) ((s)->st_mtime)
 #endif
-#define psync_stat_ctime(s) ((s)->st_ctime)
 #define psync_stat_mtime(s) ((s)->st_mtime)
 
 #if defined(st_mtime)
@@ -163,10 +158,7 @@ typedef struct stat psync_stat_t;
 
 #define psync_fs_err() errno
 
-typedef int psync_sock_err_t;
 typedef int psync_fs_err_t;
-
-#define psync_inode_supported(path) 1
 
 #define PSYNC_DIRECTORY_SEPARATOR "/"
 #define PSYNC_DIRECTORY_SEPARATORC '/'

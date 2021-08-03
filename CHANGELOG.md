@@ -18,9 +18,15 @@ releases, in reverse chronological order.
   support costs. Given the fact that this console project is intended for
   UNIX/Linux users, Windows support becomes an unaffordable luxury. Anyway, in the
   WSL/Docker era, things get a little easier, even for Windows users.
-* Removed `PSYNC_THREAD` macro in favor of `__thread`.
-* Removed `PSYNC_DEFAULT_WINDOWS_DBNAME` macro.
-* Removed `PSYNC_DEFAULT_WINDOWS_DIR` macro.
+* Removed no longer used `PSYNC_THREAD` macro in favor of `__thread`.
+* Removed no longer used `PSYNC_DEFAULT_WINDOWS_DBNAME` macro.
+* Removed no longer used  `PSYNC_DEFAULT_WINDOWS_DIR` macro.
+* Removed no longer used `psync_32to64` macro.
+* Removed no longer used `psync_bool_to_zero` macro.
+* Removed no longer used `P_PRI_D64` macro.
+* Removed no longer used `psync_stat_ctime` macro.
+* Removed no longer used `psync_inode_supported` macro.
+* Removed no longer used `psync_sock_err_t` typedef.
 
 ### Features
 
