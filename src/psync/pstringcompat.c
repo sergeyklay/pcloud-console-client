@@ -14,7 +14,7 @@
 
 #include "pcloudcc/psync/stringcompat.h"
 
-#ifndef HAVE_STRLCPY
+#if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
 size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {
   size_t ret = strlen(src);
 
@@ -26,4 +26,4 @@ size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {
 
   return ret;
 }
-#endif  /* HAVE_STRLCPY */
+#endif  /* !defined(HAVE_STRLCPY) || !HAVE_STRLCPY */
