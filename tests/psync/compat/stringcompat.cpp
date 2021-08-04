@@ -5,13 +5,11 @@
 // For the full copyright and license information, please view
 // the LICENSE file that was distributed with this source code.
 
-#include "pcloudcc/psync/stringcompat.h"
+#include "config.h"
+#include "pcloudcc/compat/string.h"
 
 #include <gtest/gtest.h>
-
 #include <cstring>
-
-#include "config.h"
 
 class CompatTest : public ::testing::Test {
  protected:

@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include "pcloudcc/psync/compat.h"
-#include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/compat/string.h"
 #include "pcloudcc/psync/deviceid.h"
 #include "pcloudcc/psync/version.h"
 

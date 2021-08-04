@@ -8,6 +8,8 @@
  * the LICENSE file that was distributed with this source code.
  */
 
+#include "config.h"
+
 #include "overlay_client.h"
 
 #include <netinet/in.h>
@@ -18,12 +20,11 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#include "config.h"
 #include "logger.h"
 #include "pcloudcc/psync/compat.h"
 #include "pcloudcc/psync/overlay.h"
 #include "pcloudcc/psync/sockets.h"
-#include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/compat/string.h"
 
 static int logger_initialized = 0;
 

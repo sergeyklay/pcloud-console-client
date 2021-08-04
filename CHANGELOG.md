@@ -45,6 +45,7 @@ releases, in reverse chronological order.
 * Restructured the layout of CLI application.
 * Bumped minimal C++ language version from C++11 to C++14.
 * `psync_check_result()` now is macro, not function.
+* Created a dedicated namespace for compat functions. Now they will all be in `pcloudcc/compat/*.h`
 
 ## 3.0.0-a1 (2021-07-25)
 
