@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/compat/string.h"
 
 #if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
 size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {

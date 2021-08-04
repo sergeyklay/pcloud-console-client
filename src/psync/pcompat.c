@@ -18,7 +18,7 @@
 #include <time.h>
 
 #include "pcloudcc/psync/compat.h"
-#include "pcloudcc/psync/stringcompat.h"
+#include "pcloudcc/compat/string.h"
 #include "pcloudcc/psync/deviceid.h"
 
 #ifdef P_OS_LINUX
