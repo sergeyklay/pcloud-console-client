@@ -28,7 +28,7 @@
 #ifndef _PSYNC_OPENSSL_H
 #define _PSYNC_OPENSSL_H
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 
 #include <openssl/sha.h>
 #include <openssl/rsa.h>

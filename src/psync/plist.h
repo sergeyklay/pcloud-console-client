@@ -14,7 +14,7 @@
 
 #include <stddef.h>
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 
 typedef struct psync_list_ {
   struct psync_list_ *next;

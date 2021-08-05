@@ -15,7 +15,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "plist.h"
 #include "logger.h"
 

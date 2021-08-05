@@ -12,7 +12,7 @@
 #ifndef PCLOUD_PSYNC_PFOLDER_H_
 #define PCLOUD_PSYNC_PFOLDER_H_
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "psynclib.h"
 
 #define PSYNC_INVALID_FOLDERID ((psync_folderid_t)-1)

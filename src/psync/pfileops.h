@@ -12,7 +12,7 @@
 #ifndef PCLOUD_PSYNC_PFILEOPS_H_
 #define PCLOUD_PSYNC_PFILEOPS_H_
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 
 #include "papi.h"
 #include "psettings.h"

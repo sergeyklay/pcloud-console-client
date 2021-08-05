@@ -11,14 +11,13 @@
 #define PCLOUD_LOGGER_H_
 
 #include <string.h>
+#include <log.h>
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <log.h>
 
 #ifndef PCLOUD_LOG_LEVEL
 #define PCLOUD_LOG_LEVEL LOG_DEBUG

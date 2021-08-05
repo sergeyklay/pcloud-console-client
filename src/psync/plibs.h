@@ -12,8 +12,9 @@
 #ifndef PCLOUD_PSYNC_PLIBS_H_
 #define PCLOUD_PSYNC_PLIBS_H_
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "pcloudcc/psync/compat.h"
+
 #include "psynclib.h"
 #include "logger.h"
 

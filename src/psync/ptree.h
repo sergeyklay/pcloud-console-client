@@ -28,9 +28,10 @@
 #ifndef _PSYNC_TREE_H
 #define _PSYNC_TREE_H
 
-#include "pcloudcc/psync/compiler.h"
 #include <stdlib.h>
 #include <stddef.h>
+
+#include "pcloudcc/compat/compiler.h"
 
 typedef struct _psync_tree {
   struct _psync_tree *left;

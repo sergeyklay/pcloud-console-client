@@ -13,7 +13,7 @@
 #include <string.h> /* memcpy, strlen */
 
 #include "pcloudcc/compat/string.h" /* strlcpy */
-#include "pcloudcc/psync/compiler.h" /* PSYNC_WEAK */
+#include "pcloudcc/compat/compiler.h" /* PSYNC_WEAK */
 
 #if !defined(HAVE_STRLCPY) || !HAVE_STRLCPY
 size_t PSYNC_WEAK strlcpy(char *dst, const char *src, size_t size) {

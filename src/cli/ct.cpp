@@ -20,7 +20,7 @@
 
 #include "bridge.hpp"
 #include "overlay_client.h"
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "pcloudcrypto.h"
 
 void pcloud::cli::start_crypto(const char *pass) {
