@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "pcloudcc/psync/compat.h"
 
 #define PSYNC_API_HOST     getenv("PCLOUD_REGION_EU") ? "bineapi.pcloud.com" : "binapi.pcloud.com"

@@ -12,7 +12,7 @@
 #ifndef PCLOUD_PSYNC_PSSL_H_
 #define PCLOUD_PSYNC_PSSL_H_
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "pcloudcc/psync/compat.h"
 
 #define PSYNC_AES256_BLOCK_SIZE 16

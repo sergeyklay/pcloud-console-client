@@ -16,7 +16,7 @@
 #include <stdint.h>
 
 #include "pcloudcc/psync/compat.h"
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
 #include "logger.h"
 
 #define PARAM_STR   0

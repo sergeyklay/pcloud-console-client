@@ -12,7 +12,8 @@
 #ifndef PCLOUD_PSYNC_PCLOUDCRYPTO_H_
 #define PCLOUD_PSYNC_PCLOUDCRYPTO_H_
 
-#include "pcloudcc/psync/compiler.h"
+#include "pcloudcc/compat/compiler.h"
+
 #include "pfs.h"
 #include "pcrypto.h"
 #include "papi.h"

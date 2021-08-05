@@ -9,28 +9,38 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-#ifndef PCLOUDCC_PSYNC_COMPILER_H_
-#define PCLOUDCC_PSYNC_COMPILER_H_
+#ifndef PCLOUDCC_COMPAT_COMPILER_H_
+#define PCLOUDCC_COMPAT_COMPILER_H_
 
-#if !defined(__has_attribute)
-#if defined(__GNUC__)
-#define __has_attribute(x) 1
-#else
-#define __has_attribute(x) 0
-#endif
-#else
-#if defined(__GNUC__) && !__has_attribute(malloc)
-#undef __has_attribute
-#define __has_attribute(x) 1
-#endif
+/*! \file compiler.h
+ *  \brief Compilers compatibility constants.
+ */
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+/*! \brief Evaluates to 1 if \a attr is a supported attribute.
+ *
+ * The special operator `__has_attribute` may be used in `#if` and `#elif`
+ * expressions to test whether the expression referenced by its \a attr
+ * is recognized by the compiler. If compiler doesn't have `__has_attribute`
+ * support, the value of zero will be used.
+ */
+#ifndef __has_attribute
+#define __has_attribute(attr) 0
+#endif
+
+/*! \brief Evaluates to 1 if \a sym is a supported builtin.
+ *
+ * The special operator `__has_builtin` may be used in constant integer
+ * contexts and in preprocessor ‘#if’ and ‘#elif’ expressions to test whether
+ * the symbol named by its \a sym is recognized as a built-in function by the
+ * compiler in the current language and conformance mode. If compiler doesn't
+ * have `__has_builtin` support, the value of zero will be used.
+ */
 #ifndef __has_builtin
-#if defined(__GNUC__)
-#define __has_builtin(x) 1
-#else
-#define __has_builtin(x) 0
-#endif
+#define __has_builtin(sym) 0
 #endif
 
 #if __has_builtin(__builtin_expect)
@@ -135,7 +145,12 @@
         char a;          \
         t b;             \
       },                 \
-      b)
+      b                  \
+  )
 #endif
 
-#endif /* PCLOUDCC_PSYNC_COMPILER_H_ */
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#endif /* PCLOUDCC_COMPAT_COMPILER_H_ */
