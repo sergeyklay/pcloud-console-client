@@ -145,8 +145,7 @@ extern "C" {
         char a;          \
         t b;             \
       },                 \
-      b                  \
-  )
+      b)
 #endif
 
 #ifdef __cplusplus
