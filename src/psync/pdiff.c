@@ -254,13 +254,16 @@ static psync_socket *get_connected_socket() {
       res = send_command(sock, command, params);
     }
 
-    if (unlikely_log(!res)) {
+    if (unlikely(!res)) {
+      log_debug("send_command(sock, \"%s\", params) returned NULL, reconnecting",
+                command);
       psync_socket_close(sock);
       psync_set_status(PSTATUS_TYPE_ONLINE, PSTATUS_ONLINE_OFFLINE);
       psync_milisleep(PSYNC_SLEEP_BEFORE_RECONNECT);
       psync_api_conn_fail_inc();
       continue;
     }
+
     psync_api_conn_fail_reset();
     result = psync_find_result(res, "result", PARAM_NUM)->num;
     if (unlikely(result)) {
