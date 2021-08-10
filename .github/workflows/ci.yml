@@ -90,6 +90,7 @@ jobs:
               # Install build deps
               sudo apt-get install --no-install-recommends -q -y \
                  cmake \
+                 doxygen \
                  fuse \
                  libfuse-dev \
                  libpthread-stubs0-dev \
@@ -106,7 +107,7 @@ jobs:
               echo "$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_PATH
 
               # Install common tools
-              brew install cmake macfuse ninja
+              brew install cmake doxygen macfuse ninja
               ;;
           esac
 
