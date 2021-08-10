@@ -44,26 +44,23 @@ jobs:
       matrix:
 
         include:
-          - name: linux-gcc-debug
-            build-type: Debug
+          - name: linux-x64-gcc-mbedtls-debug
+            conan: linux-x64-gcc-5-debug
             os: ubuntu-18.04
-            ssl: mbedtls
             compiler: gcc
             arch: x64
             version: '5'
 
-          - name: linux-clang-debug
-            build-type: Debug
+          - name: linux-x64-clang-mbedtls-debug
+            conan: linux-x64-clang-5-debug
             os: ubuntu-18.04
-            ssl: mbedtls
             compiler: clang
             arch: x64
             version: '5.0'
 
-          - name: macos-clang-debug
-            build-type: Debug
+          - name: macos-x64-clang-mbedtls-debug
+            conan: macos-x64-apple-12-debug
             os: macos-latest
-            ssl: mbedtls
             compiler: apple-clang
             arch: x64
             version: '12.0'
@@ -130,21 +127,7 @@ jobs:
           conan --version
 
       - name: Setting Up Build Vars
-        id: build-vars
-        run: |
-          # linux-x64-gcc-mbedtls-debug
-          os="${{ runner.os }}-${{ matrix.arch }}"
-          ssl="${{ matrix.ssl }}"
-          cc="${{ matrix.compiler }}"
-          ver="${cc}-${{ matrix.version }}"
-          type="${{ matrix.build-type }}"
-          preset="$(echo "${os}-${cc}-${ssl}-${type}" | tr '[:upper:]' '[:lower:]')"
-
-          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
-          echo "$(pwd)/out/install/${preset}/bin" >> $GITHUB_PATH
-
-          echo "::set-output name=CMAKE_PRESET::$preset"
-          echo "::set-output name=CONAN_PROFILE::$(echo "${os}-${ver}-${type}" | tr '[:upper:]' '[:lower:]')"
+        run: echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
 
       - name: Setup Conan Cache
         id: conan-cache
@@ -170,24 +153,27 @@ jobs:
         run: >-
           conan
           install .
-          --install-folder out/build/${{ steps.build-vars.outputs.CMAKE_PRESET }}
-          --profile ${{ steps.build-vars.outputs.CONAN_PROFILE }}
+          --install-folder out/build/${{ matrix.name }}
+          --profile ${{ matrix.conan }}
           --build missing
 
+      - name: Check Available Configure Presets
+        run: cmake --list-presets
+
       - name: Configure client
-        run: cmake -S . --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
+        run: cmake --preset=${{ matrix.name }}
 
       - name: Build client
-        run: cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
+        run: cmake --build --preset=${{ matrix.name }}
 
       - name: Run Tests
-        run: ctest --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
+        run: ctest --preset=${{ matrix.name }}
 
       - name: Build Documentation
-        run:  cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }} --target doc
+        run:  cmake --build --preset=${{ matrix.name }} --target doc
 
       - name: Install client
-        run: cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }} --target install
+        run: cmake --build --preset=${{ matrix.name }} --target install
 
       - name: Minimal Install Test
         run: |
