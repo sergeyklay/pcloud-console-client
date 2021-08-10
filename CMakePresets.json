@@ -7,27 +7,15 @@
   },
   "configurePresets": [
     {
-      "name": "linux-x64-gcc-mbedtls-debug",
-      "displayName": "Debug Mbed TLS / Linux x64",
-      "description": "This build is only available on Linux x64",
+      "name": "x64-debug-base",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "installDir": "${sourceDir}/out/install/${presetName}",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      },
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
       "cacheVariables": {
-
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++",
-
         "PCLOUD_MAINTAINER_LOGS": "ON",
         "PCLOUD_MAINTAINER_LOGS_LEVEL": "0",
         "PCLOUD_MAINTAINER_LOG_FILE": "",
@@ -36,32 +24,57 @@
         "PCLOUD_WITH_SYSTEMD": "ON",
         "PCLOUD_SYSTEMD_SERVICES_INSTALL_DIR": "${sourceDir}/out/install/${presetName}/.config/systemd/user",
         "PCLOUD_WITH_TESTS": "ON"
-
       },
       "environment": {},
       "vendor": {}
+    },
+    {
+      "name": "x64-debug-linux-base",
+      "hidden": true,
+      "inherits": "x64-debug-base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-x64-gcc-mbedtls-debug",
+      "displayName": "Debug Mbed TLS / Linux x64 / GCC",
+      "description": "Sets Ninja generator, GCC compiler, build and install directory, debug build type and Mbed TLS implementation",
+      "inherits": "x64-debug-linux-base",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "PCLOUD_TLS_IMPL": "mbedtls"
+      }
+    },
+    {
+      "name": "linux-x64-clang-mbedtls-debug",
+      "displayName": "Debug Mbed TLS / Linux x64 / Clang",
+      "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
+      "inherits": "x64-debug-linux-base",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "PCLOUD_TLS_IMPL": "mbedtls"
+      }
     }
   ],
   "buildPresets": [
     {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "configurePreset": "linux-x64-gcc-mbedtls-debug",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      }
+      "configurePreset": "linux-x64-gcc-mbedtls-debug"
     }
   ],
   "testPresets": [
     {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "configurePreset": "linux-x64-gcc-mbedtls-debug",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      }
+      "configurePreset": "linux-x64-gcc-mbedtls-debug"
     }
   ],
   "vendor": {}
