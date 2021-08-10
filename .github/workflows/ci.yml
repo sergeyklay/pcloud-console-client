@@ -130,13 +130,17 @@ jobs:
       - name: Setting Up Build Vars
         id: build-vars
         run: |
-          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
-
           p="${{ runner.os }}-${{ matrix.arch }}"
-          c="${{ matrix.compiler }}-${{ matrix.version }}"
+          s="${{ matrix.ssl }}"
+          c="${{ matrix.compiler }}"
+          cv="${c}-${{ matrix.version }}"
           b="${{ matrix.build-type }}"
 
-          echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${c}-${b}" | tr '[:upper:]' '[:lower:]')"
+          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
+          echo "$(pwd)/out/install/${{ steps.build-vars.outputs.CMAKE_PRESET }}/bin" >> $GITHUB_PATH
+
+          echo "::set-output name=CMAKE_PRESET::$(echo "${p}-${c}-${s}-${b}" | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${cv}-${b}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
@@ -162,34 +166,31 @@ jobs:
         run: >-
           conan
           install .
-          --install-folder build
+          --install-folder out/build/${{ steps.build-vars.outputs.CMAKE_PRESET }}
           --profile ${{ steps.build-vars.outputs.CONAN_PROFILE }}
           --build missing
 
       - name: Configure client
-        run: >-
-          cmake
-          -S .
-          -B build
-          -DPCLOUD_WITH_TESTS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
-          -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
+        run: cmake -S . --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
 
       - name: Build client
-        run: cmake --build build --config ${{ matrix.build-type }}
+        run: cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
+
+      - name: Run Tests
+        run: ctest --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }}
+
+      - name: Build Documentation
+        run:  cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }} --target doc
 
       - name: Install client
-        run: cmake --build build --config ${{ matrix.build-type }} --target install
+        run: cmake --build --preset=${{ steps.build-vars.outputs.CMAKE_PRESET }} --target install
 
       - name: Minimal Install Test
         run: |
-          install/bin/pcloudcc --version
-          install/bin/pcloudcc --vernum
-          install/bin/pcloudcc --dumpversion
-          install/bin/pcloudcc --help
-
-      - name: Run Tests
-        run: cmake --build build --target test
+          pcloudcc --version
+          pcloudcc --vernum
+          pcloudcc --dumpversion
+          pcloudcc --help
 
       - name: Success Reporting
         if: success()
