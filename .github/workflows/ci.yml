@@ -136,7 +136,7 @@ jobs:
           compiler="-${{ matrix.compiler }}-${{ matrix.version }}"
           build_type="${{ matrix.build-type }}"
 
-          echo "::set-output name=CONAN_PROFILE::$("${platform}-${compiler}-${build_type}" | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=CONAN_PROFILE::$(echo "${platform}-${compiler}-${build_type}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
