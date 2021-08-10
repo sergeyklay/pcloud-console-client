@@ -132,11 +132,11 @@ jobs:
         run: |
           echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
 
-          platform="${{ runner.os }}-${{ matrix.arch }}"
-          compiler="-${{ matrix.compiler }}-${{ matrix.version }}"
-          build_type="${{ matrix.build-type }}"
+          p="${{ runner.os }}-${{ matrix.arch }}"
+          c="${{ matrix.compiler }}-${{ matrix.version }}"
+          b="${{ matrix.build-type }}"
 
-          echo "::set-output name=CONAN_PROFILE::$(echo "${platform}-${compiler}-${build_type}" | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${c}-${b}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
