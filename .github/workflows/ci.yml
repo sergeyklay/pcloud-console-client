@@ -132,18 +132,19 @@ jobs:
       - name: Setting Up Build Vars
         id: build-vars
         run: |
-          p="${{ runner.os }}-${{ matrix.arch }}"
-          s="${{ matrix.ssl }}"
-          c="${{ matrix.compiler }}"
-          cv="${c}-${{ matrix.version }}"
-          b="${{ matrix.build-type }}"
-          preset="$(echo "${p}-${cv}-${b}" | tr '[:upper:]' '[:lower:]')"
+          # linux-x64-gcc-mbedtls-debug
+          os="${{ runner.os }}-${{ matrix.arch }}"
+          ssl="${{ matrix.ssl }}"
+          cc="${{ matrix.compiler }}"
+          ver="${cc}-${{ matrix.version }}"
+          type="${{ matrix.build-type }}"
+          preset="$(echo "${os}-${cc}-${ssl}-${type}" | tr '[:upper:]' '[:lower:]')"
 
           echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
           echo "$(pwd)/out/install/${preset}/bin" >> $GITHUB_PATH
 
           echo "::set-output name=CMAKE_PRESET::$preset"
-          echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${cv}-${b}" | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=CONAN_PROFILE::$(echo "${os}-${ver}-${type}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
