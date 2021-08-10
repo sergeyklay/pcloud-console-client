@@ -93,6 +93,7 @@ jobs:
                  fuse \
                  libfuse-dev \
                  libpthread-stubs0-dev \
+                 ninja-build \
                  pkg-config
               ;;
             macOS*)
@@ -105,7 +106,7 @@ jobs:
               echo "$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_PATH
 
               # Install common tools
-              brew install cmake macfuse
+              brew install cmake macfuse ninja
               ;;
           esac
 
