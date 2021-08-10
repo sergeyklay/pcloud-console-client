@@ -128,7 +128,15 @@ jobs:
           conan --version
 
       - name: Setting Up Build Vars
-        run: echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
+        id: build-vars
+        run: |
+          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
+
+          platform="${{ runner.os }}-${{ matrix.arch }}"
+          compiler="-${{ matrix.compiler }}-${{ matrix.version }}"
+          build_type="${{ matrix.build-type }}"
+
+          echo "::set-output name=CONAN_PROFILE::$("${platform}-${compiler}-${build_type}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
@@ -155,7 +163,7 @@ jobs:
           conan
           install .
           --install-folder build
-          --profile ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.version }}-${{ matrix.build-type }}
+          --profile ${{ steps.build-vars.outputs.CONAN_PROFILE }}
           --build missing
 
       - name: Configure client
