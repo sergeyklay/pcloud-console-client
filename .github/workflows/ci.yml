@@ -137,11 +137,12 @@ jobs:
           c="${{ matrix.compiler }}"
           cv="${c}-${{ matrix.version }}"
           b="${{ matrix.build-type }}"
+          preset="$(echo "${p}-${cv}-${b}" | tr '[:upper:]' '[:lower:]')"
 
           echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
-          echo "$(pwd)/out/install/${{ steps.build-vars.outputs.CMAKE_PRESET }}/bin" >> $GITHUB_PATH
+          echo "$(pwd)/out/install/${preset}/bin" >> $GITHUB_PATH
 
-          echo "::set-output name=CMAKE_PRESET::$(echo "${p}-${c}-${s}-${b}" | tr '[:upper:]' '[:lower:]')"
+          echo "::set-output name=CMAKE_PRESET::$preset"
           echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${cv}-${b}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
