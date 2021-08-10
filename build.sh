@@ -19,60 +19,13 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
-BUILD_TYPE=${BUILD_TYPE:-Debug}
+CMAKE_PRESET=${CMAKE_PRESET:-linux-x64-gcc-mbedtls-debug}
 
-INSTALL_PREFIX=${INSTALL_PREFIX:-"$HOME/.local"}
-SYSTEMD_UNIT_PATH=${SYSTEMD_UNIT_PATH:-"$HOME/.config/systemd/user"}
-LAUNCHD_PLIST_PATH=${LAUNCHD_PLIST_PATH:-"$HOME/Library/LaunchAgents"}
-CONAN_PROFILE=${CONAN_PROFILE:-default}
-LOG_FILE=${LOG_FILE:-""}
+conan install . -if=out/build/"${CMAKE_PRESET}" --build=missing
+cmake --preset="${CMAKE_PRESET}"
+cmake --build --preset="${CMAKE_PRESET}"
 
-WITH_LOGS=${WITH_LOGS:-ON}
-WITH_LEVEL=${WITH_LEVEL:-1}
-WITH_DOCS=${WITH_DOCS:-ON}
-WITH_SYSTEMD=${WITH_SYSTEMD:-ON}
-WITH_LAUNCHD=${WITH_LAUNCHD:-OFF}
-WITH_TESTS=${WITH_TESTS:-ON}
+ctest --preset="${CMAKE_PRESET}"
 
-if [[ "$WITH_LOGS" == "OFF" ]]; then
-  LOG_FILE=/dev/null
-  WITH_LEVEL=5
-fi
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  WITH_SYSTEMD=OFF
-  SYSTEMD_UNIT_PATH=""
-  if [[ "$WITH_LOGS" == "ON" ]]; then
-    LOG_FILE=/tmp/pcloudcc.log
-  fi
-else
-  WITH_LAUNCHD=OFF
-  LAUNCHD_PLIST_PATH=""
-fi
-
-conan install . -if=build -pr="${CONAN_PROFILE}" --build=missing
-
-echo "Configure client"
-cmake -S . -B build \
-  -DPCLOUD_MAINTAINER_LOGS_LEVEL="${WITH_LEVEL}" \
-  -DPCLOUD_MAINTAINER_LOGS="${WITH_LOGS}" \
-  -DPCLOUD_MAINTAINER_LOG_FILE="${LOG_FILE}" \
-  -DPCLOUD_BUILD_DOC="${WITH_DOCS}" \
-  -DPCLOUD_WITH_SYSTEMD="${WITH_SYSTEMD}" \
-  -DPCLOUD_SYSTEMD_SERVICES_INSTALL_DIR="${SYSTEMD_UNIT_PATH}" \
-  -DPCLOUD_WITH_LAUNCHD="${WITH_LAUNCHD}" \
-  -DPCLOUD_LAUNCHD_PLISTS_INSTALL_DIR="${LAUNCHD_PLIST_PATH}" \
-  -DPCLOUD_WITH_TESTS="${WITH_TESTS}" \
-  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
-  -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}"
-
-echo "Build client"
-cmake --build build --config "${BUILD_TYPE}" -j "$(getconf _NPROCESSORS_ONLN)"
-
-if [ "${WITH_DOCS}" = "ON" ]; then
-  echo "Generate the API documentation"
-  cmake --build build --target doc -j "$(getconf _NPROCESSORS_ONLN)"
-fi
-
-echo "Install client"
-cmake --build build --target install
+# cmake --build --preset="${CMAKE_PRESET}" --target doc
+# cmake --build --preset="${CMAKE_PRESET}" --target install
