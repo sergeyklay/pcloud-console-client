@@ -58,7 +58,7 @@ jobs:
             arch: x64
             version: '5.0'
 
-          - name: macos-x64-clang-mbedtls-debug
+          - name: macos-x64-apple-mbedtls-debug
             conan: macos-x64-apple-12-debug
             os: macos-latest
             compiler: apple-clang
