@@ -30,10 +30,7 @@ on:
       #      |____ minute (0 - 59)
 
 jobs:
-  simple_build:
-    # To prevent build a particular commit use
-    #     git commit -m "......... [ci skip]"
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+  build_and_test:
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
