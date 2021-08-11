@@ -92,11 +92,17 @@
     {
       "name": "linux-x64-build-base",
       "hidden": true,
+      "verbose": true,
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
-      }
+      },
+      "targets": [
+        "check",
+        "doc",
+        "pcloudcc"
+      ]
     },
     {
       "name": "linux-x64-gcc-mbedtls-debug",
@@ -114,11 +120,17 @@
       "name": "macos-x64-apple-mbedtls-debug",
       "displayName": "Debug Mbed TLS / macOS x64 / Apple",
       "configurePreset": "macos-x64-apple-mbedtls-debug",
+      "verbose": true,
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Darwin"
-      }
+      },
+      "targets": [
+        "check",
+        "doc",
+        "pcloudcc"
+      ]
     }
   ],
   "testPresets": [

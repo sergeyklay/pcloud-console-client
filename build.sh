@@ -27,5 +27,6 @@ cmake --build --preset="${CMAKE_PRESET}"
 
 ctest --preset="${CMAKE_PRESET}"
 
-# cmake --build --preset="${CMAKE_PRESET}" --target doc
-# cmake --build --preset="${CMAKE_PRESET}" --target install
+cmake --build --preset="${CMAKE_PRESET}" --target install
+
+out/install/"${CMAKE_PRESET}"/bin/pcloudcc --help
