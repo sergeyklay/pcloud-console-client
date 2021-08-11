@@ -5,12 +5,12 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-if("${PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR}" STREQUAL "")
+if(PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR STREQUAL "")
   message(FATAL_ERROR
     "Variable PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR is not defined or empty")
 endif()
 
-if(NOT PCLOUD_MAINTAINER_LOG_FILE OR "${PCLOUD_MAINTAINER_LOG_FILE}" STREQUAL "")
+if(NOT PCLOUD_MAINTAINER_LOG_FILE OR PCLOUD_MAINTAINER_LOG_FILE STREQUAL "")
   set(PCLOUD_MAINTAINER_LOG_FILE "/dev/null")
 endif()
 

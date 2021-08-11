@@ -25,10 +25,6 @@ if(PCLOUD_BUILD_DOC)
   configure_file(${DOXYGEN_INPUT_DIR}/docs/Doxyfile.in
     ${DOXYGEN_CONFIGURED_INPUT} @ONLY)
 
-  # copy the files needed by the documentation
-  configure_file(${DOXYGEN_INPUT_DIR}/docs/doxygen.css
-    ${DOXYGEN_OUTPUT_DIR}/html/doxygen.css COPYONLY)
-
   # target setup
   add_custom_target(
     doc
@@ -40,18 +36,37 @@ if(PCLOUD_BUILD_DOC)
   add_custom_command(
     TARGET doc
     POST_BUILD
-    COMMAND ;
+    # copy the files needed by the documentation only if "doc" target was called
+    COMMAND "${CMAKE_COMMAND}" -E copy
+      "${DOXYGEN_INPUT_DIR}/docs/doxygen.css"
+      "${DOXYGEN_OUTPUT_DIR}/html/doxygen.css"
     COMMENT "Open ${doc_path} in your browser to view the API Documentation.")
   unset(doc_path)
 
   # setup install rules
-  install(
-    FILES ${DOXYGEN_OUTPUT_DIR}/pcloudcc.tag
-    DESTINATION ${CMAKE_INSTALL_DOCDIR}
-    COMPONENT doc)
+  if(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+    install(
+      FILES ${DOXYGEN_OUTPUT_DIR}/pcloudcc.tag
+      DESTINATION ${CMAKE_INSTALL_DOCDIR}
+      COMPONENT doc
+      OPTIONAL)
 
-  install(
-    DIRECTORY ${DOXYGEN_OUTPUT_DIR}/html
-    DESTINATION ${CMAKE_INSTALL_DOCDIR}
-    COMPONENT doc)
+    install(
+      DIRECTORY ${DOXYGEN_OUTPUT_DIR}/html
+      DESTINATION ${CMAKE_INSTALL_DOCDIR}
+      OPTIONAL
+      COMPONENT doc)
+  else()
+    install(
+      FILES ${DOXYGEN_OUTPUT_DIR}/pcloudcc.tag
+      TYPE DOC
+      COMPONENT doc
+      OPTIONAL)
+
+    install(
+      DIRECTORY ${DOXYGEN_OUTPUT_DIR}/html
+      TYPE DOC
+      OPTIONAL
+      COMPONENT doc)
+  endif()
 endif()

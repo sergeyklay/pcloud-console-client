@@ -30,10 +30,7 @@ on:
       #      |____ minute (0 - 59)
 
 jobs:
-  simple_build:
-    # To prevent build a particular commit use
-    #     git commit -m "......... [ci skip]"
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+  build_and_test:
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -44,26 +41,23 @@ jobs:
       matrix:
 
         include:
-          - name: linux-gcc-debug
-            build-type: Debug
+          - name: linux-x64-gcc-mbedtls-debug
+            conan: linux-x64-gcc-5-debug
             os: ubuntu-18.04
-            ssl: mbedtls
             compiler: gcc
             arch: x64
             version: '5'
 
-          - name: linux-clang-debug
-            build-type: Debug
+          - name: linux-x64-clang-mbedtls-debug
+            conan: linux-x64-clang-5-debug
             os: ubuntu-18.04
-            ssl: mbedtls
             compiler: clang
             arch: x64
             version: '5.0'
 
-          - name: macos-clang-debug
-            build-type: Debug
+          - name: macos-x64-apple-mbedtls-debug
+            conan: macos-x64-apple-12-debug
             os: macos-latest
-            ssl: mbedtls
             compiler: apple-clang
             arch: x64
             version: '12.0'
@@ -90,9 +84,11 @@ jobs:
               # Install build deps
               sudo apt-get install --no-install-recommends -q -y \
                  cmake \
+                 doxygen \
                  fuse \
                  libfuse-dev \
                  libpthread-stubs0-dev \
+                 ninja-build \
                  pkg-config
               ;;
             macOS*)
@@ -105,7 +101,7 @@ jobs:
               echo "$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_PATH
 
               # Install common tools
-              brew install cmake macfuse
+              brew install cmake doxygen macfuse ninja
               ;;
           esac
 
@@ -128,15 +124,9 @@ jobs:
           conan --version
 
       - name: Setting Up Build Vars
-        id: build-vars
         run: |
+          echo "$(pwd)/out/install/${{ matrix.name }}/bin" >> $GITHUB_PATH
           echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
-
-          p="${{ runner.os }}-${{ matrix.arch }}"
-          c="${{ matrix.compiler }}-${{ matrix.version }}"
-          b="${{ matrix.build-type }}"
-
-          echo "::set-output name=CONAN_PROFILE::$(echo "${p}-${c}-${b}" | tr '[:upper:]' '[:lower:]')"
 
       - name: Setup Conan Cache
         id: conan-cache
@@ -162,34 +152,34 @@ jobs:
         run: >-
           conan
           install .
-          --install-folder build
-          --profile ${{ steps.build-vars.outputs.CONAN_PROFILE }}
+          --install-folder out/build/${{ matrix.name }}
+          --profile ${{ matrix.conan }}
           --build missing
 
+      - name: Check Available Configure Presets
+        run: cmake --list-presets
+
       - name: Configure client
-        run: >-
-          cmake
-          -S .
-          -B build
-          -DPCLOUD_WITH_TESTS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
-          -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
+        run: cmake --preset=${{ matrix.name }}
 
       - name: Build client
-        run: cmake --build build --config ${{ matrix.build-type }}
+        run: cmake --build --preset=${{ matrix.name }}
+
+      - name: Run Tests
+        run: ctest --preset=${{ matrix.name }}
+
+      - name: Build Documentation
+        run:  cmake --build --preset=${{ matrix.name }} --target doc
 
       - name: Install client
-        run: cmake --build build --config ${{ matrix.build-type }} --target install
+        run: cmake --build --preset=${{ matrix.name }} --target install
 
       - name: Minimal Install Test
         run: |
-          install/bin/pcloudcc --version
-          install/bin/pcloudcc --vernum
-          install/bin/pcloudcc --dumpversion
-          install/bin/pcloudcc --help
-
-      - name: Run Tests
-        run: cmake --build build --target test
+          pcloudcc --version
+          pcloudcc --vernum
+          pcloudcc --dumpversion
+          pcloudcc --help
 
       - name: Success Reporting
         if: success()
