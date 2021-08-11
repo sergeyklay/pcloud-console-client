@@ -123,29 +123,24 @@ jobs:
           cmake --version
           conan --version
 
-      - name: Setting Up Build Vars
-        run: |
-          echo "$(pwd)/out/install/${{ matrix.name }}/bin" >> $GITHUB_PATH
-          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
-
       - name: Setup Conan Cache
         id: conan-cache
         uses: actions/cache@v2
         with:
-          path: ${{ env.CONAN_USER_HOME }}/.conan/data
+          path: ~/.conan/data
           key: ${{ runner.os }}-conan-${{ matrix.compiler }}-${{ hashFiles('**/conanfile.txt') }}
           restore-keys: |
             ${{ runner.os }}-conan-${{ matrix.compiler }}-
 
       - name: Configure Conan
         run: |
-          mkdir -p "${{ env.CONAN_USER_HOME }}/.conan/profiles"
+          mkdir -p ~/.conan/profiles
 
           # WARN: Remotes registry file missing, creating default one
-          cp tools/conan/remotes.json "${{ env.CONAN_USER_HOME }}/.conan/remotes.json"
+          cp tools/conan/remotes.json ~/.conan/remotes.json
 
           # Install conan profiles
-          cp tools/conan/profiles/* "${{ env.CONAN_USER_HOME }}/.conan/profiles/"
+          cp tools/conan/profiles/* ~/.conan/profiles/
           conan profile list
 
       - name: Install The Requirements Using Conan
@@ -175,11 +170,12 @@ jobs:
         run: cmake --build --preset=${{ matrix.name }} --target install
 
       - name: Minimal Install Test
+        working-directory: ./out/install/${{ matrix.name }}/bin
         run: |
-          pcloudcc --version
-          pcloudcc --vernum
-          pcloudcc --dumpversion
-          pcloudcc --help
+          ./pcloudcc --version
+          ./pcloudcc --vernum
+          ./pcloudcc --dumpversion
+          ./pcloudcc --help
 
       - name: Success Reporting
         if: success()
