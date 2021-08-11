@@ -127,7 +127,9 @@ jobs:
           conan --version
 
       - name: Setting Up Build Vars
-        run: echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
+        run: |
+          echo "$(pwd)/out/install/${{ matrix.name }}/bin" >> $GITHUB_PATH
+          echo "CONAN_USER_HOME=$(conan config home)" >> $GITHUB_ENV
 
       - name: Setup Conan Cache
         id: conan-cache
