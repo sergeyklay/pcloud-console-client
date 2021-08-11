@@ -7,7 +7,7 @@
   },
   "configurePresets": [
     {
-      "name": "x64-debug-base",
+      "name": "x64-config-debug-base",
       "hidden": true,
       "generator": "Ninja",
       "architecture": {
@@ -26,9 +26,9 @@
       "vendor": {}
     },
     {
-      "name": "x64-debug-linux-base",
+      "name": "linux-x64-config-debug-base",
       "hidden": true,
-      "inherits": "x64-debug-base",
+      "inherits": "x64-config-debug-base",
       "cacheVariables": {
         "PCLOUD_WITH_LAUNCHD": "OFF",
         "PCLOUD_WITH_SYSTEMD": "ON",
@@ -44,7 +44,7 @@
       "name": "linux-x64-gcc-mbedtls-debug",
       "displayName": "Debug Mbed TLS / Linux x64 / GCC",
       "description": "Sets Ninja generator, GCC compiler, build and install directory, debug build type and Mbed TLS implementation",
-      "inherits": "x64-debug-linux-base",
+      "inherits": "linux-x64-config-debug-base",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
@@ -57,7 +57,7 @@
       "name": "linux-x64-clang-mbedtls-debug",
       "displayName": "Debug Mbed TLS / Linux x64 / Clang",
       "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
-      "inherits": "x64-debug-linux-base",
+      "inherits": "linux-x64-config-debug-base",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
@@ -68,9 +68,9 @@
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "displayName": "Debug Mbed TLS / Linux x64 / Clang",
+      "displayName": "Debug Mbed TLS / macOS x64 / Apple",
       "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
-      "inherits": "x64-debug-base",
+      "inherits": "x64-config-debug-base",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "condition": {
@@ -90,30 +90,68 @@
   ],
   "buildPresets": [
     {
+      "name": "linux-x64-build-base",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "configurePreset": "linux-x64-gcc-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / Linux x64 / GCC",
+      "configurePreset": "linux-x64-gcc-mbedtls-debug",
+      "inherits": "linux-x64-build-base"
     },
     {
       "name": "linux-x64-clang-mbedtls-debug",
-      "configurePreset": "linux-x64-clang-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / Linux x64 / Clang",
+      "configurePreset": "linux-x64-clang-mbedtls-debug",
+      "inherits": "linux-x64-build-base"
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "configurePreset": "macos-x64-apple-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / macOS x64 / Apple",
+      "configurePreset": "macos-x64-apple-mbedtls-debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
     }
   ],
   "testPresets": [
     {
+      "name": "linux-x64-test-base",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "configurePreset": "linux-x64-gcc-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / Linux x64 / GCC",
+      "configurePreset": "linux-x64-gcc-mbedtls-debug",
+      "inherits": "linux-x64-test-base"
     },
     {
       "name": "linux-x64-clang-mbedtls-debug",
-      "configurePreset": "linux-x64-clang-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / Linux x64 / Clang",
+      "configurePreset": "linux-x64-clang-mbedtls-debug",
+      "inherits": "linux-x64-test-base"
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "configurePreset": "macos-x64-apple-mbedtls-debug"
+      "displayName": "Debug Mbed TLS / macOS x64 / Apple",
+      "configurePreset": "macos-x64-apple-mbedtls-debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
     }
   ],
   "vendor": {}
