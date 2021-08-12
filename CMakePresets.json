@@ -87,6 +87,7 @@
       "name": "linux-x64-gcc-mbedtls-debug",
       "displayName": "Linux x64: Debug / GCC / Mbed TLS",
       "configurePreset": "linux-x64-gcc-mbedtls-debug",
+      "config": "Debug",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -107,6 +108,7 @@
       "name": "macos-x64-apple-mbedtls-debug",
       "displayName": "macOS x64: Debug / Apple Clang / Mbed TLS",
       "configurePreset": "macos-x64-apple-mbedtls-debug",
+      "config": "Debug",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
