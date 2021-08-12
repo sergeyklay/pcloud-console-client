@@ -42,7 +42,7 @@
     },
     {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "displayName": "Linux x64: Debug / GCC / Mbed TLS ",
+      "displayName": "Linux x86_64: Debug / GCC / Mbed TLS ",
       "description": "Sets Ninja generator, GCC compiler, build and install directory, debug build type and Mbed TLS implementation",
       "inherits": "linux-x64-config-debug-base",
       "cacheVariables": {
@@ -53,7 +53,7 @@
     },
     {
       "name": "linux-x64-clang-mbedtls-debug",
-      "displayName": "Linux x64: Debug / Clang / Mbed TLS",
+      "displayName": "Linux x86_64: Debug / Clang / Mbed TLS",
       "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
       "inherits": "linux-x64-config-debug-base",
       "cacheVariables": {
@@ -64,7 +64,7 @@
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "displayName": "macOS x64: Debug / Apple Clang / Mbed TLS",
+      "displayName": "macOS x86_64: Debug / Apple Clang / Mbed TLS",
       "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
       "inherits": "x64-config-debug-base",
       "condition": {
@@ -85,7 +85,7 @@
   "buildPresets": [
     {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "displayName": "Linux x64: Debug / GCC / Mbed TLS",
+      "displayName": "Linux x86_64: Debug / GCC / Mbed TLS",
       "configurePreset": "linux-x64-gcc-mbedtls-debug",
       "configuration": "Debug",
       "condition": {
@@ -96,7 +96,7 @@
     },
     {
       "name": "linux-x64-clang-mbedtls-debug",
-      "displayName": "Linux x64: Debug / Clang / Mbed TLS",
+      "displayName": "Linux x86_64: Debug / Clang / Mbed TLS",
       "configurePreset": "linux-x64-clang-mbedtls-debug",
       "condition": {
         "type": "equals",
@@ -106,7 +106,7 @@
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "displayName": "macOS x64: Debug / Apple Clang / Mbed TLS",
+      "displayName": "macOS x86_64: Debug / Apple Clang / Mbed TLS",
       "configurePreset": "macos-x64-apple-mbedtls-debug",
       "configuration": "Debug",
       "condition": {
@@ -119,7 +119,7 @@
   "testPresets": [
     {
       "name": "linux-x64-gcc-mbedtls-debug",
-      "displayName": "Linux x64: Debug / GCC / Mbed TLS",
+      "displayName": "Linux x86_64: Debug / GCC / Mbed TLS",
       "configurePreset": "linux-x64-gcc-mbedtls-debug",
       "condition": {
         "type": "equals",
@@ -129,7 +129,7 @@
     },
     {
       "name": "linux-x64-clang-mbedtls-debug",
-      "displayName": "Linux x64: Clang / GCC / Mbed TLS",
+      "displayName": "Linux x86_64: Clang / GCC / Mbed TLS",
       "configurePreset": "linux-x64-clang-mbedtls-debug",
       "condition": {
         "type": "equals",
@@ -139,7 +139,7 @@
     },
     {
       "name": "macos-x64-apple-mbedtls-debug",
-      "displayName": "macOS x64: Debug / Apple Clang / Mbed TLS",
+      "displayName": "macOS x86_64: Debug / Apple Clang / Mbed TLS",
       "configurePreset": "macos-x64-apple-mbedtls-debug",
       "condition": {
         "type": "equals",
