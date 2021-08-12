@@ -15,6 +15,9 @@
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
 /out
 
+# Ignore user defined CMake presets
+CMakeUserPresets.json
+
 # Ignore codecoverage stuff
 *.profraw
 *.gcov
