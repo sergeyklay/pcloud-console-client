@@ -37,7 +37,15 @@ releases, in reverse chronological order.
 * Added `-dumpversion` program option alias for `--dumpversion`.
 * Amended tests.
 * Provided launchd integration for macOS.
-  
+* Provided support to build project under arm64/aarch64 architectures.
+
+### Bugfix
+
+* [#87](https://github.com/sergeyklay/pcloud-console-client/issues/87):
+  Define `_FILE_OFFSET_BITS` to `64` on arm64 architectures.
+  For more info about this macro refer to
+  https://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html.
+
 ### Changes
 
 * Renamed `overlay_callback` pointer to function to `poverlay_callback`.
