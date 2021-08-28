@@ -3,7 +3,12 @@
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
-## 3.0.0-a2 (2021-XX-XX)
+## 3.0.0-a3 (2021-XX-XX)
+
+- TODO
+
+
+## 3.0.0-a2 (2021-08-28)
 
 ### Removals
 
