@@ -80,6 +80,37 @@
         "CMAKE_CXX_COMPILER": "c++",
         "PCLOUD_TLS_IMPL": "mbedtls"
       }
+    },
+    {
+      "name": "macos-armv8-apple-mbedtls-debug",
+      "displayName": "macOS armv8: Debug / Apple Clang / Mbed TLS",
+      "description": "Sets Ninja generator, Clang compiler, build and install directory, debug build type and Mbed TLS implementation",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "armv8",
+        "strategy": "external"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PCLOUD_MAINTAINER_LOGS": true,
+        "PCLOUD_MAINTAINER_LOGS_LEVEL": "0",
+        "PCLOUD_MAINTAINER_LOG_FILE": "",
+        "PCLOUD_BUILD_DOC": true,
+        "PCLOUD_WITH_TESTS": true,
+        "PCLOUD_WITH_LAUNCHD": true,
+        "PCLOUD_WITH_SYSTEMD": false,
+        "PCLOUD_LAUNCHD_PLISTS_INSTALL_DIR": "${sourceDir}/out/install/${presetName}/Library/LaunchAgents",
+        "CMAKE_C_COMPILER": "cc",
+        "CMAKE_CXX_COMPILER": "c++",
+        "PCLOUD_TLS_IMPL": "mbedtls"
+      }
     }
   ],
   "buildPresets": [
@@ -114,6 +145,17 @@
         "lhs": "${hostSystemName}",
         "rhs": "Darwin"
       }
+    },
+    {
+      "name": "macos-armv8-apple-mbedtls-debug",
+      "displayName": "macOS armv8: Debug / Apple Clang / Mbed TLS",
+      "configurePreset": "macos-armv8-apple-mbedtls-debug",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
     }
   ],
   "testPresets": [
@@ -141,6 +183,16 @@
       "name": "macos-x64-apple-mbedtls-debug",
       "displayName": "macOS x86_64: Debug / Apple Clang / Mbed TLS",
       "configurePreset": "macos-x64-apple-mbedtls-debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-armv8-apple-mbedtls-debug",
+      "displayName": "macOS armv8: Debug / Apple Clang / Mbed TLS",
+      "configurePreset": "macos-armv8-apple-mbedtls-debug",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
