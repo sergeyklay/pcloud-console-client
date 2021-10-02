@@ -9,7 +9,6 @@
 mbedtls/2.25.0
 cli11/1.9.1
 openssl/1.1.1k
-sqlite3/3.36.0
 log.c/cci.20200620
 gtest/cci.20210126
 

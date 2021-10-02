@@ -16,11 +16,13 @@ target_include_directories(
   PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/psync
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/src/overlay_client)
 
+find_package(SQLite3 REQUIRED)
+
 target_link_libraries(
   cli
   PUBLIC  CONAN_PKG::cli11
   PRIVATE pcloud::logger
           pcloud::psync
           pcloud::overlay_client
-          CONAN_PKG::sqlite3
+          SQLite::SQLite3
           Threads::Threads)

@@ -119,11 +119,12 @@ else()
 endif()
 
 find_package(ZLIB REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 target_link_libraries(psync
     PRIVATE pcloud::logger
             ZLIB::ZLIB
-            CONAN_PKG::sqlite3
+            SQLite::SQLite3
             Threads::Threads
             ${FUSE_LIBRARY})
 

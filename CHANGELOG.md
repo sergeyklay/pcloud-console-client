@@ -5,7 +5,9 @@ releases, in reverse chronological order.
 
 ## 3.0.0-a3 (2021-XX-XX)
 
-- TODO
+### Changes
+
+* CMake < 3.14 is no longer supported.
 
 
 ## 3.0.0-a2 (2021-08-28)

@@ -13,7 +13,10 @@ and the presence of the following libraries:
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
-- [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately unobtrusive compression library
+- SQLite 3: In-process library that implements a self-contained, serverless,
+  zero-configuration, transactional SQL database engine
+- [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately unobtrusive
+  compression library
 
 #### Build tools
 
@@ -23,7 +26,7 @@ To build pCloud Console Client you'll need the following build tools:
   [Intel C++ Compiler](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/dpc-compiler.html),
   [Clang](https://clang.llvm.org) or
   [Apple Clang](https://apps.apple.com/us/app/xcode/id497799835)
-- [CMake](https://cmake.org/) >= 3.12
+- [CMake](https://cmake.org/) >= 3.14
 - Any build tool supported by CMake like
   [GNU Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/) and so on
@@ -44,13 +47,14 @@ Optional prerequisites are:
 On Debian and its derivatives you can install the required packages this way:
 ```sh
 $ sudo apt install \
-    gcc \
-    g++ \
-    make \
     cmake \
     fuse \
+    g++ \
+    gcc \
     libfuse-dev \
     libpthread-stubs0-dev \
+    libsqlite3-dev \
+    make \
     pkg-config \
     zlib1g-dev
 ```
@@ -61,7 +65,7 @@ $ pip3 install --user conan
 ```
 
 **Note:** On some Linux systems the standard version of CMake is less than
-3.12 so, you'll need to upgrade CMake.
+3.14 so, you'll need to upgrade CMake.
 
 #### macOS
 
@@ -72,6 +76,7 @@ $ brew install \
     cmake \
     conan \
     macfuse \
+    sqlite \
     zlib
 ```
 
