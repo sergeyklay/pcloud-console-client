@@ -118,9 +118,11 @@ else()
   target_compile_definitions(psync PUBLIC P_SSL_MBEDTLS)
 endif()
 
+find_package(ZLIB REQUIRED)
+
 target_link_libraries(psync
     PRIVATE pcloud::logger
-            CONAN_PKG::zlib
+            ZLIB::ZLIB
             CONAN_PKG::sqlite3
             Threads::Threads
             ${FUSE_LIBRARY})

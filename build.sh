@@ -19,6 +19,7 @@ set -o nounset
 # set -e : exit the script if any statement returns a non-true return value
 set -o errexit
 
+# CMAKE_PRESET=${CMAKE_PRESET:-macos-armv8-apple-mbedtls-debug}
 CMAKE_PRESET=${CMAKE_PRESET:-linux-x64-gcc-mbedtls-debug}
 
 conan install . -if=out/build/"${CMAKE_PRESET}" --build=missing

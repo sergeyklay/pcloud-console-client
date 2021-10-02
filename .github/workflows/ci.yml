@@ -89,7 +89,8 @@ jobs:
                  libfuse-dev \
                  libpthread-stubs0-dev \
                  ninja-build \
-                 pkg-config
+                 pkg-config \
+                 zlib1g-dev
               ;;
             macOS*)
               sudo xcode-select -switch /Applications/Xcode.app
@@ -101,7 +102,7 @@ jobs:
               echo "$(xcodebuild -version -sdk macosx Path)" >> $GITHUB_PATH
 
               # Install common tools
-              brew install cmake doxygen macfuse ninja
+              brew install cmake doxygen macfuse ninja zlib
               ;;
           esac
 

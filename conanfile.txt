@@ -6,7 +6,6 @@
 # the LICENSE file that was distributed with this source code.
 
 [requires]
-zlib/1.2.11
 mbedtls/2.25.0
 cli11/1.9.1
 openssl/1.1.1k

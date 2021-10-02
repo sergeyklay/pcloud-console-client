@@ -13,6 +13,7 @@ and the presence of the following libraries:
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
+- [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately unobtrusive compression library
 
 #### Build tools
 
@@ -50,7 +51,8 @@ $ sudo apt install \
     fuse \
     libfuse-dev \
     libpthread-stubs0-dev \
-    pkg-config
+    pkg-config \
+    zlib1g-dev
 ```
 
 To install conan on Linux distros use [`pip`](https://pip.pypa.io/):
@@ -69,7 +71,8 @@ pthread library. If so, you'll need only these packages:
 $ brew install \
     cmake \
     conan \
-    macfuse
+    macfuse \
+    zlib
 ```
 
 ### Build steps
