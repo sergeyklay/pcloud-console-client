@@ -21,7 +21,7 @@ target_include_directories(cli_tests
 
 target_link_libraries(cli_tests
   PRIVATE pcloud::cli
-          gtest_main)
+          GTest::Main)
 
 gtest_discover_tests(cli_tests
   TEST_PREFIX cli:

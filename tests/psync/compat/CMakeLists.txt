@@ -21,7 +21,7 @@ target_include_directories(compat_tests
 
 target_link_libraries(compat_tests
   PRIVATE pcloud::psync
-          gtest_main)
+          GTest::Main)
 
 gtest_discover_tests(compat_tests
   TEST_PREFIX compat:
