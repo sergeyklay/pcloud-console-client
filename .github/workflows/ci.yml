@@ -89,6 +89,7 @@ jobs:
                  libfuse-dev \
                  libpthread-stubs0-dev \
                  libsqlite3-dev \
+                 libmbedtls-dev \
                  ninja-build \
                  pkg-config \
                  zlib1g-dev
@@ -107,6 +108,7 @@ jobs:
                 cmake \
                 doxygen \
                 macfuse \
+                mbedtls \
                 ninja \
                 sqlite \
                 zlib

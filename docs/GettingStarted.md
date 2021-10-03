@@ -13,10 +13,14 @@ and the presence of the following libraries:
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
-- [SQLite](https://www.sqlite.org/index.html) 3: In-process library that implements a
-  self-contained, serverless, zero-configuration, transactional SQL database engine
-- [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately unobtrusive
-  compression library
+- [SQLite](https://www.sqlite.org/index.html) 3: In-process library that
+  implements a self-contained, serverless, zero-configuration, transactional
+  SQL database engine
+- [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately
+  unobtrusive compression library
+- [Mbed TLS](https://github.com/ARMmbed/mbedtls) >= 2.25.0: a C library that
+  implements cryptographic primitives, X.509 certificate manipulation and the
+  SSL/TLS and DTLS protocols
 
 #### Build tools
 
@@ -54,6 +58,7 @@ $ sudo apt install \
     gcc \
     git \
     libfuse-dev \
+    libmbedtls-dev \
     libpthread-stubs0-dev \
     libsqlite3-dev \
     make \
@@ -79,6 +84,7 @@ $ brew install \
     conan \
     git \
     macfuse \
+    mbedtls \
     sqlite \
     zlib
 ```

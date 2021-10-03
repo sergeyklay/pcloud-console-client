@@ -6,7 +6,6 @@
 # the LICENSE file that was distributed with this source code.
 
 [requires]
-mbedtls/2.25.0
 openssl/1.1.1k
 
 [options]
