@@ -5,7 +5,26 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-# TODO: Consider migrate to https://github.com/google/glog
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries" OFF)
+
+include(FetchContent)
+FetchContent_Declare(glog
+  GIT_REPOSITORY https://github.com/google/glog.git
+  GIT_TAG        v0.5.0)
+
+FetchContent_GetProperties(glog)
+if(NOT glog_POPULATED)
+  FetchContent_Populate(glog)
+  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries.")
+  set(WITH_GFLAGS OFF CACHE INTERNAL "Use gflags.")
+  add_subdirectory(${glog_SOURCE_DIR} ${glog_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+add_library(Glog::Glog INTERFACE IMPORTED)
+target_include_directories(Glog::Glog
+  INTERFACE "${googletest_SOURCE_DIR}/src")
+
+target_link_libraries(Glog::Glog INTERFACE glog)
 
 # Add definition for logger library
 add_library(logger STATIC logger.c)
