@@ -16,7 +16,7 @@ add_library(rxi::log_c ALIAS log_c)
 
 target_include_directories(log_c
   PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 file(RELATIVE_PATH relative
   ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}

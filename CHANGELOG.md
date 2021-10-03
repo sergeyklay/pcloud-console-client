@@ -7,9 +7,7 @@ releases, in reverse chronological order.
 
 ### Removals
 
-* [#93](https://github.com/sergeyklay/pcloud-console-client/issues/93),
-  [#94](https://github.com/sergeyklay/pcloud-console-client/issues/94),
-  [#95](https://github.com/sergeyklay/pcloud-console-client/issues/95):
+* [#95](https://github.com/sergeyklay/pcloud-console-client/issues/95):
   Removed conan dependency.
 
 ### Changes
