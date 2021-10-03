@@ -5,22 +5,21 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-# If we knew glog is installed, we can just use the following single line
-find_package(glog 0.6.0 QUIET)
+# If we knew spdlog is installed, we can just use the following single line
+find_package(spdlog QUIET)
 
 # But if not, we'll fetch it ourselves
-if(NOT glog_FOUND)
+if(NOT spdlog_FOUND)
   include(FetchContent)
-  FetchContent_Declare(glog
-    GIT_REPOSITORY https://github.com/google/glog.git
-    GIT_TAG        v0.5.0)
+  FetchContent_Declare(spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.9.2)
 
-  FetchContent_GetProperties(glog)
-  if(NOT glog_POPULATED)
-    FetchContent_Populate(glog)
-    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries.")
-    set(WITH_GFLAGS OFF CACHE INTERNAL "Use gflags.")
-    add_subdirectory(${glog_SOURCE_DIR} ${glog_BINARY_DIR} EXCLUDE_FROM_ALL)
+  FetchContent_GetProperties(spdlog)
+  if(NOT spdlog_POPULATED)
+    FetchContent_Populate(spdlog)
+    set(SPDLOG_BUILD_SHARED OFF CACHE INTERNAL "Build shared spdlog.")
+    add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
 endif()
 
@@ -75,5 +74,5 @@ set_property(TARGET logger
   PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(logger
-  PUBLIC rxi::log_c
-         glog::glog)
+  PUBLIC  rxi::log_c
+  PRIVATE spdlog::spdlog)
