@@ -8,7 +8,6 @@
 [requires]
 mbedtls/2.25.0
 openssl/1.1.1k
-log.c/cci.20200620
 gtest/cci.20210126
 
 [options]

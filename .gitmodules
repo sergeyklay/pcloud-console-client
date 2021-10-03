@@ -2,3 +2,7 @@
 	path = external/CLI11
 	url = https://github.com/CLIUtils/CLI11
 	branch = master
+[submodule "external/log.c"]
+	path = external/log.c
+	url = https://github.com/rxi/log.c
+	branch = master

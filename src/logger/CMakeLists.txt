@@ -5,6 +5,8 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
+# TODO: Consider migrate to https://github.com/google/glog
+
 # Add definition for logger library
 add_library(logger STATIC logger.c)
 add_library(pcloud::logger ALIAS logger)
@@ -56,4 +58,4 @@ set_property(TARGET logger
   PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(logger
-  PUBLIC CONAN_PKG::log.c)
+  PUBLIC log_c::log_c)
