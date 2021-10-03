@@ -34,8 +34,6 @@ To build pCloud Console Client you'll need the following build tools:
 - Any build tool supported by CMake like
   [GNU Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/) and so on
-- [Conan](https://conan.io/) decentralized package manager with a
-  client-server architecture
 - [Git](https://git-scm.com) - a free and open source distributed version control system
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
@@ -66,11 +64,6 @@ $ sudo apt install \
     zlib1g-dev
 ```
 
-To install conan on Linux distros use [`pip`](https://pip.pypa.io/):
-```sh
-$ pip3 install --user conan
-```
-
 **Note:** On some Linux systems the standard version of CMake is less than
 3.14 so, you'll need to upgrade CMake.
 
@@ -81,7 +74,6 @@ pthread library. If so, you'll need only these packages:
 ```sh
 $ brew install \
     cmake \
-    conan \
     git \
     macfuse \
     mbedtls \
@@ -106,22 +98,15 @@ something similar to command bellow to pull latest of all submodules:
 $ git submodule update --remote --merge
 ```
 
-Next, initialize project with Conan - this is using the `conanfile.txt`
-specifying that Conan should integrate with CMake:
-```sh
-$ conan install . -if=build --build=missing
-```
-
-This example establishes out-of-source `build/` directory, so that source
-folder is not polluted. For a detailed instruction on how to use and
-customize conan please refer
-[here](https://docs.conan.io/en/latest/getting_started.html).
-
 Next, generate the build files using CMake:
 ```sh
+$ mldir build
 $ cd build
 $ cmake ..
 ```
+
+This example establishes out-of-source `build/` directory, so that source
+folder is not polluted.
 
 Finally, build client:
 ```sh

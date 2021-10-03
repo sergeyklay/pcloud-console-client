@@ -27,7 +27,6 @@ endif()
 include(Bootstrap)
 include(CompilerFlags)
 include(LanguageStandard)
-include(ConanHelper)
 include(ProjectInfo)
 include(ProjectConfig)
 

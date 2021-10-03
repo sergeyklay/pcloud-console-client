@@ -42,21 +42,18 @@ jobs:
 
         include:
           - name: linux-x64-gcc-mbedtls-debug
-            conan: linux-x64-gcc-5-debug
             os: ubuntu-18.04
             compiler: gcc
             arch: x64
             version: '5'
 
           - name: linux-x64-clang-mbedtls-debug
-            conan: linux-x64-clang-5-debug
             os: ubuntu-18.04
             compiler: clang
             arch: x64
             version: '5.0'
 
           - name: macos-x64-apple-mbedtls-debug
-            conan: macos-x64-apple-12-debug
             os: macos-latest
             compiler: apple-clang
             arch: x64
@@ -115,51 +112,11 @@ jobs:
               ;;
           esac
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-          architecture: ${{ matrix.arch }}
-
-      - name: Install Python Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install conan
-
       - name: Verify Toolchain Version
         run: |
           $CC --version
           $CXX --version
           cmake --version
-          conan --version
-
-      - name: Setup Conan Cache
-        id: conan-cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.conan/data
-          key: ${{ runner.os }}-conan-${{ matrix.compiler }}-${{ hashFiles('**/conanfile.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-conan-${{ matrix.compiler }}-
-
-      - name: Configure Conan
-        run: |
-          mkdir -p ~/.conan/profiles
-
-          # WARN: Remotes registry file missing, creating default one
-          cp tools/conan/remotes.json ~/.conan/remotes.json
-
-          # Install conan profiles
-          cp tools/conan/profiles/* ~/.conan/profiles/
-          conan profile list
-
-      - name: Install The Requirements Using Conan
-        run: >-
-          conan
-          install .
-          --install-folder out/build/${{ matrix.name }}
-          --profile ${{ matrix.conan }}
-          --build missing
 
       - name: Check Available Configure Presets
         run: cmake --list-presets

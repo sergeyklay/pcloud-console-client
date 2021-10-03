@@ -7,7 +7,7 @@
 
 # Find the MbedTLS includes and library
 #
-# Once done this will define
+# Once done this will define:
 #
 #  MBEDTLS_FOUND       - True if MbedTLS is found.
 #  MBEDTLS_INCLUDE_DIR - The MbedTLS include directory.
@@ -17,6 +17,8 @@
 # Hints:
 #
 # Set ``MBEDTLS_ROOT_DIR`` to the root directory of MbedTLS installation.
+
+include(CheckSymbolExists)
 
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
