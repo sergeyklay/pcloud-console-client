@@ -5,7 +5,16 @@ releases, in reverse chronological order.
 
 ## 3.0.0-a3 (2021-XX-XX)
 
-- TODO
+### Removals
+
+* [#93](https://github.com/sergeyklay/pcloud-console-client/issues/93),
+  [#94](https://github.com/sergeyklay/pcloud-console-client/issues/94),
+  [#95](https://github.com/sergeyklay/pcloud-console-client/issues/95):
+  Removed conan dependency.
+
+### Changes
+
+* CMake < 3.14 is no longer supported.
 
 
 ## 3.0.0-a2 (2021-08-28)

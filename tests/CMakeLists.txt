@@ -13,6 +13,39 @@ define_property(
 
 set(PCLOUD_TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+# If we knew GoogleTest is installed, we can just use the following single line
+find_package(GTest QUIET)
+
+# But if not, we'll fetch it ourselves
+if(NOT GTEST_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        release-1.11.0)
+
+  FetchContent_GetProperties(googletest)
+  if(NOT googletest_POPULATED)
+    FetchContent_Populate(googletest)
+
+    set(BUILD_GMOCK OFF CACHE INTERNAL "Builds the googlemock subproject.")
+    set(INSTALL_GTEST OFF CACHE INTERNAL "Enable installation of googletest.")
+    set(gtest_build_samples OFF CACHE INTERNAL "Build gtest's sample programs.")
+    set(gtest_build_tests OFF CACHE INTERNAL "Build all of gtest's own tests.")
+
+    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR}
+      EXCLUDE_FROM_ALL)
+  endif()
+
+  add_library(GTest::GTest INTERFACE IMPORTED)
+  target_include_directories(GTest::GTest
+    INTERFACE "${googletest_SOURCE_DIR}/googletest/include")
+
+  target_link_libraries(GTest::GTest INTERFACE gtest)
+
+  add_library(GTest::Main INTERFACE IMPORTED)
+  target_link_libraries(GTest::Main INTERFACE gtest_main)
+endif()
+
 add_subdirectory(cli)
 add_subdirectory(psync)
 

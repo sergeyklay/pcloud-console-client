@@ -114,14 +114,23 @@ if(PCLOUD_TLS_IMPL STREQUAL "openssl")
 elseif(PCLOUD_TLS_IMPL STREQUAL "securetransport")
   target_compile_definitions(psync PUBLIC P_SSL_SECURETRANSPORT)
 else()
-  target_link_libraries(psync PUBLIC CONAN_PKG::mbedtls)
+  find_package(MbedTLS 2.8.0 REQUIRED)
+  if (NOT MBEDTLS_FOUND)
+    message(FATAL_ERROR "Could not find MbedTLS library")
+  else()
+    target_include_directories(psync PUBLIC ${MBEDTLS_INCLUDE_DIR})
+  endif()
+  target_link_libraries(psync PUBLIC ${MBEDTLS_LIBRARIES})
   target_compile_definitions(psync PUBLIC P_SSL_MBEDTLS)
 endif()
 
+find_package(ZLIB REQUIRED)
+find_package(SQLite3 REQUIRED)
+
 target_link_libraries(psync
     PRIVATE pcloud::logger
-            CONAN_PKG::zlib
-            CONAN_PKG::sqlite3
+            ZLIB::ZLIB
+            SQLite::SQLite3
             Threads::Threads
             ${FUSE_LIBRARY})
 
