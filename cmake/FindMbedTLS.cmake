@@ -92,13 +92,13 @@ if(MBEDTLS_LIB AND NOT MBEDCRYPTO_LIB AND NOT MBEDX509_LIB)
 endif()
 
 # Extract the version from the header... hopefully it matches the library.
-if (EXISTS ${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h)
+if(EXISTS ${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h)
   file(STRINGS ${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h _MBEDTLS_VERSION_LINE
     REGEX "^#define[ \t]+MBEDTLS_VERSION_STRING[\t ].*")
-else ()
+else()
   file(STRINGS ${MBEDTLS_INCLUDE_DIR}/mbedtls/version.h _MBEDTLS_VERSION_LINE
     REGEX "^#define[ \t]+MBEDTLS_VERSION_STRING[\t ].*")
-endif ()
+endif()
 
 string(REGEX REPLACE ".*MBEDTLS_VERSION_STRING[\t ]+\"(.*)\"" "\\1"
   MBEDTLS_VERSION ${_MBEDTLS_VERSION_LINE})
