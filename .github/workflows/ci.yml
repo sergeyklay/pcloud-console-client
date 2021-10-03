@@ -108,7 +108,7 @@ jobs:
                 cmake \
                 doxygen \
                 macfuse \
-                mbedtls \
+                mbedtls@2 \
                 ninja \
                 sqlite \
                 zlib
