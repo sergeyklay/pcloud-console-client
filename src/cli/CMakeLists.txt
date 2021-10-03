@@ -20,7 +20,7 @@ find_package(SQLite3 REQUIRED)
 
 target_link_libraries(
   cli
-  PUBLIC  CONAN_PKG::cli11
+  PUBLIC  CLI11::CLI11
   PRIVATE pcloud::logger
           pcloud::psync
           pcloud::overlay_client

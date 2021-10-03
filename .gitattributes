@@ -5,22 +5,10 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-[requires]
-mbedtls/2.25.0
-openssl/1.1.1k
-log.c/cci.20200620
-gtest/cci.20210126
+# Automatically normalize line endings for all text-based files
+* text=auto
 
-[options]
-mbedtls:shared=False
-gtest:no_main=True
+external/*      linguist-vendored
 
-[generators]
-cmake
-json
-
-# Local Variables:
-# mode: conf
-# tab-width: 2
-# indent-tabs-mode: nil
-# End:
+.gitattributes  export-ignore
+.github         export-ignore

@@ -13,8 +13,8 @@ and the presence of the following libraries:
 - [Fuse](https://github.com/libfuse/libfuse) >= 2.6, < 3.0: Filesystem in
   Userspace on Linux/UNIX ([macFUSE](https://osxfuse.github.io) on macOS)
 - `pkg-config` on Linux to perform some system checks
-- SQLite 3: In-process library that implements a self-contained, serverless,
-  zero-configuration, transactional SQL database engine
+- [SQLite](https://www.sqlite.org/index.html) 3: In-process library that implements a
+  self-contained, serverless, zero-configuration, transactional SQL database engine
 - [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately unobtrusive
   compression library
 
@@ -32,6 +32,7 @@ To build pCloud Console Client you'll need the following build tools:
   [Ninja](https://ninja-build.org/) and so on
 - [Conan](https://conan.io/) decentralized package manager with a
   client-server architecture
+- [Git](https://git-scm.com) - a free and open source distributed version control system
 
 **Note:** Some parts of the client use GNU extensions to ISO C99 standard,
 thus your compiler should support `-std=gnu99`.
@@ -51,6 +52,7 @@ $ sudo apt install \
     fuse \
     g++ \
     gcc \
+    git \
     libfuse-dev \
     libpthread-stubs0-dev \
     libsqlite3-dev \
@@ -75,6 +77,7 @@ pthread library. If so, you'll need only these packages:
 $ brew install \
     cmake \
     conan \
+    git \
     macfuse \
     sqlite \
     zlib
@@ -82,10 +85,19 @@ $ brew install \
 
 ### Build steps
 
-First you'll need clone the project:
+First you'll need clone the project and fetch its modules:
 ```sh
 $ git clone https://github.com/sergeyklay/pcloud-console-client.git
 $ cd pcloud-console-client
+$ git submodule init
+$ git submodule update
+```
+
+And wait for load any required dependencies. For git 1.6.1 or above you can use
+something similar to command bellow to pull latest of all submodules:
+
+```sh
+$ git submodule update --remote --merge
 ```
 
 Next, initialize project with Conan - this is using the `conanfile.txt`
