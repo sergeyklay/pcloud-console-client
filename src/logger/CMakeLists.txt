@@ -58,4 +58,4 @@ set_property(TARGET logger
   PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(logger
-  PUBLIC log_c::log_c)
+  PUBLIC rxi::log_c)

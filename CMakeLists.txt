@@ -36,8 +36,7 @@ generate_project_config("${PROJECT_SOURCE_DIR}/src")
 # Use a standard directory layout
 include(GNUInstallDirs)
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/CLI11/CMakeLists.txt"
-   OR NOT EXISTS "${PROJECT_SOURCE_DIR}/external/log.c/src/log.c")
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/CLI11/CMakeLists.txt")
   # Here, it provides the GIT_EXECUTABLE variable after searching for the git
   # binary in some standard/well-known locations for the current platform.
   find_package(Git REQUIRED)
