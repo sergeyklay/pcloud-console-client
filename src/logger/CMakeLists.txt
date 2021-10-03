@@ -5,26 +5,24 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries" OFF)
+# If we knew glog is installed, we can just use the following single line
+find_package(glog 0.6.0 QUIET)
 
-include(FetchContent)
-FetchContent_Declare(glog
-  GIT_REPOSITORY https://github.com/google/glog.git
-  GIT_TAG        v0.5.0)
+# But if not, we'll fetch it ourselves
+if(NOT glog_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(glog
+    GIT_REPOSITORY https://github.com/google/glog.git
+    GIT_TAG        v0.5.0)
 
-FetchContent_GetProperties(glog)
-if(NOT glog_POPULATED)
-  FetchContent_Populate(glog)
-  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries.")
-  set(WITH_GFLAGS OFF CACHE INTERNAL "Use gflags.")
-  add_subdirectory(${glog_SOURCE_DIR} ${glog_BINARY_DIR} EXCLUDE_FROM_ALL)
+  FetchContent_GetProperties(glog)
+  if(NOT glog_POPULATED)
+    FetchContent_Populate(glog)
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries.")
+    set(WITH_GFLAGS OFF CACHE INTERNAL "Use gflags.")
+    add_subdirectory(${glog_SOURCE_DIR} ${glog_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
 endif()
-
-add_library(Glog::Glog INTERFACE IMPORTED)
-target_include_directories(Glog::Glog
-  INTERFACE "${googletest_SOURCE_DIR}/src")
-
-target_link_libraries(Glog::Glog INTERFACE glog)
 
 # Add definition for logger library
 add_library(logger STATIC logger.c)
@@ -77,4 +75,5 @@ set_property(TARGET logger
   PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(logger
-  PUBLIC rxi::log_c)
+  PUBLIC rxi::log_c
+         glog::glog)
