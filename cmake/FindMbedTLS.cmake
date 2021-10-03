@@ -46,13 +46,6 @@ find_path(MBEDTLS_INCLUDE_DIR
         /usr/local/opt
   PATH_SUFFIXES include)
 
-if(MBEDTLS_INCLUDE_DIR)
-  message(STATUS "Check for MbedTLS includes: ${MBEDTLS_INCLUDE_DIR}")
-else()
-  message(SEND_ERROR "Check for MbedTLS includes: not found")
-  set(MBEDTLS_INCLUDE_DIR "" CACHE STRING "" FORCE) # delete it
-endif()
-
 find_library(MBEDTLS_LIB
   NAMES mbedtls
   HINTS ${_MBEDTLS_ROOT_HINTS}
@@ -63,11 +56,8 @@ find_library(MBEDTLS_LIB
         /opt/homebrew
   PATH_SUFFIXES lib${_lib_suffix} lib)
 
-if(MBEDTLS_LIB)
-  message(STATUS "Check for mbedtls: ${MBEDTLS_LIB}")
-else()
-  message(SEND_ERROR "Check for mbedtls: not found")
-  set(MBEDTLS_LIB "" CACHE STRING "" FORCE) # delete it
+if (${MBEDTLS_LIB-NOTFOUND})
+  message(FATAL_ERROR "Failed to find MbedTLS library")
 endif()
 
 find_library(MBEDCRYPTO_LIB
@@ -80,13 +70,6 @@ find_library(MBEDCRYPTO_LIB
         /opt/homebrew
   PATH_SUFFIXES lib${_lib_suffix} lib)
 
-if(MBEDCRYPTO_LIB)
-  message(STATUS "Check for mbedcrypto: ${MBEDCRYPTO_LIB}")
-else()
-  message(STATUS "Check for mbedcrypto: not found")
-  set(MBEDCRYPTO_LIB "" CACHE STRING "" FORCE) # delete it
-endif()
-
 find_library(MBEDX509_LIB
   NAMES mbedx509
   HINTS ${_MBEDTLS_ROOT_HINTS}
@@ -96,13 +79,6 @@ find_library(MBEDX509_LIB
         /opt/local
         /opt/homebrew
   PATH_SUFFIXES lib${_lib_suffix} lib)
-
-if(MBEDX509_LIB)
-  message(STATUS "Check for mbedx509: ${MBEDX509_LIB}")
-else()
-  message(STATUS "Check for mbedx509: not found")
-  set(MBEDX509_LIB "" CACHE STRING "" FORCE) # delete it
-endif()
 
 # Sometimes mbedtls is split between three libs, and sometimes it isn't.
 # If it isn't, let's check if the symbols we need are all in MBEDTLS_LIB.
@@ -142,9 +118,7 @@ endif()
 # Now we've accounted for the 3-vs-1 library case:
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MbedTLS
-  REQUIRED_VARS
-      MBEDTLS_LIBRARIES
-      MBEDTLS_INCLUDE_DIR
+  REQUIRED_VARS MBEDTLS_LIB MBEDTLS_INCLUDE_DIR
   VERSION_VAR MBEDTLS_VERSION)
 
 # show the MBEDTLS_INCLUDE_DIR and MBEDTLS_LIBRARIES variables only in the advanced view
