@@ -8,11 +8,9 @@
 [requires]
 mbedtls/2.25.0
 openssl/1.1.1k
-gtest/cci.20210126
 
 [options]
 mbedtls:shared=False
-gtest:no_main=True
 
 [generators]
 cmake

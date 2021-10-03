@@ -6,3 +6,7 @@
 	path = external/log.c
 	url = https://github.com/rxi/log.c
 	branch = master
+[submodule "external/googletest"]
+	path = external/googletest
+	url = https://github.com/google/googletest
+	branch = master

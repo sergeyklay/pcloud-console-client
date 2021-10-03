@@ -21,7 +21,7 @@ target_include_directories(cli_tests
 
 target_link_libraries(cli_tests
   PRIVATE pcloud::cli
-          CONAN_PKG::gtest)
+          gtest_main)
 
 gtest_discover_tests(cli_tests
   TEST_PREFIX cli:
