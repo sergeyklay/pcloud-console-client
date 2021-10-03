@@ -165,7 +165,14 @@ jobs:
         run: cmake --list-presets
 
       - name: Configure client
-        run: cmake --preset=${{ matrix.name }}
+        run: |
+          case ${{ runner.os }} in
+            macOS*)
+              export MBEDTLS_ROOT_DIR=/usr/local/opt/mbedtls@2
+            ;;
+          esac
+
+          cmake --preset=${{ matrix.name }}
 
       - name: Build client
         run: cmake --build --preset=${{ matrix.name }}
