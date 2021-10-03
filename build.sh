@@ -22,7 +22,6 @@ set -o errexit
 # CMAKE_PRESET=${CMAKE_PRESET:-macos-armv8-apple-mbedtls-debug}
 CMAKE_PRESET=${CMAKE_PRESET:-linux-x64-gcc-mbedtls-debug}
 
-conan install . -if=out/build/"${CMAKE_PRESET}" --build=missing
 cmake --preset="${CMAKE_PRESET}"
 cmake --build --preset="${CMAKE_PRESET}"
 

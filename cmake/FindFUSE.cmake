@@ -5,11 +5,13 @@
 # For the full copyright and license information, please view
 # the LICENSE file that was distributed with this source code.
 
-# Find the FUSE includes and library
+# Find the FUSE includes and library.
 #
+# Once done this will define:
+#
+#  FUSE_FOUND          - True if FUSE lib is found.
 #  FUSE_INCLUDE_DIR    - Where to find fuse.h, etc.
 #  FUSE_LIBRARY        - List of libraries when using FUSE.
-#  FUSE_FOUND          - True if FUSE lib is found.
 #  FUSE_USE_VERSION    - FUSE version API.
 #  FUSE_VERSION_STRING - FUSE version string.
 #  FUSE_DEFINITIONS    - The compiler definitions, required for building with FUSE
@@ -28,8 +30,7 @@ else()
   set(FUSE_SUFFIXES fuse)
 endif()
 
-find_library(
-  FUSE_LIBRARY
+find_library(FUSE_LIBRARY
   NAMES ${FUSE_NAMES}
   PATHS /lib64
         /lib
@@ -47,8 +48,7 @@ else()
   set(FUSE_LIBRARY "" CACHE STRING "" FORCE) # delete it
 endif()
 
-find_path(
-  FUSE_INCLUDE_DIR
+find_path(FUSE_INCLUDE_DIR
   NAMES fuse.h
   PATHS /usr/local/include /usr/include
   PATH_SUFFIXES ${FUSE_SUFFIXES})
