@@ -18,7 +18,7 @@ and the presence of the following libraries:
   SQL database engine
 - [Zlib](https://zlib.net) >= 1.2.11: A massively spiffy yet delicately
   unobtrusive compression library
-- [Mbed TLS](https://github.com/ARMmbed/mbedtls) >= 2.25.0: a C library that
+- [Mbed TLS](https://github.com/ARMmbed/mbedtls) >= 2.8.0: a C library that
   implements cryptographic primitives, X.509 certificate manipulation and the
   SSL/TLS and DTLS protocols
 

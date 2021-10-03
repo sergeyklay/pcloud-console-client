@@ -34,8 +34,17 @@ find_path(
   PATHS /usr/include
         /usr/local/include
         /opt/local/include
+        /usr/local/opt/include
         /opt/homebrew/include
   PATH_SUFFIXES include)
+
+if(MBEDTLS_INCLUDE_DIR)
+  message(STATUS "Check for MbedTLS includes: ${MBEDTLS_INCLUDE_DIR}")
+else()
+  message(SEND_ERROR "Check for MbedTLS includes: not found")
+  set(MBEDTLS_INCLUDE_DIR "" CACHE STRING "" FORCE) # delete it
+endif()
+
 
 if(APPLE)
   set(MBEDTLS_LIB_NAMES libmbedtls.dylib mbedtls)
@@ -56,10 +65,17 @@ find_library(
         /usr/lib
         /usr/local/lib64
         /usr/local/lib
+        /usr/local/opt/lib64
+        /usr/local/opt/lib
         /opt/local/lib
         /opt/homebrew/lib)
 
-message(STATUS "Check for mbedtls: ${MBEDTLS_LIB}")
+if(MBEDTLS_LIB)
+  message(STATUS "Check for mbedtls: ${MBEDTLS_LIB}")
+else()
+  message(SEND_ERROR "Check for mbedtls: not found")
+  set(MBEDTLS_LIB "" CACHE STRING "" FORCE) # delete it
+endif()
 
 if(APPLE)
   set(MBEDCRYPTO_LIB_NAMES libmbedcrypto.dylib mbedcrypto)
@@ -80,10 +96,17 @@ find_library(
         /usr/lib
         /usr/local/lib64
         /usr/local/lib
+        /usr/local/opt/lib64
+        /usr/local/opt/lib
         /opt/local/lib
         /opt/homebrew/lib)
 
-message(STATUS "Check for mbedcrypto: ${MBEDCRYPTO_LIB}")
+if(MBEDCRYPTO_LIB)
+  message(STATUS "Check for mbedcrypto: ${MBEDCRYPTO_LIB}")
+else()
+  message(STATUS "Check for mbedcrypto: not found")
+  set(MBEDCRYPTO_LIB "" CACHE STRING "" FORCE) # delete it
+endif()
 
 if(APPLE)
   set(MBEDX509_LIB_NAMES libmbedx509.dylib mbedx509)
@@ -104,10 +127,17 @@ find_library(
         /usr/lib
         /usr/local/lib64
         /usr/local/lib
+        /usr/local/opt/lib64
+        /usr/local/opt/lib
         /opt/local/lib
         /opt/homebrew/lib)
 
-message(STATUS "Check for mbedx509: ${MBEDX509_LIB}")
+if(MBEDX509_LIB)
+  message(STATUS "Check for mbedx509: ${MBEDX509_LIB}")
+else()
+  message(STATUS "Check for mbedx509: not found")
+  set(MBEDX509_LIB "" CACHE STRING "" FORCE) # delete it
+endif()
 
 # Sometimes mbedtls is split between three libs, and sometimes it isn't.
 # If it isn't, let's check if the symbols we need are all in MBEDTLS_LIB.
